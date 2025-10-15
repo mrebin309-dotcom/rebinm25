@@ -78,23 +78,29 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
   return (
     <div className="space-y-6">
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+      <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
+        <h3 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-6">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={onQuickSale}
-            className="flex items-center justify-center space-x-3 p-6 bg-green-50 hover:bg-green-100 rounded-xl border-2 border-green-200 hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md"
+            className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 rounded-xl border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
           >
-            <Zap className="h-6 w-6 text-green-600" />
-            <span className="text-lg font-semibold text-green-700">Quick Sale</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/0 via-emerald-400/30 to-emerald-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+            <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg shadow-lg">
+              <Zap className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-bold text-emerald-700">Quick Sale</span>
           </button>
-          
+
           <button
             onClick={onAddProduct}
-            className="flex items-center justify-center space-x-3 p-6 bg-blue-50 hover:bg-blue-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md"
+            className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
           >
-            <Plus className="h-6 w-6 text-blue-600" />
-            <span className="text-lg font-semibold text-blue-700">Add Product</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/30 to-blue-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg">
+              <Plus className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-bold text-blue-700">Add Product</span>
           </button>
           
           <button
@@ -124,63 +130,74 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
               a.click();
               URL.revokeObjectURL(url);
             }}
-            className="flex items-center justify-center space-x-3 p-6 bg-purple-50 hover:bg-purple-100 rounded-xl border-2 border-purple-200 hover:border-purple-300 transition-all duration-200 shadow-sm hover:shadow-md"
+            className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-violet-50 to-purple-50 hover:from-violet-100 hover:to-purple-100 rounded-xl border-2 border-violet-200 hover:border-violet-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
           >
-            <Download className="h-6 w-6 text-purple-600" />
-            <span className="text-lg font-semibold text-purple-700">Quick Backup</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-400/0 via-violet-400/30 to-violet-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+            <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-500 rounded-lg shadow-lg">
+              <Download className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-bold text-violet-700">Quick Backup</span>
           </button>
         </div>
       </div>
 
       {/* KPI Cards - In one line below Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Income</p>
-              <p className="text-3xl font-bold text-green-600">{formatCurrency(netRevenue)}</p>
-              <p className="text-sm text-gray-500">
+        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-slate-600 mb-2">Total Income</p>
+              <p className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">{formatCurrency(netRevenue)}</p>
+              <p className="text-xs text-slate-500 font-medium">
                 Net revenue {returnAdjustments.length > 0 ? '(after returns)' : ''}
               </p>
             </div>
-            <DollarSign className="h-12 w-12 text-green-500" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Inventory Cost</p>
-              <p className="text-3xl font-bold text-indigo-600">{formatCurrency(totalCost)}</p>
-              <p className="text-sm text-gray-500">{totalProducts} products</p>
+            <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <DollarSign className="h-6 w-6 text-white" />
             </div>
-            <Package className="h-12 w-12 text-indigo-500" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Cost of Goods Sold</p>
-              <p className="text-3xl font-bold text-orange-600">{formatCurrency(totalCOGS)}</p>
-              <p className="text-sm text-gray-500">Returns: {formatCurrency(totalReturns)}</p>
+        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-slate-600 mb-2">Inventory Cost</p>
+              <p className="text-3xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1">{formatCurrency(totalCost)}</p>
+              <p className="text-xs text-slate-500 font-medium">{totalProducts} products</p>
             </div>
-            <ShoppingCart className="h-12 w-12 text-orange-500" />
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Package className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-slate-600 mb-2">Cost of Goods Sold</p>
+              <p className="text-3xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-1">{formatCurrency(totalCOGS)}</p>
+              <p className="text-xs text-slate-500 font-medium">Returns: {formatCurrency(totalReturns)}</p>
+            </div>
+            <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <ShoppingCart className="h-6 w-6 text-white" />
+            </div>
           </div>
         </div>
 
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Profit</p>
-              <p className="text-3xl font-bold text-purple-600">{formatCurrency(netProfit)}</p>
-              <p className="text-sm text-gray-500">
+        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-slate-600 mb-2">Total Profit</p>
+              <p className="text-3xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-1">{formatCurrency(netProfit)}</p>
+              <p className="text-xs text-slate-500 font-medium">
                 Margin: {netRevenue > 0 ? ((netProfit / netRevenue) * 100).toFixed(1) : 0}%
                 {returnAdjustments.length > 0 ? ' (net)' : ''}
               </p>
             </div>
-            <TrendingUp className="h-12 w-12 text-purple-500" />
+            <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <TrendingUp className="h-6 w-6 text-white" />
+            </div>
           </div>
         </div>
       </div>
@@ -189,10 +206,17 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Stock Status Alert */}
         {lowStockProducts.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Low Stock Alert</h3>
-              <p className="text-sm text-gray-600">Items that need immediate attention</p>
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-orange-50 to-red-50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg shadow-lg">
+                  <AlertTriangle className="h-5 w-5 text-white\" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Low Stock Alert</h3>
+                  <p className="text-sm text-slate-600">Items that need immediate attention</p>
+                </div>
+              </div>
             </div>
             <div className="px-6 py-4">
               <div className="space-y-4">

@@ -125,18 +125,32 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-slate-200/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <BarChart3 className="h-8 w-8 text-blue-500" />
-              <h1 className="text-2xl font-bold text-gray-900">{settings.companyName}</h1>
+              <div className="bg-gradient-to-br from-blue-600 to-cyan-500 p-2.5 rounded-xl shadow-lg">
+                <BarChart3 className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">{settings.companyName}</h1>
+                <p className="text-xs text-slate-500">Inventory Management System</p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">
-                {products.length} Products • {products.filter(p => p.stock <= p.minStock).length} Low Stock
+              <div className="flex items-center gap-4">
+                <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
+                  <span className="text-sm font-semibold text-blue-900">{products.length}</span>
+                  <span className="text-xs text-blue-600 ml-1">Products</span>
+                </div>
+                {products.filter(p => p.stock <= p.minStock).length > 0 && (
+                  <div className="px-4 py-2 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200 animate-pulse">
+                    <span className="text-sm font-semibold text-orange-900">{products.filter(p => p.stock <= p.minStock).length}</span>
+                    <span className="text-xs text-orange-600 ml-1">Low Stock</span>
+                  </div>
+                )}
               </div>
               <NotificationCenter
                 notifications={notifications}
@@ -146,13 +160,15 @@ function App() {
               />
               {user ? (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg">
-                    <User className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-900">{user.email}</span>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-100 shadow-sm">
+                    <div className="p-1.5 bg-blue-600 rounded-lg">
+                      <User className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <span className="text-sm font-semibold text-blue-900">{user.email}</span>
                   </div>
                   <button
                     onClick={() => signOut()}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md"
                   >
                     <LogOut className="w-4 h-4" />
                     Sign Out
@@ -161,7 +177,7 @@ function App() {
               ) : (
                 <button
                   onClick={() => setShowAuthForm(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   <LogIn className="w-4 h-4" />
                   Sign In
@@ -170,16 +186,18 @@ function App() {
               {currentView === 'products' && (
                 <button
                   onClick={handleAddProduct}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
                 >
+                  <Package className="w-4 h-4" />
                   Add Product
                 </button>
               )}
               {currentView === 'sales' && (
                 <button
                   onClick={() => setShowSalesForm(true)}
-                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
                 >
+                  <ShoppingCart className="w-4 h-4" />
                   New Sale
                 </button>
               )}
@@ -191,24 +209,34 @@ function App() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Navigation */}
-          <nav className="lg:w-64 space-y-2">
-            {navigation.map(item => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setCurrentView(item.id as View)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-colors ${
-                    currentView === item.id
-                      ? 'bg-blue-500 text-white'
-                      : 'text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span className="font-medium">{item.name}</span>
-                </button>
-              );
-            })}
+          <nav className="lg:w-72 space-y-2">
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-3">
+              {navigation.map(item => {
+                const Icon = item.icon;
+                const isActive = currentView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentView(item.id as View)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3.5 text-left rounded-xl transition-all duration-200 group ${
+                      isActive
+                        ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30 scale-105'
+                        : 'text-slate-700 hover:bg-slate-100 hover:scale-102'
+                    }`}
+                  >
+                    <div className={`p-2 rounded-lg transition-all duration-200 ${
+                      isActive ? 'bg-white/20' : 'bg-slate-100 group-hover:bg-slate-200'
+                    }`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="font-semibold">{item.name}</span>
+                    {isActive && (
+                      <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </nav>
 
           {/* Main Content */}
