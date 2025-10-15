@@ -28,6 +28,7 @@ function App() {
     alertRules,
     notifications,
     settings,
+    loading,
     addProduct,
     updateProduct,
     deleteProduct,
@@ -113,6 +114,17 @@ function App() {
     { id: 'mobile', name: 'Mobile Sync', icon: Smartphone },
     { id: 'settings', name: 'Settings', icon: SettingsIcon },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <BarChart3 className="h-16 w-16 text-blue-500 mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-600 text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
