@@ -22,10 +22,15 @@ A complete inventory management solution built with React, TypeScript, and Elect
 ### 📊 **Analytics & Reports**
 - Real-time dashboard with KPIs
 - Sales analytics and trends
-- Profit margin analysis
+- Profit margin analysis by product
+- Inventory turnover tracking
+- Sales forecasting (7, 30, 90 days)
+- Best/worst performing products
 - Customer segmentation (RFM analysis)
 - Business intelligence insights
 - Customizable date ranges
+- Professional invoice generation
+- Receipt printing (thermal & standard)
 
 ### 👥 **Multi-User Support**
 - User management with role-based permissions
@@ -34,12 +39,15 @@ A complete inventory management solution built with React, TypeScript, and Elect
 - Commission calculations
 
 ### 🔄 **Advanced Features**
+- Supabase database integration (cloud sync)
+- User authentication system
 - Returns management
 - Mobile sync capabilities
 - API integrations
 - Data export/import (JSON, Excel, PDF)
 - Multi-currency support (USD/IQD)
-- Offline functionality
+- Offline functionality (localStorage)
+- Online functionality (Supabase)
 
 ## 🖥️ **Desktop App Benefits**
 
@@ -85,9 +93,11 @@ This will create installers in the `release` folder:
 
 ### **Getting Started**
 1. Launch the desktop app
-2. Start by adding your first product
-3. Create a quick sale to test the system
-4. Explore the analytics dashboard
+2. Sign up for a new account or sign in
+3. Start by adding your first product
+4. Create a quick sale to test the system
+5. Generate invoices and receipts
+6. Explore the advanced analytics dashboard
 
 ### **Quick Actions**
 - **Ctrl+N** - New Sale
@@ -126,8 +136,15 @@ This will create installers in the `release` folder:
 - **Auto-backup**: Enable in settings for automatic backups
 
 ### **Data Storage**
-- All data stored locally in browser's localStorage
-- No external databases required
+- **Cloud Mode (Default)**: Data stored in Supabase (PostgreSQL)
+  - Multi-device sync
+  - Real-time updates
+  - Secure authentication
+  - Automatic backups
+- **Local Mode**: Data stored in browser's localStorage
+  - Works offline
+  - No account required
+  - Manual backups needed
 - Data persists between app restarts
 - Easy to backup and transfer
 
@@ -201,8 +218,12 @@ Perfect for retail stores, warehouses, small businesses, or anyone needing profe
 
 - **Frontend**: React 18 + TypeScript
 - **Desktop**: Electron
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
+- **PDF Generation**: jsPDF
+- **Reports**: html2canvas
 - **Build**: Vite
 - **Package**: Electron Builder
 

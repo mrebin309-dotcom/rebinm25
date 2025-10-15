@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp } from 'lucide-react';
 import { Award } from 'lucide-react';
 import { useInventory } from './hooks/useInventory';
 import { Dashboard } from './components/Dashboard';
@@ -13,10 +13,12 @@ import { Reports } from './components/Reports';
 import { UserManagement } from './components/UserManagement';
 import { SellerReports } from './components/SellerReports';
 import { MobileSync } from './components/MobileSync';
-import { Product } from './types';
+import { InvoiceGenerator } from './components/InvoiceGenerator';
+import { AdvancedReports } from './components/AdvancedReports';
+import { Product, Sale } from './types';
 import { formatDateWithSettings } from './utils/dateFormat';
 
-type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'sellers' | 'users' | 'mobile' | 'settings';
+type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'users' | 'mobile' | 'settings';
 
 function App() {
   const {
@@ -65,6 +67,7 @@ function App() {
   const [showProductForm, setShowProductForm] = useState(false);
   const [showSalesForm, setShowSalesForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>();
+  const [selectedSaleForInvoice, setSelectedSaleForInvoice] = useState<Sale | undefined>();
 
   const handleAddProduct = () => {
     setEditingProduct(undefined);
@@ -109,6 +112,7 @@ function App() {
     { id: 'sales', name: 'Sales', icon: ShoppingCart },
     { id: 'returns', name: 'Returns', icon: RotateCcw },
     { id: 'reports', name: 'Reports', icon: FileText },
+    { id: 'advanced-reports', name: 'Advanced Analytics', icon: TrendingUp },
     { id: 'sellers', name: 'Seller Reports', icon: Award },
     { id: 'users', name: 'Users', icon: Users },
     { id: 'mobile', name: 'Mobile Sync', icon: Smartphone },
@@ -232,6 +236,9 @@ function App() {
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Date
                           </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
@@ -260,6 +267,15 @@ function App() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               {formatDateWithSettings(sale.date, settings.dateFormat)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              <button
+                                onClick={() => setSelectedSaleForInvoice(sale)}
+                                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                              >
+                                <Receipt className="w-4 h-4" />
+                                Invoice
+                              </button>
                             </td>
                           </tr>
                         ))}
@@ -307,6 +323,13 @@ function App() {
                 products={products}
                 sales={sales}
                 customers={customers}
+                settings={settings}
+              />
+            )}
+            {currentView === 'advanced-reports' && (
+              <AdvancedReports
+                sales={sales}
+                products={products}
                 settings={settings}
               />
             )}
@@ -379,6 +402,15 @@ function App() {
           onSubmit={addSale}
           onAddSeller={addSeller}
           onClose={() => setShowSalesForm(false)}
+        />
+      )}
+
+      {/* Invoice Generator Modal */}
+      {selectedSaleForInvoice && (
+        <InvoiceGenerator
+          sale={selectedSaleForInvoice}
+          settings={settings}
+          onClose={() => setSelectedSaleForInvoice(undefined)}
         />
       )}
     </div>
