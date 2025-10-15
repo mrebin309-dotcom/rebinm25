@@ -14,6 +14,7 @@ import { UserManagement } from './components/UserManagement';
 import { SellerReports } from './components/SellerReports';
 import { MobileSync } from './components/MobileSync';
 import { Product } from './types';
+import { formatDateWithSettings } from './utils/dateFormat';
 
 type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'sellers' | 'users' | 'mobile' | 'settings';
 
@@ -258,7 +259,7 @@ function App() {
                               {sale.sellerName || 'Unknown'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {sale.date.toLocaleDateString()}
+                              {formatDateWithSettings(sale.date, settings.dateFormat)}
                             </td>
                           </tr>
                         ))}
