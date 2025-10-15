@@ -248,7 +248,7 @@ function App() {
                 returns={returns}
                 settings={settings}
                 onQuickSale={user ? () => setShowSalesForm(true) : undefined}
-                onAddProduct={handleAddProduct}
+                onAddProduct={user ? handleAddProduct : () => {}}
               />
             )}
             {currentView === 'products' && (

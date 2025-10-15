@@ -8,7 +8,7 @@ interface DashboardProps {
   sales: Sale[];
   returns: Return[];
   settings: Settings;
-  onQuickSale: () => void;
+  onQuickSale?: () => void;
   onAddProduct: () => void;
 }
 
@@ -81,27 +81,31 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
       <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
         <h3 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-6">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button
-            onClick={onQuickSale}
-            className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 rounded-xl border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/0 via-emerald-400/30 to-emerald-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-            <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg shadow-lg">
-              <Zap className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-emerald-700">Quick Sale</span>
-          </button>
+          {onQuickSale && (
+            <button
+              onClick={onQuickSale}
+              className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 rounded-xl border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/0 via-emerald-400/30 to-emerald-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+              <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg shadow-lg">
+                <Zap className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-bold text-emerald-700">Quick Sale</span>
+            </button>
+          )}
 
-          <button
-            onClick={onAddProduct}
-            className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/30 to-blue-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg">
-              <Plus className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-blue-700">Add Product</span>
-          </button>
+          {onQuickSale && (
+            <button
+              onClick={onAddProduct}
+              className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/30 to-blue-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg">
+                <Plus className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-bold text-blue-700">Add Product</span>
+            </button>
+          )}
           
           <button
             onClick={() => {
