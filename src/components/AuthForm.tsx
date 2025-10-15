@@ -30,6 +30,12 @@ export function AuthForm({ onAuthSuccess }: AuthFormProps) {
     setLoading(true);
     setError('');
 
+    if (!supabase) {
+      setError('Database connection not configured. Please check environment variables.');
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isLogin) {
         const { data, error: signInError } = await supabase.auth.signInWithPassword({
