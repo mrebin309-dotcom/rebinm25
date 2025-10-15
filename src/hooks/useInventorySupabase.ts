@@ -670,6 +670,10 @@ export function useInventorySupabase() {
     await loadAllData();
   };
 
+  const refreshData = async () => {
+    await loadAllData();
+  };
+
   return {
     products,
     sales,
@@ -697,5 +701,6 @@ export function useInventorySupabase() {
     resetAllData,
     loadProducts,
     loadSales,
+    refreshData,
   };
 }

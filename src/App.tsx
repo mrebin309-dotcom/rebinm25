@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut, RefreshCw } from 'lucide-react';
 import { Award } from 'lucide-react';
 import { PinAccess } from './components/PinAccess';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
@@ -61,6 +61,7 @@ function App() {
     importData,
     resetSalesHistory,
     resetAllData,
+    refreshData,
   } = useInventorySupabase();
 
   // Mock data for new features
@@ -205,6 +206,14 @@ function App() {
                   </div>
                 )}
               </div>
+              <button
+                onClick={refreshData}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md group"
+                title="Sync data from cloud"
+              >
+                <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
+                Sync
+              </button>
               <NotificationCenter
                 notifications={notifications}
                 settings={settings}
