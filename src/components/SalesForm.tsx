@@ -511,6 +511,11 @@ export function SalesForm({ products, customers, categories, sellers, lastSeller
               required
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {formData.saleDate && (
+              <p className="text-xs text-gray-500 mt-1">
+                Will display as: {format(new Date(formData.saleDate + 'T00:00:00'), settings.dateFormat)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
