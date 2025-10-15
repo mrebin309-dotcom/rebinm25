@@ -8,7 +8,7 @@ interface SalesFormProps {
   categories: Category[];
   sellers: Seller[];
   lastSeller?: string;
-  onSubmit: (sale: Omit<Sale, 'id' | 'date'>) => void;
+  onSubmit: (sale: Omit<Sale, 'id' | 'date'> & { saleDate?: string }) => void;
   onAddSeller: (seller: Omit<Seller, 'id' | 'createdAt' | 'totalSales' | 'totalRevenue' | 'totalProfit'>) => void;
   onClose: () => void;
 }
@@ -64,7 +64,7 @@ export function SalesForm({ products, customers, categories, sellers, lastSeller
     if (!isServiceSale && !selectedProduct) return;
     if (isServiceSale && !serviceData.serviceName.trim()) return;
 
-    const saleData: Omit<Sale, 'id' | 'date'> = isServiceSale ? {
+    const saleData: Omit<Sale, 'id' | 'date'> & { saleDate?: string } = isServiceSale ? {
       productId: 'service-' + Date.now(),
       productName: serviceData.serviceName,
       quantity: formData.quantity,
@@ -79,6 +79,7 @@ export function SalesForm({ products, customers, categories, sellers, lastSeller
       sellerName: formData.sellerName,
       customerId: formData.customerId || undefined,
       customerName: formData.customerName || undefined,
+      saleDate: formData.saleDate,
     } : {
       productId: formData.productId,
       productName: selectedProduct!.name,
@@ -94,6 +95,7 @@ export function SalesForm({ products, customers, categories, sellers, lastSeller
       sellerName: formData.sellerName,
       customerId: formData.customerId || undefined,
       customerName: formData.customerName || undefined,
+      saleDate: formData.saleDate,
     };
 
     onSubmit(saleData);

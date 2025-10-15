@@ -176,11 +176,12 @@ export function useInventory() {
   const deleteCategory = (id: string) => {
     setCategories(prev => prev.filter(category => category.id !== id));
   };
-  const addSale = (saleData: Omit<Sale, 'id' | 'date'>) => {
+  const addSale = (saleData: Omit<Sale, 'id' | 'date'> & { saleDate?: string }) => {
+    const { saleDate, ...restSaleData } = saleData;
     const newSale: Sale = {
-      ...saleData,
+      ...restSaleData,
       id: Date.now().toString(),
-      date: new Date(),
+      date: saleDate ? new Date(saleDate) : new Date(),
     };
     setSales(prev => [...prev, newSale]);
     
