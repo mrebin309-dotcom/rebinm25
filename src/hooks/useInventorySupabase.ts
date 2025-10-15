@@ -248,17 +248,61 @@ export function useInventorySupabase() {
 
     const productsChannel = supabase
       .channel('products-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadProducts)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
+        loadProducts();
+      })
       .subscribe();
 
     const salesChannel = supabase
       .channel('sales-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, loadSales)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
+        loadSales();
+      })
+      .subscribe();
+
+    const returnsChannel = supabase
+      .channel('returns-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'returns' }, () => {
+        loadReturns();
+      })
+      .subscribe();
+
+    const customersChannel = supabase
+      .channel('customers-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, () => {
+        loadCustomers();
+      })
+      .subscribe();
+
+    const categoriesChannel = supabase
+      .channel('categories-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => {
+        loadCategories();
+      })
+      .subscribe();
+
+    const sellersChannel = supabase
+      .channel('sellers-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sellers' }, () => {
+        loadSellers();
+      })
+      .subscribe();
+
+    const settingsChannel = supabase
+      .channel('settings-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, () => {
+        loadSettings();
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(productsChannel);
       supabase.removeChannel(salesChannel);
+      supabase.removeChannel(returnsChannel);
+      supabase.removeChannel(customersChannel);
+      supabase.removeChannel(categoriesChannel);
+      supabase.removeChannel(sellersChannel);
+      supabase.removeChannel(settingsChannel);
     };
   };
 
