@@ -457,32 +457,154 @@ export function useInventorySupabase() {
 
   const importData = async (data: any) => {
     try {
-      if (data.products) {
+      if (data.products && Array.isArray(data.products)) {
         for (const product of data.products) {
-          await addProduct(product);
+          const productData = {
+            id: product.id,
+            name: product.name,
+            sku: product.sku,
+            barcode: product.barcode || null,
+            category: product.category,
+            price: parseFloat(product.price),
+            cost: parseFloat(product.cost),
+            stock: parseInt(product.stock),
+            min_stock: parseInt(product.minStock || product.min_stock || 0),
+            description: product.description || null,
+            image: product.image || null,
+            supplier: product.supplier || null,
+            location: product.location || null,
+          };
+
+          const { error } = await supabase
+            .from('products')
+            .upsert(productData, { onConflict: 'id' });
+
+          if (error) {
+            console.error('Error importing product:', error);
+          }
         }
       }
-      if (data.sales) {
+
+      if (data.sales && Array.isArray(data.sales)) {
         for (const sale of data.sales) {
-          await addSale(sale);
+          const saleData = {
+            id: sale.id,
+            product_id: sale.productId || sale.product_id,
+            quantity: parseInt(sale.quantity),
+            unit_price: parseFloat(sale.unitPrice || sale.unit_price),
+            total_amount: parseFloat(sale.totalAmount || sale.total_amount),
+            payment_method: sale.paymentMethod || sale.payment_method,
+            customer_id: sale.customerId || sale.customer_id || null,
+            seller_id: sale.sellerId || sale.seller_id || null,
+            notes: sale.notes || null,
+            created_at: sale.createdAt || sale.created_at || new Date().toISOString(),
+          };
+
+          const { error } = await supabase
+            .from('sales')
+            .upsert(saleData, { onConflict: 'id' });
+
+          if (error) {
+            console.error('Error importing sale:', error);
+          }
         }
       }
-      if (data.customers) {
+
+      if (data.returns && Array.isArray(data.returns)) {
+        for (const returnItem of data.returns) {
+          const returnData = {
+            id: returnItem.id,
+            sale_id: returnItem.saleId || returnItem.sale_id,
+            product_id: returnItem.productId || returnItem.product_id,
+            quantity: parseInt(returnItem.quantity),
+            reason: returnItem.reason,
+            status: returnItem.status,
+            refund_amount: parseFloat(returnItem.refundAmount || returnItem.refund_amount),
+            created_at: returnItem.createdAt || returnItem.created_at || new Date().toISOString(),
+          };
+
+          const { error } = await supabase
+            .from('returns')
+            .upsert(returnData, { onConflict: 'id' });
+
+          if (error) {
+            console.error('Error importing return:', error);
+          }
+        }
+      }
+
+      if (data.customers && Array.isArray(data.customers)) {
         for (const customer of data.customers) {
-          await addCustomer(customer);
+          const customerData = {
+            id: customer.id,
+            name: customer.name,
+            email: customer.email || null,
+            phone: customer.phone || null,
+            address: customer.address || null,
+            loyalty_points: parseInt(customer.loyaltyPoints || customer.loyalty_points || 0),
+            total_purchases: parseFloat(customer.totalPurchases || customer.total_purchases || 0),
+          };
+
+          const { error } = await supabase
+            .from('customers')
+            .upsert(customerData, { onConflict: 'id' });
+
+          if (error) {
+            console.error('Error importing customer:', error);
+          }
         }
       }
-      if (data.sellers) {
+
+      if (data.sellers && Array.isArray(data.sellers)) {
         for (const seller of data.sellers) {
-          await addSeller(seller);
+          const sellerData = {
+            id: seller.id,
+            name: seller.name,
+            email: seller.email || null,
+            phone: seller.phone || null,
+            commission_rate: parseFloat(seller.commissionRate || seller.commission_rate || 0),
+            is_active: seller.isActive !== undefined ? seller.isActive : seller.is_active !== undefined ? seller.is_active : true,
+            total_sales: parseInt(seller.totalSales || seller.total_sales || 0),
+            total_revenue: parseFloat(seller.totalRevenue || seller.total_revenue || 0),
+            total_profit: parseFloat(seller.totalProfit || seller.total_profit || 0),
+          };
+
+          const { error } = await supabase
+            .from('sellers')
+            .upsert(sellerData, { onConflict: 'id' });
+
+          if (error) {
+            console.error('Error importing seller:', error);
+          }
         }
       }
+
+      if (data.categories && Array.isArray(data.categories)) {
+        for (const category of data.categories) {
+          const categoryData = {
+            id: category.id,
+            name: category.name,
+            description: category.description || null,
+          };
+
+          const { error } = await supabase
+            .from('categories')
+            .upsert(categoryData, { onConflict: 'id' });
+
+          if (error) {
+            console.error('Error importing category:', error);
+          }
+        }
+      }
+
       if (data.settings) {
         await updateSettings(data.settings);
       }
+
       await loadAllData();
     } catch (error) {
       console.error('Error importing data:', error);
+      throw error;
     }
   };
 
