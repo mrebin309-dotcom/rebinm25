@@ -314,7 +314,7 @@ export function Reports({ products, sales, customers, settings }: ReportsProps) 
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white p-6 rounded-lg border">
               <h3 className="text-lg font-medium mb-4">Top Selling Products</h3>
               <div className="space-y-2">
@@ -325,6 +325,79 @@ export function Reports({ products, sales, customers, settings }: ReportsProps) 
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="bg-white rounded-lg border overflow-hidden">
+              <div className="px-6 py-4 bg-gray-50 border-b">
+                <h3 className="text-lg font-medium">All Sales</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Sale Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Sale ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Product
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Quantity
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Profit
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Customer
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredSales.sort((a, b) => b.date.getTime() - a.date.getTime()).map(sale => (
+                      <tr key={sale.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 text-gray-400 mr-2" />
+                            <div>
+                              <div className="font-medium">{format(sale.date, 'MMM dd, yyyy')}</div>
+                              <div className="text-xs text-gray-500">{format(sale.date, 'h:mm a')}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          #{sale.id.slice(-6)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {sale.productName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {sale.quantity}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                          ${sale.total.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                          ${sale.profit.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {sale.customerName || 'Walk-in'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {filteredSales.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-sm text-gray-500">No sales found for this period</p>
+                </div>
+              )}
             </div>
           </div>
         );
