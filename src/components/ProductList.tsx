@@ -9,9 +9,10 @@ interface ProductListProps {
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
   onAdd: () => void;
+  isAuthenticated?: boolean;
 }
 
-export function ProductList({ products, categories, onEdit, onDelete, onAdd }: ProductListProps) {
+export function ProductList({ products, categories, onEdit, onDelete, onAdd, isAuthenticated = false }: ProductListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'stock' | 'price'>('name');
@@ -291,22 +292,28 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
                 </div>
 
                 {/* Actions */}
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => onEdit(product)}
-                    className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm flex items-center justify-center gap-1"
-                  >
-                    <Edit2 className="h-3 w-3" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(product.id)}
-                    className="flex-1 bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition-colors text-sm flex items-center justify-center gap-1"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                    Delete
-                  </button>
-                </div>
+                {isAuthenticated ? (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => onEdit(product)}
+                      className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm flex items-center justify-center gap-1"
+                    >
+                      <Edit2 className="h-3 w-3" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onDelete(product.id)}
+                      className="flex-1 bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition-colors text-sm flex items-center justify-center gap-1"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      Delete
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 text-gray-600 px-3 py-2 rounded-md text-sm text-center">
+                    Sign in to edit or delete
+                  </div>
+                )}
               </div>
             </div>
           );

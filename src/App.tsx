@@ -183,7 +183,7 @@ function App() {
                   Sign In
                 </button>
               )}
-              {currentView === 'products' && (
+              {currentView === 'products' && user && (
                 <button
                   onClick={handleAddProduct}
                   className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
@@ -258,6 +258,7 @@ function App() {
                 onEdit={handleEditProduct}
                 onDelete={handleDeleteProduct}
                 onAdd={handleAddProduct}
+                isAuthenticated={!!user}
               />
             )}
             {currentView === 'sales' && (
@@ -356,6 +357,7 @@ function App() {
                 settings={settings}
                 onAddReturn={addReturn}
                 onUpdateReturn={updateReturn}
+                isAuthenticated={!!user}
               />
             )}
             {currentView === 'settings' && (
@@ -372,6 +374,7 @@ function App() {
                 onImport={importData}
                 onResetSalesHistory={resetSalesHistory}
                 onResetAllData={resetAllData}
+                isAuthenticated={!!user}
               />
             )}
             {currentView === 'reports' && (

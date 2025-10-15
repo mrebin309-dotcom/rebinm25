@@ -11,9 +11,10 @@ interface ReturnsProps {
   settings: Settings;
   onAddReturn: (returnData: Omit<Return, 'id' | 'date'>) => void;
   onUpdateReturn: (id: string, data: Partial<Return>) => void;
+  isAuthenticated?: boolean;
 }
 
-export function Returns({ returns, sales, products, settings, onAddReturn, onUpdateReturn }: ReturnsProps) {
+export function Returns({ returns, sales, products, settings, onAddReturn, onUpdateReturn, isAuthenticated = false }: ReturnsProps) {
   const [showReturnForm, setShowReturnForm] = useState(false);
   const [selectedReturn, setSelectedReturn] = useState<Return | null>(null);
   const [formData, setFormData] = useState({
@@ -64,13 +65,15 @@ export function Returns({ returns, sales, products, settings, onAddReturn, onUpd
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-900">Returns Management</h2>
-        <button
-          onClick={() => setShowReturnForm(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Process Return
-        </button>
+        {isAuthenticated && (
+          <button
+            onClick={() => setShowReturnForm(true)}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Process Return
+          </button>
+        )}
       </div>
 
       {/* Returns Table */}
@@ -139,7 +142,7 @@ export function Returns({ returns, sales, products, settings, onAddReturn, onUpd
                       >
                         <Eye className="h-4 w-4" />
                       </button>
-                      {returnItem.status === 'pending' && (
+                      {isAuthenticated && returnItem.status === 'pending' && (
                         <>
                           <button
                             onClick={() => handleStatusUpdate(returnItem.id, 'approved')}

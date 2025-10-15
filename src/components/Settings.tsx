@@ -15,9 +15,10 @@ interface SettingsProps {
   onImport: (file: File) => void;
   onResetSalesHistory: () => void;
   onResetAllData: () => void;
+  isAuthenticated?: boolean;
 }
 
-export function Settings({ settings, alertRules, products, sales, customers, sellers, onUpdateSettings, onUpdateAlertRules, onExport, onImport, onResetSalesHistory, onResetAllData }: SettingsProps) {
+export function Settings({ settings, alertRules, products, sales, customers, sellers, onUpdateSettings, onUpdateAlertRules, onExport, onImport, onResetSalesHistory, onResetAllData, isAuthenticated = false }: SettingsProps) {
   const [formData, setFormData] = useState(settings);
   const [rules, setRules] = useState(alertRules);
 
@@ -53,25 +54,27 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={onExport}
-            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Export Data
-          </button>
-          <label className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 cursor-pointer">
-            <Upload className="h-4 w-4" />
-            Import Data
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleFileImport}
-              className="hidden"
-            />
-          </label>
-        </div>
+        {isAuthenticated && (
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={onExport}
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export Data
+            </button>
+            <label className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 cursor-pointer">
+              <Upload className="h-4 w-4" />
+              Import Data
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleFileImport}
+                className="hidden"
+              />
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Data Management */}
@@ -105,51 +108,55 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
         </div>
 
         {/* Quick Backup */}
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-green-900">🔄 Quick Backup</h4>
-              <p className="text-sm text-green-700">Download your current data as backup</p>
+        {isAuthenticated && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-green-900">🔄 Quick Backup</h4>
+                <p className="text-sm text-green-700">Download your current data as backup</p>
+              </div>
+              <button
+                onClick={onExport}
+                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Backup Now
+              </button>
             </div>
-            <button
-              onClick={onExport}
-              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Backup Now
-            </button>
           </div>
-        </div>
+        )}
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
-            <div>
-              <h4 className="font-medium text-red-900">Reset Sales History</h4>
-              <p className="text-sm text-red-700">This will permanently delete all sales data, returns, and seller reports</p>
+        {isAuthenticated && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
+              <div>
+                <h4 className="font-medium text-red-900">Reset Sales History</h4>
+                <p className="text-sm text-red-700">This will permanently delete all sales data, returns, and seller reports</p>
+              </div>
+              <button
+                type="button"
+                onClick={onResetSalesHistory}
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
+              >
+                Reset Sales
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onResetSalesHistory}
-              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
-            >
-              Reset Sales
-            </button>
-          </div>
-          
-          <div className="flex items-center justify-between p-4 border border-yellow-200 rounded-lg bg-yellow-50">
-            <div>
-              <h4 className="font-medium text-yellow-900">Reset All Data</h4>
-              <p className="text-sm text-yellow-700">This will delete everything: products, sales, customers, sellers</p>
+
+            <div className="flex items-center justify-between p-4 border border-yellow-200 rounded-lg bg-yellow-50">
+              <div>
+                <h4 className="font-medium text-yellow-900">Reset All Data</h4>
+                <p className="text-sm text-yellow-700">This will delete everything: products, sales, customers, sellers</p>
+              </div>
+              <button
+                type="button"
+                onClick={onResetAllData}
+                className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors"
+              >
+                Reset All
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onResetAllData}
-              className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors"
-            >
-              Reset All
-            </button>
           </div>
-        </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -332,15 +339,23 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
         </div>
 
         {/* Save Button */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            Save Settings
-          </button>
-        </div>
+        {isAuthenticated ? (
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Save Settings
+            </button>
+          </div>
+        ) : (
+          <div className="flex justify-end">
+            <div className="bg-gray-100 text-gray-600 px-6 py-2 rounded-md text-sm">
+              Sign in to modify settings
+            </div>
+          </div>
+        )}
       </form>
     </div>
   );
