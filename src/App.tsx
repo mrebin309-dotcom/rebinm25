@@ -373,6 +373,7 @@ function App() {
           categories={categories}
           customers={customers}
           sellers={sellers}
+          settings={settings}
           lastSeller={settings.lastSeller}
           onSubmit={addSale}
           onAddSeller={addSeller}

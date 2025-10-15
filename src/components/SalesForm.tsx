@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import { X, ShoppingCart, Search, Calculator } from 'lucide-react';
-import { Product, Customer, Sale, Seller, Category } from '../types';
+import { Product, Customer, Sale, Seller, Category, Settings } from '../types';
+import { format } from 'date-fns';
 
 interface SalesFormProps {
   products: Product[];
   customers: Customer[];
   categories: Category[];
   sellers: Seller[];
+  settings: Settings;
   lastSeller?: string;
   onSubmit: (sale: Omit<Sale, 'id' | 'date'> & { saleDate?: string }) => void;
   onAddSeller: (seller: Omit<Seller, 'id' | 'createdAt' | 'totalSales' | 'totalRevenue' | 'totalProfit'>) => void;
   onClose: () => void;
 }
 
-export function SalesForm({ products, customers, categories, sellers, lastSeller, onSubmit, onAddSeller, onClose }: SalesFormProps) {
+export function SalesForm({ products, customers, categories, sellers, settings, lastSeller, onSubmit, onAddSeller, onClose }: SalesFormProps) {
   const [formData, setFormData] = useState({
     productId: '',
     productSearch: '',
