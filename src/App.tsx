@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogIn, LogOut, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut } from 'lucide-react';
 import { Award } from 'lucide-react';
-import { useAuth } from './contexts/AuthContext';
-import { AuthForm } from './components/AuthForm';
+import { PinAccess } from './components/PinAccess';
 import { useInventory } from './hooks/useInventory';
 import { Dashboard } from './components/Dashboard';
 import { ProductList } from './components/ProductList';
@@ -23,8 +22,19 @@ import { formatDateWithSettings } from './utils/dateFormat';
 type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'users' | 'mobile' | 'settings';
 
 function App() {
-  const { user, signOut } = useAuth();
-  const [showAuthForm, setShowAuthForm] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const verified = sessionStorage.getItem('pin-verified');
+    if (verified === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    sessionStorage.removeItem('pin-verified');
+    setIsAuthenticated(false);
+  };
 
   const {
     products,
@@ -158,32 +168,16 @@ function App() {
                 onMarkRead={markNotificationRead}
                 onClearAll={handleClearNotifications}
               />
-              {user ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-100 shadow-sm">
-                    <div className="p-1.5 bg-blue-600 rounded-lg">
-                      <User className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    <span className="text-sm font-semibold text-blue-900">{user.email}</span>
-                  </div>
-                  <button
-                    onClick={() => signOut()}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
+              {isAuthenticated && (
                 <button
-                  onClick={() => setShowAuthForm(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md"
                 >
-                  <LogIn className="w-4 h-4" />
-                  Sign In
+                  <LogOut className="w-4 h-4" />
+                  Lock System
                 </button>
               )}
-              {currentView === 'products' && user && (
+              {currentView === 'products' && isAuthenticated && (
                 <button
                   onClick={handleAddProduct}
                   className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
@@ -192,7 +186,7 @@ function App() {
                   Add Product
                 </button>
               )}
-              {currentView === 'sales' && user && (
+              {currentView === 'sales' && isAuthenticated && (
                 <button
                   onClick={() => setShowSalesForm(true)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
@@ -247,8 +241,8 @@ function App() {
                 sales={sales}
                 returns={returns}
                 settings={settings}
-                onQuickSale={user ? () => setShowSalesForm(true) : undefined}
-                onAddProduct={user ? handleAddProduct : () => {}}
+                onQuickSale={isAuthenticated ? () => setShowSalesForm(true) : undefined}
+                onAddProduct={isAuthenticated ? handleAddProduct : () => {}}
               />
             )}
             {currentView === 'products' && (
@@ -258,7 +252,7 @@ function App() {
                 onEdit={handleEditProduct}
                 onDelete={handleDeleteProduct}
                 onAdd={handleAddProduct}
-                isAuthenticated={!!user}
+                isAuthenticated={isAuthenticated}
               />
             )}
             {currentView === 'sales' && (
@@ -357,7 +351,7 @@ function App() {
                 settings={settings}
                 onAddReturn={addReturn}
                 onUpdateReturn={updateReturn}
-                isAuthenticated={!!user}
+                isAuthenticated={isAuthenticated}
               />
             )}
             {currentView === 'settings' && (
@@ -374,7 +368,7 @@ function App() {
                 onImport={importData}
                 onResetSalesHistory={resetSalesHistory}
                 onResetAllData={resetAllData}
-                isAuthenticated={!!user}
+                isAuthenticated={isAuthenticated}
               />
             )}
             {currentView === 'reports' && (
@@ -473,9 +467,9 @@ function App() {
         />
       )}
 
-      {/* Auth Form Modal */}
-      {showAuthForm && (
-        <AuthForm onAuthSuccess={() => setShowAuthForm(false)} />
+      {/* PIN Access Screen */}
+      {!isAuthenticated && (
+        <PinAccess onSuccess={() => setIsAuthenticated(true)} />
       )}
     </div>
   );
