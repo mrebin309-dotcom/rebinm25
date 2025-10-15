@@ -76,7 +76,7 @@ export function PinAccess({ onSuccess }: PinAccessProps) {
               id="pin"
               type="password"
               inputMode="numeric"
-              maxLength={6}
+              maxLength={7}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
               className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-center text-2xl tracking-wider font-mono"
