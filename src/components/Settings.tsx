@@ -80,13 +80,6 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
         <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
         {isAuthenticated && (
           <div className="flex items-center space-x-2">
-            <button
-              onClick={onExport}
-              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Export Data
-            </button>
             <label className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 cursor-pointer">
               <Upload className="h-4 w-4" />
               Import Data
@@ -97,6 +90,13 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
                 className="hidden"
               />
             </label>
+            <button
+              onClick={onExport}
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export Data
+            </button>
           </div>
         )}
       </div>
