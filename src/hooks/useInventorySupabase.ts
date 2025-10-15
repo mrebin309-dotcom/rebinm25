@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
 import {
   Product,
   Sale,
@@ -12,7 +11,6 @@ import {
 } from '../types';
 
 export function useInventorySupabase() {
-  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [returns, setReturns] = useState<Return[]>([]);
@@ -39,13 +37,12 @@ export function useInventorySupabase() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user && supabase) {
-      loadAllData();
-      setupRealtimeSubscriptions();
-    } else {
-      setLoading(false);
-    }
-  }, [user]);
+    loadAllData();
+    const unsubscribe = setupRealtimeSubscriptions();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   const loadAllData = async () => {
     try {
@@ -219,12 +216,9 @@ export function useInventorySupabase() {
   };
 
   const loadSettings = async () => {
-    if (!user) return;
-
     const { data, error } = await supabase
       .from('settings')
       .select('*')
-      .eq('user_id', user.id)
       .maybeSingle();
 
     if (!error && data) {
@@ -269,8 +263,6 @@ export function useInventorySupabase() {
   };
 
   const addProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (!user) return;
-
     const { data, error } = await supabase
       .from('products')
       .insert({
@@ -286,8 +278,6 @@ export function useInventorySupabase() {
         image: productData.image,
         supplier: productData.supplier,
         location: productData.location,
-        created_by: user.id,
-        updated_by: user.id,
       })
       .select()
       .single();
@@ -298,8 +288,6 @@ export function useInventorySupabase() {
   };
 
   const updateProduct = async (id: string, productData: Partial<Product>) => {
-    if (!user) return;
-
     const { error } = await supabase
       .from('products')
       .update({
@@ -315,7 +303,6 @@ export function useInventorySupabase() {
         image: productData.image,
         supplier: productData.supplier,
         location: productData.location,
-        updated_by: user.id,
       })
       .eq('id', id);
 
@@ -333,8 +320,6 @@ export function useInventorySupabase() {
   };
 
   const addSale = async (saleData: Omit<Sale, 'id' | 'date'>) => {
-    if (!user) return;
-
     const { error } = await supabase.from('sales').insert({
       product_id: saleData.productId,
       product_name: saleData.productName,
@@ -351,7 +336,6 @@ export function useInventorySupabase() {
       seller_id: saleData.sellerId,
       seller_name: saleData.sellerName,
       location: saleData.location,
-      created_by: user.id,
     });
 
     if (!error) {
@@ -360,33 +344,164 @@ export function useInventorySupabase() {
   };
 
   const updateSettings = async (newSettings: Settings) => {
-    if (!user) return;
-
-    const { error } = await supabase
+    const { data: existing } = await supabase
       .from('settings')
-      .upsert({
-        user_id: user.id,
-        currency: newSettings.currency,
-        usd_to_iqd_rate: newSettings.usdToIqdRate,
-        date_format: newSettings.dateFormat,
-        low_stock_threshold: newSettings.lowStockThreshold,
-        company_name: newSettings.companyName,
-        company_address: newSettings.companyAddress,
-        company_phone: newSettings.companyPhone,
-        company_email: newSettings.companyEmail,
-        tax_rate: newSettings.taxRate,
-        theme: newSettings.theme,
-        language: newSettings.language,
-        auto_backup: newSettings.autoBackup,
-        backup_frequency: newSettings.backupFrequency,
-        email_notifications: newSettings.emailNotifications,
-        sms_notifications: newSettings.smsNotifications,
-        last_seller: newSettings.lastSeller,
-      });
+      .select('id')
+      .maybeSingle();
+
+    const settingsData = {
+      currency: newSettings.currency,
+      usd_to_iqd_rate: newSettings.usdToIqdRate,
+      date_format: newSettings.dateFormat,
+      low_stock_threshold: newSettings.lowStockThreshold,
+      company_name: newSettings.companyName,
+      company_address: newSettings.companyAddress,
+      company_phone: newSettings.companyPhone,
+      company_email: newSettings.companyEmail,
+      tax_rate: newSettings.taxRate,
+      theme: newSettings.theme,
+      language: newSettings.language,
+      auto_backup: newSettings.autoBackup,
+      backup_frequency: newSettings.backupFrequency,
+      email_notifications: newSettings.emailNotifications,
+      sms_notifications: newSettings.smsNotifications,
+      last_seller: newSettings.lastSeller,
+    };
+
+    const { error } = existing
+      ? await supabase.from('settings').update(settingsData).eq('id', existing.id)
+      : await supabase.from('settings').insert(settingsData);
 
     if (!error) {
       setSettings(newSettings);
     }
+  };
+
+  const addReturn = async (returnData: Omit<Return, 'id' | 'date'>) => {
+    const { error } = await supabase.from('returns').insert({
+      sale_id: returnData.saleId,
+      product_id: returnData.productId,
+      product_name: returnData.productName,
+      quantity: returnData.quantity,
+      reason: returnData.reason,
+      refund_amount: returnData.refundAmount,
+      status: returnData.status,
+      processed_by: returnData.processedBy,
+    });
+
+    if (!error) {
+      await loadReturns();
+    }
+  };
+
+  const updateReturn = async (id: string, returnData: Partial<Return>) => {
+    const { error } = await supabase
+      .from('returns')
+      .update({
+        status: returnData.status,
+        processed_by: returnData.processedBy,
+      })
+      .eq('id', id);
+
+    if (!error) {
+      await loadReturns();
+    }
+  };
+
+  const addCustomer = async (customerData: Omit<Customer, 'id' | 'createdAt' | 'totalPurchases'>) => {
+    const { error } = await supabase.from('customers').insert({
+      name: customerData.name,
+      email: customerData.email,
+      phone: customerData.phone,
+      address: customerData.address,
+      customer_type: customerData.customerType,
+      credit_limit: customerData.creditLimit,
+      current_credit: customerData.currentCredit,
+      loyalty_points: customerData.loyaltyPoints || 0,
+      total_purchases: 0,
+    });
+
+    if (!error) {
+      await loadCustomers();
+    }
+  };
+
+  const addSeller = async (sellerData: Omit<Seller, 'id' | 'createdAt' | 'totalSales' | 'totalRevenue' | 'totalProfit'>) => {
+    const { error } = await supabase.from('sellers').insert({
+      name: sellerData.name,
+      email: sellerData.email,
+      phone: sellerData.phone,
+      commission_rate: sellerData.commissionRate,
+      is_active: sellerData.isActive,
+      total_sales: 0,
+      total_revenue: 0,
+      total_profit: 0,
+    });
+
+    if (!error) {
+      await loadSellers();
+    }
+  };
+
+  const exportData = () => {
+    return {
+      products,
+      sales,
+      returns,
+      customers,
+      sellers,
+      settings,
+      exportDate: new Date().toISOString(),
+    };
+  };
+
+  const importData = async (data: any) => {
+    try {
+      if (data.products) {
+        for (const product of data.products) {
+          await addProduct(product);
+        }
+      }
+      if (data.sales) {
+        for (const sale of data.sales) {
+          await addSale(sale);
+        }
+      }
+      if (data.customers) {
+        for (const customer of data.customers) {
+          await addCustomer(customer);
+        }
+      }
+      if (data.sellers) {
+        for (const seller of data.sellers) {
+          await addSeller(seller);
+        }
+      }
+      if (data.settings) {
+        await updateSettings(data.settings);
+      }
+      await loadAllData();
+    } catch (error) {
+      console.error('Error importing data:', error);
+    }
+  };
+
+  const resetSalesHistory = async () => {
+    const { error } = await supabase.from('sales').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (!error) {
+      await loadSales();
+    }
+  };
+
+  const resetAllData = async () => {
+    await Promise.all([
+      supabase.from('products').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+      supabase.from('sales').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+      supabase.from('returns').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+      supabase.from('customers').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+      supabase.from('sellers').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+    ]);
+    await loadAllData();
   };
 
   return {
@@ -398,11 +513,22 @@ export function useInventorySupabase() {
     sellers,
     settings,
     loading,
+    notifications: [],
+    alertRules: [],
     addProduct,
     updateProduct,
     deleteProduct,
     addSale,
-    updateSettings,
+    addReturn,
+    updateReturn,
+    addCustomer,
+    addSeller,
+    setSettings: updateSettings,
+    markNotificationRead: () => {},
+    exportData,
+    importData,
+    resetSalesHistory,
+    resetAllData,
     loadProducts,
     loadSales,
   };

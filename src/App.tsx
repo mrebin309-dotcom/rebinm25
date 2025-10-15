@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut } from 'lucide-react';
 import { Award } from 'lucide-react';
 import { PinAccess } from './components/PinAccess';
-import { useInventory } from './hooks/useInventory';
+import { useInventorySupabase } from './hooks/useInventorySupabase';
 import { Dashboard } from './components/Dashboard';
 import { ProductList } from './components/ProductList';
 import { ProductForm } from './components/ProductForm';
@@ -46,6 +46,7 @@ function App() {
     alertRules,
     notifications,
     settings,
+    loading,
     addProduct,
     updateProduct,
     deleteProduct,
@@ -60,7 +61,7 @@ function App() {
     importData,
     resetSalesHistory,
     resetAllData,
-  } = useInventory();
+  } = useInventorySupabase();
 
   // Mock data for new features
   const [users, setUsers] = useState([
@@ -133,6 +134,19 @@ function App() {
     { id: 'mobile', name: 'Mobile Sync', icon: Smartphone },
     { id: 'settings', name: 'Settings', icon: SettingsIcon },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex p-4 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl shadow-lg mb-4 animate-pulse">
+            <BarChart3 className="w-12 h-12 text-white" />
+          </div>
+          <p className="text-slate-600 font-medium">Loading inventory data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
