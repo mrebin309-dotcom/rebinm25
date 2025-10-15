@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@supabase/supabase-js": "^2.75.0",
     "date-fns": "^3.6.0",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
@@ -36,6 +35,10 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.18",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0",
     "eslint": "^9.9.1",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",

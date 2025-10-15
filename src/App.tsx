@@ -18,9 +18,6 @@ import { Product } from './types';
 type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'sellers' | 'users' | 'mobile' | 'settings';
 
 function App() {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
   const {
     products,
     categories,
@@ -31,7 +28,6 @@ function App() {
     alertRules,
     notifications,
     settings,
-    loading,
     addProduct,
     updateProduct,
     deleteProduct,
@@ -117,53 +113,6 @@ function App() {
     { id: 'mobile', name: 'Mobile Sync', icon: Smartphone },
     { id: 'settings', name: 'Settings', icon: SettingsIcon },
   ];
-
-  if (!supabaseUrl || !supabaseKey) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-white rounded-lg shadow-lg p-8">
-          <div className="text-center mb-6">
-            <BarChart3 className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Database Configuration Required</h1>
-            <p className="text-gray-600">Supabase environment variables are missing or not loaded properly.</p>
-          </div>
-
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <h2 className="font-semibold text-yellow-900 mb-2">Setup Instructions:</h2>
-            <ol className="list-decimal list-inside space-y-2 text-sm text-yellow-800">
-              <li>Make sure your <code className="bg-yellow-100 px-1 rounded">.env</code> file exists in the project root</li>
-              <li>Ensure it contains:
-                <pre className="bg-yellow-100 p-2 rounded mt-1 text-xs overflow-x-auto">
-VITE_SUPABASE_URL=your-supabase-url{'\n'}
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-                </pre>
-              </li>
-              <li>Restart the development server after adding the .env file</li>
-              <li>Run the SQL schema in your Supabase SQL Editor (see <code className="bg-yellow-100 px-1 rounded">supabase-schema.sql</code>)</li>
-            </ol>
-          </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h2 className="font-semibold text-blue-900 mb-2">Need Help?</h2>
-            <p className="text-sm text-blue-800">
-              Check <code className="bg-blue-100 px-1 rounded">setup-instructions.md</code> for detailed setup instructions.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <BarChart3 className="h-16 w-16 text-blue-500 mx-auto mb-4 animate-pulse" />
-          <p className="text-gray-600 text-lg">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-100">

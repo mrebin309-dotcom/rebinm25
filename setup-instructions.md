@@ -1,122 +1,68 @@
-# Inventory Management System - Setup Instructions
+# Complete Setup Instructions for Windows
 
-This is an Electron desktop application with Supabase cloud database integration.
-
-## Prerequisites
-
-1. Node.js (v16 or higher)
-2. npm or yarn
-3. Supabase account
-
-## Database Setup
-
-1. Go to your Supabase project dashboard: https://0ec90b57d6e95fcbda19832f.supabase.co
-2. Navigate to the SQL Editor
-3. Copy the contents of `supabase-schema.sql` in this project
-4. Paste and run the SQL to create all necessary tables
-
-## Installation
-
-First, install Electron and related dependencies:
-
-```bash
-npm install electron@28.0.0 electron-builder@24.9.1 concurrently@8.2.2 wait-on@7.2.0 --save-dev
+## Step 1: Create Project Folder
+```cmd
+mkdir C:\InventoryApp
+cd C:\InventoryApp
 ```
 
-If you encounter network errors, try:
-```bash
-npm install electron@28.0.0 electron-builder@24.9.1 concurrently@8.2.2 wait-on@7.2.0 --save-dev --legacy-peer-deps
+## Step 2: Create package.json
+Create a file called `package.json` with this content:
+
+```json
+{
+  "name": "inventory-management-system",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron-build": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never"
+  },
+  "dependencies": {
+    "date-fns": "^3.6.0",
+    "file-saver": "^2.0.5",
+    "jspdf": "^3.0.3",
+    "lucide-react": "^0.344.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.1",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.18",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0",
+    "eslint": "^9.9.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^15.9.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.3.0",
+    "vite": "^5.4.2"
+  },
+  "main": "electron/main.js",
+  "homepage": "./"
+}
 ```
 
-## Running the Application
-
-### Development Mode
-```bash
-npm run electron-dev
-```
-This will:
-- Start the Vite dev server on port 5173
-- Launch the Electron app in development mode
-- Enable hot module replacement
-
-### Production Build
-```bash
-npm run dist
-```
-This will create a distributable package in the `release` folder.
-
-## Available Scripts
-
-- `npm run dev` - Start Vite dev server only
-- `npm run build` - Build the React app for production
-- `npm run electron` - Run Electron with built files
-- `npm run electron-dev` - Run Electron in development mode
-- `npm run electron-build` - Build the app and create installer
-- `npm run dist` - Create production distribution
-
-## Features
-
-- Product inventory management
-- Sales tracking
-- Customer management
-- Seller/employee management
-- Returns processing
-- Advanced reporting and analytics
-- Low stock alerts
-- Data export/import
-- Cloud sync with Supabase
-- Offline-capable (with sync when online)
-
-## Tech Stack
-
-- **Frontend**: React 18, TypeScript, Tailwind CSS
-- **Desktop**: Electron 28
-- **Database**: Supabase (PostgreSQL)
-- **Build Tool**: Vite
-- **UI Icons**: Lucide React
-
-## Database
-
-The app uses Supabase for cloud database storage, which means:
-- Data is synced across devices
-- No local database file to manage
-- Automatic backups
-- Accessible from multiple installations
-
-## Troubleshooting
-
-### Electron won't start
-Make sure you've run the installation command successfully and all Electron dependencies are installed.
-
-### Database connection errors
-1. Check that your `.env` file has the correct Supabase credentials
-2. Ensure the database tables are created using the SQL schema
-3. Verify your internet connection
-
-### Build errors
-Try clearing the cache:
-```bash
-rm -rf node_modules dist release
+## Step 3: Install Dependencies
+```cmd
 npm install
-npm run build
 ```
 
-## Project Structure
-
-```
-inventory-management-system/
-├── electron/
-│   ├── main.js         # Electron main process
-│   └── preload.js      # Preload script
-├── src/
-│   ├── components/     # React components
-│   ├── hooks/          # Custom hooks (useInventory)
-│   ├── lib/            # Supabase client
-│   ├── types/          # TypeScript types
-│   └── App.tsx         # Main React component
-├── dist/               # Built files (generated)
-├── release/            # Distribution packages (generated)
-├── package.json
-├── supabase-schema.sql # Database schema
-└── .env                # Supabase credentials
-```
+## Step 4: Create Project Structure
+You'll need to create all the folders and files as shown in the project structure.
