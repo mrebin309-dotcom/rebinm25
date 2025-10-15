@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogIn, LogOut, User } from 'lucide-react';
 import { Award } from 'lucide-react';
+import { useAuth } from './contexts/AuthContext';
+import { AuthForm } from './components/AuthForm';
 import { useInventory } from './hooks/useInventory';
 import { Dashboard } from './components/Dashboard';
 import { ProductList } from './components/ProductList';
@@ -21,6 +23,9 @@ import { formatDateWithSettings } from './utils/dateFormat';
 type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'users' | 'mobile' | 'settings';
 
 function App() {
+  const { user, signOut } = useAuth();
+  const [showAuthForm, setShowAuthForm] = useState(false);
+
   const {
     products,
     categories,
@@ -139,6 +144,29 @@ function App() {
                 onMarkRead={markNotificationRead}
                 onClearAll={handleClearNotifications}
               />
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg">
+                    <User className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-900">{user.email}</span>
+                  </div>
+                  <button
+                    onClick={() => signOut()}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowAuthForm(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </button>
+              )}
               {currentView === 'products' && (
                 <button
                   onClick={handleAddProduct}
@@ -412,6 +440,11 @@ function App() {
           settings={settings}
           onClose={() => setSelectedSaleForInvoice(undefined)}
         />
+      )}
+
+      {/* Auth Form Modal */}
+      {showAuthForm && (
+        <AuthForm onAuthSuccess={() => setShowAuthForm(false)} />
       )}
     </div>
   );

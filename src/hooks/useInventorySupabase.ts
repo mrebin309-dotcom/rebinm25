@@ -1,0 +1,409 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import {
+  Product,
+  Sale,
+  Return,
+  Customer,
+  Category,
+  Seller,
+  Settings,
+} from '../types';
+
+export function useInventorySupabase() {
+  const { user } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [returns, setReturns] = useState<Return[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [sellers, setSellers] = useState<Seller[]>([]);
+  const [settings, setSettings] = useState<Settings>({
+    currency: 'USD',
+    usdToIqdRate: 1320,
+    dateFormat: 'MM/dd/yyyy',
+    lowStockThreshold: 10,
+    companyName: '',
+    companyAddress: '',
+    companyPhone: '',
+    companyEmail: '',
+    taxRate: 0,
+    theme: 'light',
+    language: 'en',
+    autoBackup: false,
+    backupFrequency: 'daily',
+    emailNotifications: true,
+    smsNotifications: false,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user && supabase) {
+      loadAllData();
+      setupRealtimeSubscriptions();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const loadAllData = async () => {
+    try {
+      await Promise.all([
+        loadProducts(),
+        loadSales(),
+        loadReturns(),
+        loadCustomers(),
+        loadCategories(),
+        loadSellers(),
+        loadSettings(),
+      ]);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadProducts = async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setProducts(
+        data.map((p) => ({
+          id: p.id,
+          name: p.name,
+          sku: p.sku,
+          barcode: p.barcode,
+          category: p.category,
+          price: parseFloat(p.price),
+          cost: parseFloat(p.cost),
+          stock: p.stock,
+          minStock: p.min_stock,
+          description: p.description,
+          image: p.image,
+          supplier: p.supplier,
+          location: p.location,
+          createdAt: new Date(p.created_at),
+          updatedAt: new Date(p.updated_at),
+          createdBy: p.created_by,
+          updatedBy: p.updated_by,
+        }))
+      );
+    }
+  };
+
+  const loadSales = async () => {
+    const { data, error } = await supabase
+      .from('sales')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setSales(
+        data.map((s) => ({
+          id: s.id,
+          productId: s.product_id,
+          productName: s.product_name,
+          quantity: s.quantity,
+          unitPrice: parseFloat(s.unit_price),
+          discount: parseFloat(s.discount),
+          tax: parseFloat(s.tax),
+          total: parseFloat(s.total),
+          profit: parseFloat(s.profit),
+          customerId: s.customer_id,
+          customerName: s.customer_name,
+          paymentMethod: s.payment_method,
+          date: new Date(s.created_at),
+          status: s.status,
+          sellerId: s.seller_id,
+          sellerName: s.seller_name,
+          location: s.location,
+        }))
+      );
+    }
+  };
+
+  const loadReturns = async () => {
+    const { data, error } = await supabase
+      .from('returns')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setReturns(
+        data.map((r) => ({
+          id: r.id,
+          saleId: r.sale_id,
+          productId: r.product_id,
+          productName: r.product_name,
+          quantity: r.quantity,
+          reason: r.reason,
+          refundAmount: parseFloat(r.refund_amount),
+          date: new Date(r.created_at),
+          status: r.status,
+          processedBy: r.processed_by,
+        }))
+      );
+    }
+  };
+
+  const loadCustomers = async () => {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setCustomers(
+        data.map((c) => ({
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          phone: c.phone,
+          address: c.address,
+          customerType: c.customer_type,
+          creditLimit: parseFloat(c.credit_limit),
+          currentCredit: parseFloat(c.current_credit),
+          totalPurchases: parseFloat(c.total_purchases),
+          loyaltyPoints: c.loyalty_points,
+          createdAt: new Date(c.created_at),
+          lastPurchase: c.last_purchase ? new Date(c.last_purchase) : undefined,
+        }))
+      );
+    }
+  };
+
+  const loadCategories = async () => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (!error && data) {
+      setCategories(
+        data.map((c) => ({
+          id: c.id,
+          name: c.name,
+          description: c.description,
+        }))
+      );
+    }
+  };
+
+  const loadSellers = async () => {
+    const { data, error } = await supabase
+      .from('sellers')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setSellers(
+        data.map((s) => ({
+          id: s.id,
+          name: s.name,
+          email: s.email,
+          phone: s.phone,
+          commissionRate: s.commission_rate ? parseFloat(s.commission_rate) : undefined,
+          isActive: s.is_active,
+          createdAt: new Date(s.created_at),
+          totalSales: s.total_sales,
+          totalRevenue: parseFloat(s.total_revenue),
+          totalProfit: parseFloat(s.total_profit),
+        }))
+      );
+    }
+  };
+
+  const loadSettings = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('settings')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (!error && data) {
+      setSettings({
+        currency: data.currency,
+        usdToIqdRate: parseFloat(data.usd_to_iqd_rate),
+        dateFormat: data.date_format,
+        lowStockThreshold: data.low_stock_threshold,
+        companyName: data.company_name,
+        companyAddress: data.company_address,
+        companyPhone: data.company_phone,
+        companyEmail: data.company_email,
+        taxRate: parseFloat(data.tax_rate),
+        theme: data.theme,
+        language: data.language,
+        autoBackup: data.auto_backup,
+        backupFrequency: data.backup_frequency,
+        emailNotifications: data.email_notifications,
+        smsNotifications: data.sms_notifications,
+        lastSeller: data.last_seller,
+      });
+    }
+  };
+
+  const setupRealtimeSubscriptions = () => {
+    if (!supabase) return;
+
+    const productsChannel = supabase
+      .channel('products-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadProducts)
+      .subscribe();
+
+    const salesChannel = supabase
+      .channel('sales-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, loadSales)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(productsChannel);
+      supabase.removeChannel(salesChannel);
+    };
+  };
+
+  const addProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('products')
+      .insert({
+        name: productData.name,
+        sku: productData.sku,
+        barcode: productData.barcode,
+        category: productData.category,
+        price: productData.price,
+        cost: productData.cost,
+        stock: productData.stock,
+        min_stock: productData.minStock,
+        description: productData.description,
+        image: productData.image,
+        supplier: productData.supplier,
+        location: productData.location,
+        created_by: user.id,
+        updated_by: user.id,
+      })
+      .select()
+      .single();
+
+    if (!error && data) {
+      await loadProducts();
+    }
+  };
+
+  const updateProduct = async (id: string, productData: Partial<Product>) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('products')
+      .update({
+        name: productData.name,
+        sku: productData.sku,
+        barcode: productData.barcode,
+        category: productData.category,
+        price: productData.price,
+        cost: productData.cost,
+        stock: productData.stock,
+        min_stock: productData.minStock,
+        description: productData.description,
+        image: productData.image,
+        supplier: productData.supplier,
+        location: productData.location,
+        updated_by: user.id,
+      })
+      .eq('id', id);
+
+    if (!error) {
+      await loadProducts();
+    }
+  };
+
+  const deleteProduct = async (id: string) => {
+    const { error } = await supabase.from('products').delete().eq('id', id);
+
+    if (!error) {
+      await loadProducts();
+    }
+  };
+
+  const addSale = async (saleData: Omit<Sale, 'id' | 'date'>) => {
+    if (!user) return;
+
+    const { error } = await supabase.from('sales').insert({
+      product_id: saleData.productId,
+      product_name: saleData.productName,
+      quantity: saleData.quantity,
+      unit_price: saleData.unitPrice,
+      discount: saleData.discount,
+      tax: saleData.tax,
+      total: saleData.total,
+      profit: saleData.profit,
+      customer_id: saleData.customerId,
+      customer_name: saleData.customerName,
+      payment_method: saleData.paymentMethod,
+      status: saleData.status,
+      seller_id: saleData.sellerId,
+      seller_name: saleData.sellerName,
+      location: saleData.location,
+      created_by: user.id,
+    });
+
+    if (!error) {
+      await Promise.all([loadSales(), loadProducts()]);
+    }
+  };
+
+  const updateSettings = async (newSettings: Settings) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('settings')
+      .upsert({
+        user_id: user.id,
+        currency: newSettings.currency,
+        usd_to_iqd_rate: newSettings.usdToIqdRate,
+        date_format: newSettings.dateFormat,
+        low_stock_threshold: newSettings.lowStockThreshold,
+        company_name: newSettings.companyName,
+        company_address: newSettings.companyAddress,
+        company_phone: newSettings.companyPhone,
+        company_email: newSettings.companyEmail,
+        tax_rate: newSettings.taxRate,
+        theme: newSettings.theme,
+        language: newSettings.language,
+        auto_backup: newSettings.autoBackup,
+        backup_frequency: newSettings.backupFrequency,
+        email_notifications: newSettings.emailNotifications,
+        sms_notifications: newSettings.smsNotifications,
+        last_seller: newSettings.lastSeller,
+      });
+
+    if (!error) {
+      setSettings(newSettings);
+    }
+  };
+
+  return {
+    products,
+    sales,
+    returns,
+    customers,
+    categories,
+    sellers,
+    settings,
+    loading,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    addSale,
+    updateSettings,
+    loadProducts,
+    loadSales,
+  };
+}
