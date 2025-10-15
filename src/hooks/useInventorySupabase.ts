@@ -318,6 +318,23 @@ export function useInventorySupabase() {
       productData.sku = `${productData.sku}-${timestamp}`;
     }
 
+    if (productData.category) {
+      const { data: existingCategory } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', productData.category)
+        .maybeSingle();
+
+      if (!existingCategory) {
+        await supabase
+          .from('categories')
+          .insert({
+            name: productData.category,
+            description: '',
+          });
+      }
+    }
+
     const { data, error } = await supabase
       .from('products')
       .insert({
@@ -339,6 +356,7 @@ export function useInventorySupabase() {
 
     if (!error && data) {
       await loadProducts();
+      await loadCategories();
     }
   };
 
