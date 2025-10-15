@@ -18,7 +18,7 @@ const defaultCategories: Category[] = [];
 const defaultSettings: Settings = {
   currency: 'USD',
   usdToIqdRate: 1320,
-  dateFormat: 'MM/dd/yyyy',
+  dateFormat: 'dd/MM/yyyy',
   lowStockThreshold: 10,
   companyName: 'My Inventory',
   taxRate: 0.1,
