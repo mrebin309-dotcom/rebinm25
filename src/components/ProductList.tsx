@@ -123,24 +123,24 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
         </div>
       )}
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5 group-hover:text-blue-500 transition-colors" />
             <input
               type="text"
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white hover:border-slate-300 transition-all duration-200 font-medium text-slate-700 placeholder:text-slate-400"
             />
           </div>
 
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white ${
-              selectedCategory ? 'border-blue-500 bg-blue-50 text-blue-700 font-medium' : 'border-gray-300'
+            className={`w-full border-2 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white hover:border-slate-300 transition-all duration-200 font-medium cursor-pointer ${
+              selectedCategory ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700' : 'border-slate-200 text-slate-700'
             }`}
             style={{ direction: 'ltr' }}
           >
@@ -155,7 +155,7 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'name' | 'stock' | 'price')}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+            className="border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white hover:border-slate-300 transition-all duration-200 font-medium text-slate-700 cursor-pointer"
             style={{ direction: 'ltr' }}
           >
             <option value="name">Sort by Name</option>
@@ -166,7 +166,7 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
           <select
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+            className="border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white hover:border-slate-300 transition-all duration-200 font-medium text-slate-700 cursor-pointer"
             style={{ direction: 'ltr' }}
           >
             <option value="asc">Ascending</option>
@@ -180,9 +180,9 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
               setSortBy('name');
               setSortOrder('asc');
             }}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
+            className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 rounded-xl hover:from-slate-200 hover:to-slate-300 transition-all duration-200 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
           >
-            <Filter className="h-4 w-4" />
+            <Filter className="h-5 w-5" />
             Clear Filters
           </button>
         </div>
