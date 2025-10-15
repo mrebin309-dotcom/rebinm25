@@ -139,9 +139,10 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white ${
               selectedCategory ? 'border-blue-500 bg-blue-50 text-blue-700 font-medium' : 'border-gray-300'
             }`}
+            style={{ direction: 'ltr' }}
           >
             <option value="">All Categories</option>
             {categories.map(category => (
@@ -154,7 +155,8 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'name' | 'stock' | 'price')}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+            style={{ direction: 'ltr' }}
           >
             <option value="name">Sort by Name</option>
             <option value="stock">Sort by Stock</option>
@@ -164,7 +166,8 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
           <select
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+            style={{ direction: 'ltr' }}
           >
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>

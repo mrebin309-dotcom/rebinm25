@@ -177,7 +177,7 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
             </div>
           </div>
 
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Category
             </label>
@@ -186,7 +186,8 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+                style={{ direction: 'ltr' }}
               >
                 <option value="">Select a category</option>
                 {categories.map(category => (
