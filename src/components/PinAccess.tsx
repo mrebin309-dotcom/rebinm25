@@ -1,16 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, AlertCircle } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface PinAccessProps {
   onSuccess: () => void;
 }
 
-const CORRECT_PIN = '171993';
-
 export function PinAccess({ onSuccess }: PinAccessProps) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [correctPin, setCorrectPin] = useState('2059494');
+
+  useEffect(() => {
+    const loadPin = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('pin_settings')
+          .select('pin')
+          .maybeSingle();
+
+        if (data && !error) {
+          setCorrectPin(data.pin);
+        }
+      } catch (err) {
+        console.error('Error loading PIN:', err);
+      }
+    };
+    loadPin();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +36,7 @@ export function PinAccess({ onSuccess }: PinAccessProps) {
     setIsLoading(true);
 
     setTimeout(() => {
-      if (pin === CORRECT_PIN) {
+      if (pin === correctPin) {
         sessionStorage.setItem('pin-verified', 'true');
         onSuccess();
       } else {
@@ -77,11 +95,6 @@ export function PinAccess({ onSuccess }: PinAccessProps) {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-xs text-slate-500">
-            Default PIN: 171993
-          </p>
-        </div>
       </div>
     </div>
   );

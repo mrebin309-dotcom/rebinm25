@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Settings as SettingsIcon, Download, Upload, Save } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import { Settings as SettingsType, AlertRule, Product, Sale, Customer, Seller } from '../types';
 
 interface SettingsProps {
@@ -21,6 +22,29 @@ interface SettingsProps {
 export function Settings({ settings, alertRules, products, sales, customers, sellers, onUpdateSettings, onUpdateAlertRules, onExport, onImport, onResetSalesHistory, onResetAllData, isAuthenticated = false }: SettingsProps) {
   const [formData, setFormData] = useState(settings);
   const [rules, setRules] = useState(alertRules);
+  const [currentPin, setCurrentPin] = useState('');
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [pinSuccess, setPinSuccess] = useState(false);
+  const [isChangingPin, setIsChangingPin] = useState(false);
+
+  useEffect(() => {
+    const loadCurrentPin = async () => {
+      try {
+        const { data } = await supabase
+          .from('pin_settings')
+          .select('pin')
+          .maybeSingle();
+        if (data) {
+          setCurrentPin(data.pin);
+        }
+      } catch (err) {
+        console.error('Error loading PIN:', err);
+      }
+    };
+    loadCurrentPin();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -337,6 +361,155 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
             Current rate: 1 USD = {formData.usdToIqdRate.toLocaleString()} IQD
           </p>
         </div>
+
+        {/* PIN Management */}
+        {isAuthenticated && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+              <Lock className="h-5 w-5" />
+              PIN Management
+            </h3>
+
+            {pinSuccess && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                PIN updated successfully!
+              </div>
+            )}
+
+            {pinError && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                {pinError}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Current PIN
+                </label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={7}
+                  value={isChangingPin ? '' : '••••••'}
+                  onChange={(e) => setIsChangingPin(true)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter current PIN"
+                  disabled={!isChangingPin}
+                />
+              </div>
+
+              {isChangingPin && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      New PIN
+                    </label>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={7}
+                      value={newPin}
+                      onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter new PIN"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Confirm New PIN
+                    </label>
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={7}
+                      value={confirmPin}
+                      onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Confirm new PIN"
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setPinError('');
+                        setPinSuccess(false);
+
+                        if (newPin.length < 4) {
+                          setPinError('PIN must be at least 4 digits');
+                          return;
+                        }
+
+                        if (newPin !== confirmPin) {
+                          setPinError('PINs do not match');
+                          return;
+                        }
+
+                        try {
+                          const { data: currentPinData } = await supabase
+                            .from('pin_settings')
+                            .select('pin')
+                            .maybeSingle();
+
+                          if (currentPinData) {
+                            const { error } = await supabase
+                              .from('pin_settings')
+                              .update({ pin: newPin, updated_at: new Date().toISOString() })
+                              .eq('pin', currentPinData.pin);
+
+                            if (error) throw error;
+
+                            setCurrentPin(newPin);
+                            setNewPin('');
+                            setConfirmPin('');
+                            setPinSuccess(true);
+                            setIsChangingPin(false);
+
+                            setTimeout(() => setPinSuccess(false), 3000);
+                          }
+                        } catch (err) {
+                          setPinError('Failed to update PIN. Please try again.');
+                        }
+                      }}
+                      className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Key className="h-4 w-4" />
+                      Update PIN
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsChangingPin(false);
+                        setNewPin('');
+                        setConfirmPin('');
+                        setPinError('');
+                        setPinSuccess(false);
+                      }}
+                      className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {!isChangingPin && (
+                <button
+                  type="button"
+                  onClick={() => setIsChangingPin(true)}
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  <Key className="h-4 w-4" />
+                  Change PIN
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Save Button */}
         {isAuthenticated ? (
