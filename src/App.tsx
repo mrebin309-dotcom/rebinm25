@@ -192,7 +192,7 @@ function App() {
                   Add Product
                 </button>
               )}
-              {currentView === 'sales' && (
+              {currentView === 'sales' && user && (
                 <button
                   onClick={() => setShowSalesForm(true)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
@@ -242,12 +242,12 @@ function App() {
           {/* Main Content */}
           <main className="flex-1">
             {currentView === 'dashboard' && (
-              <Dashboard 
-                products={products} 
-                sales={sales} 
-                returns={returns} 
+              <Dashboard
+                products={products}
+                sales={sales}
+                returns={returns}
                 settings={settings}
-                onQuickSale={() => setShowSalesForm(true)}
+                onQuickSale={user ? () => setShowSalesForm(true) : undefined}
                 onAddProduct={handleAddProduct}
               />
             )}
