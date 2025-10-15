@@ -122,6 +122,35 @@ function App() {
     updateReturnInHook(id, data);
   };
 
+  const handleExportData = () => {
+    const data = exportData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `inventory-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportData = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const content = e.target?.result as string;
+        const data = JSON.parse(content);
+        await importData(data);
+        alert('Data imported successfully!');
+      } catch (error) {
+        console.error('Error importing data:', error);
+        alert('Error importing data. Please check the file format.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const navigation = [
     { id: 'dashboard', name: 'Dashboard', icon: Home },
     { id: 'products', name: 'Products', icon: Package },
@@ -378,8 +407,8 @@ function App() {
                 sellers={sellers}
                 onUpdateSettings={setSettings}
                 onUpdateAlertRules={() => {}}
-                onExport={exportData}
-                onImport={importData}
+                onExport={handleExportData}
+                onImport={handleImportData}
                 onResetSalesHistory={resetSalesHistory}
                 onResetAllData={resetAllData}
                 isAuthenticated={isAuthenticated}
@@ -434,9 +463,9 @@ function App() {
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
-                onImportMobile={(data) => {
-                  // Handle mobile data import
-                  console.log('Importing mobile data:', data);
+                onImportMobile={async (data) => {
+                  await importData(data);
+                  alert('Mobile data imported successfully!');
                 }}
               />
             )}
