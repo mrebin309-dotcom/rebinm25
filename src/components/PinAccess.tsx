@@ -5,7 +5,7 @@ interface PinAccessProps {
   onSuccess: () => void;
 }
 
-const CORRECT_PIN = '1234';
+const CORRECT_PIN = '171993';
 
 export function PinAccess({ onSuccess }: PinAccessProps) {
   const [pin, setPin] = useState('');
@@ -79,7 +79,7 @@ export function PinAccess({ onSuccess }: PinAccessProps) {
 
         <div className="mt-6 text-center">
           <p className="text-xs text-slate-500">
-            Default PIN: 1234
+            Default PIN: 171993
           </p>
         </div>
       </div>
