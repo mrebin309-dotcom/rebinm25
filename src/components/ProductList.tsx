@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle } from 'lucide-react';
 import { Product, Category } from '../types';
+import { SearchWithSuggestions } from './SearchWithSuggestions';
 
 interface ProductListProps {
   products: Product[];
@@ -125,16 +126,15 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd }: P
       {/* Filters */}
       <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5 group-hover:text-blue-500 transition-colors" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white hover:border-slate-300 transition-all duration-200 font-medium text-slate-700 placeholder:text-slate-400"
-            />
-          </div>
+          <SearchWithSuggestions
+            products={products}
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSelectProduct={(product) => {
+              setSearchTerm('');
+              onEdit(product);
+            }}
+          />
 
           <select
             value={selectedCategory}
