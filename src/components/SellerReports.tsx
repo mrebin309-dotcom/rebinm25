@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Users, TrendingUp, DollarSign, Award, Calendar, Filter, Download } from 'lucide-react';
 import { Seller, Sale, Product, Settings, SellerReport } from '../types';
 import { format, subDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { formatDateWithSettings, formatTimeOnly } from '../utils/dateFormat';
 
 interface SellerReportsProps {
   sellers: Seller[];
@@ -378,8 +379,8 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 text-gray-400 mr-2" />
                             <div>
-                              <div className="font-medium">{format(sale.date, 'MMM dd, yyyy')}</div>
-                              <div className="text-xs text-gray-500">{format(sale.date, 'h:mm a')}</div>
+                              <div className="font-medium">{formatDateWithSettings(sale.date, settings.dateFormat)}</div>
+                              <div className="text-xs text-gray-500">{formatTimeOnly(sale.date)}</div>
                             </div>
                           </div>
                         </td>

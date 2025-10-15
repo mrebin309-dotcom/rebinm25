@@ -3,6 +3,7 @@ import { FileText, Download, Calendar, Filter, TrendingUp, DollarSign, Package, 
 import { Product, Sale, Customer, Settings } from '../types';
 import format from 'date-fns/format';
 import { subDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { formatDateWithSettings, formatTimeOnly } from '../utils/dateFormat';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -365,8 +366,8 @@ export function Reports({ products, sales, customers, settings }: ReportsProps) 
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 text-gray-400 mr-2" />
                             <div>
-                              <div className="font-medium">{format(sale.date, 'MMM dd, yyyy')}</div>
-                              <div className="text-xs text-gray-500">{format(sale.date, 'h:mm a')}</div>
+                              <div className="font-medium">{formatDateWithSettings(sale.date, settings.dateFormat)}</div>
+                              <div className="text-xs text-gray-500">{formatTimeOnly(sale.date)}</div>
                             </div>
                           </div>
                         </td>

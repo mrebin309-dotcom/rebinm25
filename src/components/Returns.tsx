@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { RotateCcw, Plus, Eye, Check, X } from 'lucide-react';
-import { Return, Sale, Product } from '../types';
+import { Return, Sale, Product, Settings } from '../types';
 import { format } from 'date-fns';
+import { formatDateWithSettings, formatDateTimeWithSettings } from '../utils/dateFormat';
 
 interface ReturnsProps {
   returns: Return[];
   sales: Sale[];
   products: Product[];
+  settings: Settings;
   onAddReturn: (returnData: Omit<Return, 'id' | 'date'>) => void;
   onUpdateReturn: (id: string, data: Partial<Return>) => void;
 }
 
-export function Returns({ returns, sales, products, onAddReturn, onUpdateReturn }: ReturnsProps) {
+export function Returns({ returns, sales, products, settings, onAddReturn, onUpdateReturn }: ReturnsProps) {
   const [showReturnForm, setShowReturnForm] = useState(false);
   const [selectedReturn, setSelectedReturn] = useState<Return | null>(null);
   const [formData, setFormData] = useState({
@@ -122,7 +124,7 @@ export function Returns({ returns, sales, products, onAddReturn, onUpdateReturn 
                     {returnItem.reason}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(returnItem.date, 'MMM dd, yyyy')}
+                    {formatDateWithSettings(returnItem.date, settings.dateFormat)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(returnItem.status)}`}>
@@ -295,7 +297,7 @@ export function Returns({ returns, sales, products, onAddReturn, onUpdateReturn 
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Date</label>
-                <p className="text-sm text-gray-900">{format(selectedReturn.date, 'MMM dd, yyyy HH:mm')}</p>
+                <p className="text-sm text-gray-900">{formatDateTimeWithSettings(selectedReturn.date, settings.dateFormat)}</p>
               </div>
 
               <div>

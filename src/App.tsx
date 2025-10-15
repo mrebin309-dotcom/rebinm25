@@ -130,6 +130,7 @@ function App() {
               </div>
               <NotificationCenter
                 notifications={notifications}
+                settings={settings}
                 onMarkRead={markNotificationRead}
                 onClearAll={handleClearNotifications}
               />
@@ -279,6 +280,7 @@ function App() {
                 returns={returns}
                 sales={sales}
                 products={products}
+                settings={settings}
                 onAddReturn={addReturn}
                 onUpdateReturn={updateReturn}
               />

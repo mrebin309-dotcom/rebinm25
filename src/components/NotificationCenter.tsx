@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Bell, X, Check, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
-import { Notification } from '../types';
+import { Notification, Settings } from '../types';
 import { format } from 'date-fns';
+import { formatDateTimeWithSettings } from '../utils/dateFormat';
 
 interface NotificationCenterProps {
   notifications: Notification[];
+  settings: Settings;
   onMarkRead: (id: string) => void;
   onClearAll: () => void;
 }
 
-export function NotificationCenter({ notifications, onMarkRead, onClearAll }: NotificationCenterProps) {
+export function NotificationCenter({ notifications, settings, onMarkRead, onClearAll }: NotificationCenterProps) {
   const [isOpen, setIsOpen] = useState(false);
   
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -103,7 +105,7 @@ export function NotificationCenter({ notifications, onMarkRead, onClearAll }: No
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-400 mt-2">
-                          {format(notification.date, 'MMM dd, yyyy HH:mm')}
+                          {formatDateTimeWithSettings(notification.date, settings.dateFormat)}
                         </p>
                       </div>
                     </div>
