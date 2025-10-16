@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut, RefreshCw } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Award } from 'lucide-react';
 import { PinAccess } from './components/PinAccess';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
@@ -23,6 +23,15 @@ type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanc
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showEnvError, setShowEnvError] = useState(false);
+
+  useEffect(() => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      setShowEnvError(true);
+    }
+  }, []);
 
   useEffect(() => {
     const verified = sessionStorage.getItem('pin-verified');
@@ -180,6 +189,27 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+      {/* Environment Variable Error Banner */}
+      {showEnvError && (
+        <div className="bg-red-600 text-white px-4 py-3 shadow-lg">
+          <div className="max-w-7xl mx-auto flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="font-semibold">Configuration Error: Missing Supabase Environment Variables</p>
+              <p className="text-sm text-red-100 mt-1">
+                Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your Cloudflare Pages environment variables, then redeploy.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowEnvError(false)}
+              className="text-white hover:bg-red-700 px-3 py-1 rounded"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-slate-200/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
