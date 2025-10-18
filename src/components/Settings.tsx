@@ -73,6 +73,44 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
     }
   };
 
+  const handleResetSales = () => {
+    const confirmed = window.confirm(
+      '⚠️ WARNING: Are you sure you want to reset all sales history?\n\n' +
+      'This will permanently delete:\n' +
+      '• All sales records\n' +
+      '• All returns\n' +
+      '• Seller reports\n\n' +
+      'This action CANNOT be undone!'
+    );
+
+    if (confirmed) {
+      onResetSalesHistory();
+    }
+  };
+
+  const handleResetAll = () => {
+    const confirmed = window.confirm(
+      '🚨 CRITICAL WARNING: Are you sure you want to reset ALL data?\n\n' +
+      'This will permanently delete:\n' +
+      '• All products\n' +
+      '• All sales records\n' +
+      '• All customers\n' +
+      '• All sellers\n' +
+      '• All returns\n\n' +
+      'This action CANNOT be undone!\n\n' +
+      'Type YES in the next prompt to confirm.'
+    );
+
+    if (confirmed) {
+      const finalConfirm = window.prompt('Type YES to confirm complete data deletion:');
+      if (finalConfirm === 'YES') {
+        onResetAllData();
+      } else {
+        alert('Reset cancelled. Data was not deleted.');
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -159,7 +197,7 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
               </div>
               <button
                 type="button"
-                onClick={onResetSalesHistory}
+                onClick={handleResetSales}
                 className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
               >
                 Reset Sales
@@ -173,7 +211,7 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
               </div>
               <button
                 type="button"
-                onClick={onResetAllData}
+                onClick={handleResetAll}
                 className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors"
               >
                 Reset All
