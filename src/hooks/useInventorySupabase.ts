@@ -531,7 +531,14 @@ export function useInventorySupabase() {
   const importData = async (data: any) => {
     try {
       if (data.products && Array.isArray(data.products)) {
+        const processedSkus = new Set<string>();
+
         for (const product of data.products) {
+          if (!product.sku || processedSkus.has(product.sku)) {
+            console.warn(`Skipping duplicate SKU in backup: ${product.sku}`);
+            continue;
+          }
+
           const { data: existingProduct } = await supabase
             .from('products')
             .select('id, sku')
@@ -560,6 +567,8 @@ export function useInventorySupabase() {
 
             if (error) {
               console.error('Error updating product:', error);
+            } else {
+              processedSkus.add(product.sku);
             }
           } else {
             const productData = {
@@ -583,6 +592,8 @@ export function useInventorySupabase() {
 
             if (error) {
               console.error('Error importing product:', error);
+            } else {
+              processedSkus.add(product.sku);
             }
           }
         }
