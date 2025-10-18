@@ -559,20 +559,18 @@ export function useInventorySupabase() {
 
       if (data.sales && Array.isArray(data.sales)) {
         for (const sale of data.sales) {
-          const saleData = {
-            product_id: sale.productId || sale.product_id || null,
-            product_name: sale.productName || sale.product_name || '',
-            quantity: parseInt(sale.quantity),
-            unit_price: parseFloat(sale.unitPrice || sale.unit_price),
+          const saleData: any = {
+            product_id: String(sale.productId || sale.product_id || sale.id || ''),
+            product_name: sale.productName || sale.product_name || sale.name || 'Unknown Product',
+            quantity: parseInt(sale.quantity) || 1,
+            unit_price: parseFloat(sale.unitPrice || sale.unit_price || sale.price || 0),
             discount: parseFloat(sale.discount || 0),
             tax: parseFloat(sale.tax || 0),
-            total: parseFloat(sale.total || sale.totalAmount || sale.total_amount),
+            total: parseFloat(sale.total || sale.totalAmount || sale.total_amount || 0),
             profit: parseFloat(sale.profit || 0),
             payment_method: sale.paymentMethod || sale.payment_method || 'cash',
             status: sale.status || 'completed',
-            customer_id: sale.customerId || sale.customer_id || null,
             customer_name: sale.customerName || sale.customer_name || null,
-            seller_id: sale.sellerId || sale.seller_id || null,
             seller_name: sale.sellerName || sale.seller_name || null,
             location: sale.location || null,
           };
