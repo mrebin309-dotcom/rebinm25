@@ -532,27 +532,58 @@ export function useInventorySupabase() {
     try {
       if (data.products && Array.isArray(data.products)) {
         for (const product of data.products) {
-          const productData = {
-            name: product.name,
-            sku: product.sku,
-            barcode: product.barcode || null,
-            category: product.category,
-            price: parseFloat(product.price),
-            cost: parseFloat(product.cost),
-            stock: parseInt(product.stock),
-            min_stock: parseInt(product.minStock || product.min_stock || 0),
-            description: product.description || null,
-            image: product.image || null,
-            supplier: product.supplier || null,
-            location: product.location || null,
-          };
-
-          const { error } = await supabase
+          const { data: existingProduct } = await supabase
             .from('products')
-            .insert(productData);
+            .select('id, sku')
+            .eq('sku', product.sku)
+            .maybeSingle();
 
-          if (error) {
-            console.error('Error importing product:', error);
+          if (existingProduct) {
+            const productData = {
+              name: product.name,
+              barcode: product.barcode || null,
+              category: product.category,
+              price: parseFloat(product.price),
+              cost: parseFloat(product.cost),
+              stock: parseInt(product.stock),
+              min_stock: parseInt(product.minStock || product.min_stock || 0),
+              description: product.description || null,
+              image: product.image || null,
+              supplier: product.supplier || null,
+              location: product.location || null,
+            };
+
+            const { error } = await supabase
+              .from('products')
+              .update(productData)
+              .eq('id', existingProduct.id);
+
+            if (error) {
+              console.error('Error updating product:', error);
+            }
+          } else {
+            const productData = {
+              name: product.name,
+              sku: product.sku,
+              barcode: product.barcode || null,
+              category: product.category,
+              price: parseFloat(product.price),
+              cost: parseFloat(product.cost),
+              stock: parseInt(product.stock),
+              min_stock: parseInt(product.minStock || product.min_stock || 0),
+              description: product.description || null,
+              image: product.image || null,
+              supplier: product.supplier || null,
+              location: product.location || null,
+            };
+
+            const { error } = await supabase
+              .from('products')
+              .insert(productData);
+
+            if (error) {
+              console.error('Error importing product:', error);
+            }
           }
         }
       }
