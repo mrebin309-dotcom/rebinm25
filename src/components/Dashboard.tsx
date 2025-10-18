@@ -324,14 +324,14 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
             </div>
           </div>
         ) : (
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg">
                 <Package className="h-5 w-5 text-white" />
               </div>
               <h3 className="text-lg font-bold text-slate-900">Stock Overview</h3>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
                 <div className="text-2xl font-black text-green-600">{stockSummary.good}</div>
                 <div className="text-xs font-medium text-green-700 mt-1">Well Stocked</div>
