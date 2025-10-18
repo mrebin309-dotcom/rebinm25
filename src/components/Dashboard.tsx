@@ -1,4 +1,4 @@
-import { TrendingUp, Package, AlertTriangle, DollarSign, Users, ShoppingCart, RotateCcw, TrendingDown, Download, AlertCircle, AlertOctagon } from 'lucide-react';
+import { TrendingUp, Package, AlertTriangle, DollarSign, Users, ShoppingCart, RotateCcw, TrendingDown, Download, AlertOctagon } from 'lucide-react';
 import { Plus, Zap } from 'lucide-react';
 import { Product, Sale, Return, Settings } from '../types';
 import { format, subDays, isAfter } from 'date-fns';
@@ -73,10 +73,6 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
-  // Group products by urgency level
-  const criticalProducts = productsNeedingAttention.filter(p => p.stockStatus.level === 'critical' || p.stockStatus.level === 'out');
-  const warningProducts = productsNeedingAttention.filter(p => p.stockStatus.level === 'warning');
-  const lowProducts = productsNeedingAttention.filter(p => p.stockStatus.level === 'low');
 
   return (
     <div className="space-y-6">
@@ -231,9 +227,9 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                       {stockSummary.outOfStock} Out
                     </span>
                   )}
-                  {stockSummary.critical > 0 && (
-                    <span className="px-2 py-1 bg-red-200 text-red-800 text-xs font-bold rounded-full">
-                      {stockSummary.critical} Critical
+                  {stockSummary.low > 0 && (
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">
+                      {stockSummary.low} Low
                     </span>
                   )}
                 </div>
@@ -250,9 +246,7 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                     >
                       <div className="flex items-center space-x-3 flex-1">
                         {status.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600 flex-shrink-0" />}
-                        {status.level === 'critical' && <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />}
-                        {status.level === 'warning' && <AlertTriangle className="h-5 w-5 text-orange-500 flex-shrink-0" />}
-                        {status.level === 'low' && <Package className="h-5 w-5 text-yellow-500 flex-shrink-0" />}
+                        {status.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />}
 
                         {product.image && (
                           <img src={product.image} alt={product.name} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
@@ -320,19 +314,12 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                 </div>
                 <span className="text-lg font-bold text-yellow-700">{stockSummary.low} items</span>
               </div>
-              <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg border border-orange-200">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                  <span className="font-semibold text-orange-900">Warning</span>
-                </div>
-                <span className="text-lg font-bold text-orange-700">{stockSummary.warning} items</span>
-              </div>
               <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
                 <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="font-semibold text-red-900">Critical/Out</span>
+                  <span className="font-semibold text-red-900">Out of Stock</span>
                 </div>
-                <span className="text-lg font-bold text-red-700">{stockSummary.critical + stockSummary.outOfStock} items</span>
+                <span className="text-lg font-bold text-red-700">{stockSummary.outOfStock} items</span>
               </div>
             </div>
           </div>
@@ -353,13 +340,9 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                 <div className="text-2xl font-black text-yellow-600">{stockSummary.low}</div>
                 <div className="text-xs font-medium text-yellow-700 mt-1">Low Stock</div>
               </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
-                <div className="text-2xl font-black text-orange-600">{stockSummary.warning}</div>
-                <div className="text-xs font-medium text-orange-700 mt-1">Warning</div>
-              </div>
-              <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="text-2xl font-black text-red-600">{stockSummary.critical}</div>
-                <div className="text-xs font-medium text-red-700 mt-1">Critical</div>
+              <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200 col-span-2">
+                <div className="text-2xl font-black text-red-600">{stockSummary.outOfStock}</div>
+                <div className="text-xs font-medium text-red-700 mt-1">Out of Stock</div>
               </div>
             </div>
             {stockSummary.outOfStock > 0 && (

@@ -1,6 +1,6 @@
 import { Product, Notification, Settings } from '../types';
 
-export type StockLevel = 'critical' | 'warning' | 'low' | 'good' | 'out';
+export type StockLevel = 'low' | 'good' | 'out';
 
 export interface StockStatus {
   level: StockLevel;
@@ -38,34 +38,6 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       borderColor: 'border-red-300',
       label: 'Out of Stock',
       percentage: 0,
-      needsAttention: true,
-    };
-  }
-
-  // Critical: Below 25% of minimum stock or less than 3 items
-  if (percentage <= 25 || stock <= 3) {
-    return {
-      level: 'critical',
-      color: 'red',
-      bgColor: 'bg-red-100',
-      textColor: 'text-red-800',
-      borderColor: 'border-red-400',
-      label: 'Critical',
-      percentage,
-      needsAttention: true,
-    };
-  }
-
-  // Warning: Below 50% of minimum stock
-  if (percentage <= 50) {
-    return {
-      level: 'warning',
-      color: 'orange',
-      bgColor: 'bg-orange-100',
-      textColor: 'text-orange-800',
-      borderColor: 'border-orange-400',
-      label: 'Warning',
-      percentage,
       needsAttention: true,
     };
   }
@@ -125,16 +97,6 @@ export function generateStockNotifications(
         title = '🚨 Out of Stock';
         message = `${product.name} is completely out of stock. Reorder immediately!`;
         break;
-      case 'critical':
-        type = 'error';
-        title = '⚠️ Critical Stock Level';
-        message = `${product.name} has only ${product.stock} units left. Urgent reorder needed!`;
-        break;
-      case 'warning':
-        type = 'warning';
-        title = '⚡ Low Stock Warning';
-        message = `${product.name} is running low (${product.stock} units). Consider reordering soon.`;
-        break;
       case 'low':
         type = 'warning';
         title = '📦 Low Stock Alert';
@@ -165,8 +127,6 @@ export function generateStockNotifications(
 export function getStockSummary(products: Product[], globalThreshold?: number) {
   const summary = {
     outOfStock: 0,
-    critical: 0,
-    warning: 0,
     low: 0,
     good: 0,
     totalNeedingAttention: 0,
@@ -178,14 +138,6 @@ export function getStockSummary(products: Product[], globalThreshold?: number) {
     switch (status.level) {
       case 'out':
         summary.outOfStock++;
-        summary.totalNeedingAttention++;
-        break;
-      case 'critical':
-        summary.critical++;
-        summary.totalNeedingAttention++;
-        break;
-      case 'warning':
-        summary.warning++;
         summary.totalNeedingAttention++;
         break;
       case 'low':
@@ -225,8 +177,8 @@ export function getProductsNeedingAttention(
       return item.stockStatus.needsAttention;
     })
     .sort((a, b) => {
-      // Sort by urgency: out -> critical -> warning -> low
-      const order = { out: 0, critical: 1, warning: 2, low: 3, good: 4 };
+      // Sort by urgency: out -> low
+      const order = { out: 0, low: 1, good: 2 };
       const aOrder = order[a.stockStatus.level];
       const bOrder = order[b.stockStatus.level];
       if (aOrder !== bOrder) return aOrder - bOrder;

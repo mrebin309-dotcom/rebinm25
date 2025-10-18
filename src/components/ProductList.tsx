@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle, AlertCircle, AlertOctagon } from 'lucide-react';
+import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle, AlertOctagon } from 'lucide-react';
 import { Product, Category } from '../types';
 import { SearchWithSuggestions } from './SearchWithSuggestions';
 import { getStockStatus as getEnhancedStockStatus } from '../utils/stockAlerts';
@@ -244,8 +244,6 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
                 {/* Enhanced Stock Status Badge */}
                 <div className="absolute top-2 right-2 flex items-center gap-1">
                   {stockStatus.level === 'out' && <AlertOctagon className="h-4 w-4 text-red-600" />}
-                  {stockStatus.level === 'critical' && <AlertCircle className="h-4 w-4 text-red-500" />}
-                  {stockStatus.level === 'warning' && <AlertTriangle className="h-4 w-4 text-orange-500" />}
                   {stockStatus.level === 'low' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
                   <span className={`px-2 py-1 rounded-full text-xs font-bold ${stockStatus.bgColor} ${stockStatus.textColor} border ${stockStatus.borderColor}`}>
                     {stockStatus.label}
@@ -260,8 +258,6 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
                   {stockStatus.needsAttention && (
                     <div className="flex-shrink-0 ml-2">
                       {stockStatus.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600" />}
-                      {stockStatus.level === 'critical' && <AlertCircle className="h-5 w-5 text-red-500" />}
-                      {stockStatus.level === 'warning' && <AlertTriangle className="h-5 w-5 text-orange-500" />}
                       {stockStatus.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
                     </div>
                   )}
