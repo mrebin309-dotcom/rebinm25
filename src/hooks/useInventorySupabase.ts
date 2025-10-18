@@ -533,7 +533,6 @@ export function useInventorySupabase() {
       if (data.products && Array.isArray(data.products)) {
         for (const product of data.products) {
           const productData = {
-            id: product.id,
             name: product.name,
             sku: product.sku,
             barcode: product.barcode || null,
@@ -550,7 +549,7 @@ export function useInventorySupabase() {
 
           const { error } = await supabase
             .from('products')
-            .upsert(productData, { onConflict: 'id' });
+            .insert(productData);
 
           if (error) {
             console.error('Error importing product:', error);
@@ -561,21 +560,26 @@ export function useInventorySupabase() {
       if (data.sales && Array.isArray(data.sales)) {
         for (const sale of data.sales) {
           const saleData = {
-            id: sale.id,
-            product_id: sale.productId || sale.product_id,
+            product_id: sale.productId || sale.product_id || null,
+            product_name: sale.productName || sale.product_name || '',
             quantity: parseInt(sale.quantity),
             unit_price: parseFloat(sale.unitPrice || sale.unit_price),
-            total_amount: parseFloat(sale.totalAmount || sale.total_amount),
-            payment_method: sale.paymentMethod || sale.payment_method,
+            discount: parseFloat(sale.discount || 0),
+            tax: parseFloat(sale.tax || 0),
+            total: parseFloat(sale.total || sale.totalAmount || sale.total_amount),
+            profit: parseFloat(sale.profit || 0),
+            payment_method: sale.paymentMethod || sale.payment_method || 'cash',
+            status: sale.status || 'completed',
             customer_id: sale.customerId || sale.customer_id || null,
+            customer_name: sale.customerName || sale.customer_name || null,
             seller_id: sale.sellerId || sale.seller_id || null,
-            notes: sale.notes || null,
-            created_at: sale.createdAt || sale.created_at || new Date().toISOString(),
+            seller_name: sale.sellerName || sale.seller_name || null,
+            location: sale.location || null,
           };
 
           const { error } = await supabase
             .from('sales')
-            .upsert(saleData, { onConflict: 'id' });
+            .insert(saleData);
 
           if (error) {
             console.error('Error importing sale:', error);
@@ -586,19 +590,18 @@ export function useInventorySupabase() {
       if (data.returns && Array.isArray(data.returns)) {
         for (const returnItem of data.returns) {
           const returnData = {
-            id: returnItem.id,
-            sale_id: returnItem.saleId || returnItem.sale_id,
-            product_id: returnItem.productId || returnItem.product_id,
+            sale_id: returnItem.saleId || returnItem.sale_id || null,
+            product_id: returnItem.productId || returnItem.product_id || null,
+            product_name: returnItem.productName || returnItem.product_name || '',
             quantity: parseInt(returnItem.quantity),
-            reason: returnItem.reason,
-            status: returnItem.status,
-            refund_amount: parseFloat(returnItem.refundAmount || returnItem.refund_amount),
-            created_at: returnItem.createdAt || returnItem.created_at || new Date().toISOString(),
+            reason: returnItem.reason || '',
+            status: returnItem.status || 'pending',
+            refund_amount: parseFloat(returnItem.refundAmount || returnItem.refund_amount || 0),
           };
 
           const { error } = await supabase
             .from('returns')
-            .upsert(returnData, { onConflict: 'id' });
+            .insert(returnData);
 
           if (error) {
             console.error('Error importing return:', error);
@@ -609,7 +612,6 @@ export function useInventorySupabase() {
       if (data.customers && Array.isArray(data.customers)) {
         for (const customer of data.customers) {
           const customerData = {
-            id: customer.id,
             name: customer.name,
             email: customer.email || null,
             phone: customer.phone || null,
@@ -620,7 +622,7 @@ export function useInventorySupabase() {
 
           const { error } = await supabase
             .from('customers')
-            .upsert(customerData, { onConflict: 'id' });
+            .insert(customerData);
 
           if (error) {
             console.error('Error importing customer:', error);
@@ -631,7 +633,6 @@ export function useInventorySupabase() {
       if (data.sellers && Array.isArray(data.sellers)) {
         for (const seller of data.sellers) {
           const sellerData = {
-            id: seller.id,
             name: seller.name,
             email: seller.email || null,
             phone: seller.phone || null,
@@ -644,7 +645,7 @@ export function useInventorySupabase() {
 
           const { error } = await supabase
             .from('sellers')
-            .upsert(sellerData, { onConflict: 'id' });
+            .insert(sellerData);
 
           if (error) {
             console.error('Error importing seller:', error);
@@ -655,14 +656,13 @@ export function useInventorySupabase() {
       if (data.categories && Array.isArray(data.categories)) {
         for (const category of data.categories) {
           const categoryData = {
-            id: category.id,
             name: category.name,
             description: category.description || null,
           };
 
           const { error } = await supabase
             .from('categories')
-            .upsert(categoryData, { onConflict: 'id' });
+            .insert(categoryData);
 
           if (error) {
             console.error('Error importing category:', error);
