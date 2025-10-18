@@ -340,9 +340,13 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                 <div className="text-2xl font-black text-yellow-600">{stockSummary.low}</div>
                 <div className="text-xs font-medium text-yellow-700 mt-1">Low Stock</div>
               </div>
-              <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200 col-span-2">
+              <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
                 <div className="text-2xl font-black text-red-600">{stockSummary.outOfStock}</div>
                 <div className="text-xs font-medium text-red-700 mt-1">Out of Stock</div>
+              </div>
+              <div className="text-center p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="text-2xl font-black text-slate-600">{products.length}</div>
+                <div className="text-xs font-medium text-slate-700 mt-1">Total Items</div>
               </div>
             </div>
             {stockSummary.outOfStock > 0 && (
