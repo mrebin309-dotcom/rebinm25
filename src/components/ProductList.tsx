@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle } from 'lucide-react';
+import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle, AlertCircle, AlertOctagon } from 'lucide-react';
 import { Product, Category } from '../types';
 import { SearchWithSuggestions } from './SearchWithSuggestions';
+import { getStockStatus as getEnhancedStockStatus } from '../utils/stockAlerts';
 
 interface ProductListProps {
   products: Product[];
@@ -70,15 +71,7 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
     lowStock: filteredProducts.filter(p => p.stock <= p.minStock && p.stock > 0).length,
     outOfStock: filteredProducts.filter(p => p.stock === 0).length,
   };
-  const getStockStatus = (product: Product) => {
-    if (product.stock === 0) {
-      return { status: 'out', color: 'text-red-600', bg: 'bg-red-50' };
-    } else if (product.stock <= product.minStock) {
-      return { status: 'low', color: 'text-yellow-600', bg: 'bg-yellow-50' };
-    } else {
-      return { status: 'good', color: 'text-green-600', bg: 'bg-green-50' };
-    }
-  };
+  // This is replaced by the enhanced stock status utility
 
   return (
     <div className="space-y-6">
@@ -229,9 +222,9 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {sortedProducts.map(product => {
-          const stockStatus = getStockStatus(product);
+          const stockStatus = getEnhancedStockStatus(product);
           const profitMargin = product.price > 0 ? ((product.price - product.cost) / product.price) * 100 : 0;
-          
+
           return (
             <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               {/* Product Image */}
@@ -247,11 +240,16 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
                     <Package className="h-16 w-16 text-gray-400" />
                   </div>
                 )}
-                
-                {/* Stock Status Badge */}
-                <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${stockStatus.bg} ${stockStatus.color}`}>
-                  {product.stock === 0 ? 'Out of Stock' : 
-                   product.stock <= product.minStock ? 'Low Stock' : 'In Stock'}
+
+                {/* Enhanced Stock Status Badge */}
+                <div className="absolute top-2 right-2 flex items-center gap-1">
+                  {stockStatus.level === 'out' && <AlertOctagon className="h-4 w-4 text-red-600" />}
+                  {stockStatus.level === 'critical' && <AlertCircle className="h-4 w-4 text-red-500" />}
+                  {stockStatus.level === 'warning' && <AlertTriangle className="h-4 w-4 text-orange-500" />}
+                  {stockStatus.level === 'low' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${stockStatus.bgColor} ${stockStatus.textColor} border ${stockStatus.borderColor}`}>
+                    {stockStatus.label}
+                  </span>
                 </div>
               </div>
 
@@ -259,8 +257,13 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
               <div className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
-                  {product.stock <= product.minStock && (
-                    <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0 ml-2" />
+                  {stockStatus.needsAttention && (
+                    <div className="flex-shrink-0 ml-2">
+                      {stockStatus.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600" />}
+                      {stockStatus.level === 'critical' && <AlertCircle className="h-5 w-5 text-red-500" />}
+                      {stockStatus.level === 'warning' && <AlertTriangle className="h-5 w-5 text-orange-500" />}
+                      {stockStatus.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
+                    </div>
                   )}
                 </div>
                 

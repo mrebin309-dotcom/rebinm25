@@ -1,7 +1,8 @@
-import { TrendingUp, Package, AlertTriangle, DollarSign, Users, ShoppingCart, RotateCcw, TrendingDown, Download } from 'lucide-react';
+import { TrendingUp, Package, AlertTriangle, DollarSign, Users, ShoppingCart, RotateCcw, TrendingDown, Download, AlertCircle, AlertOctagon } from 'lucide-react';
 import { Plus, Zap } from 'lucide-react';
 import { Product, Sale, Return, Settings } from '../types';
 import { format, subDays, isAfter } from 'date-fns';
+import { getProductsNeedingAttention, getStockSummary } from '../utils/stockAlerts';
 
 interface DashboardProps {
   products: Product[];
@@ -31,8 +32,10 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
   // Calculate stats
   const totalProducts = products.length;
   const totalCost = products.reduce((sum, product) => sum + (product.cost * product.stock), 0);
-  const lowStockItems = products.filter(p => p.stock <= p.minStock && p.stock > 0).length;
-  const outOfStockItems = products.filter(p => p.stock === 0).length;
+
+  // Enhanced stock alerts using the new system
+  const stockSummary = getStockSummary(products, settings.lowStockThreshold);
+  const productsNeedingAttention = getProductsNeedingAttention(products, settings.lowStockThreshold).slice(0, 10);
   
   const totalRevenue = sales.reduce((sum, sale) => sum + sale.total, 0);
   const totalProfit = sales.reduce((sum, sale) => sum + sale.profit, 0);
@@ -70,10 +73,10 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
 
-  const lowStockProducts = products
-    .filter(p => p.stock <= p.minStock && p.stock > 0)
-    .sort((a, b) => a.stock - b.stock)
-    .slice(0, 5);
+  // Group products by urgency level
+  const criticalProducts = productsNeedingAttention.filter(p => p.stockStatus.level === 'critical' || p.stockStatus.level === 'out');
+  const warningProducts = productsNeedingAttention.filter(p => p.stockStatus.level === 'warning');
+  const lowProducts = productsNeedingAttention.filter(p => p.stockStatus.level === 'low');
 
   return (
     <div className="space-y-6">
@@ -206,42 +209,71 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
         </div>
       </div>
 
-      {/* Stock Status Alert */}
+      {/* Enhanced Stock Status Alert */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Stock Status Alert */}
-        {lowStockProducts.length > 0 && (
+        {/* Stock Status Alert - Enhanced */}
+        {productsNeedingAttention.length > 0 && (
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-orange-50 to-red-50">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg shadow-lg">
-                  <AlertTriangle className="h-5 w-5 text-white\" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg shadow-lg">
+                    <AlertTriangle className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">Stock Alerts</h3>
+                    <p className="text-sm text-slate-600">{stockSummary.totalNeedingAttention} items need attention</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900">Low Stock Alert</h3>
-                  <p className="text-sm text-slate-600">Items that need immediate attention</p>
+                <div className="flex gap-2">
+                  {stockSummary.outOfStock > 0 && (
+                    <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">
+                      {stockSummary.outOfStock} Out
+                    </span>
+                  )}
+                  {stockSummary.critical > 0 && (
+                    <span className="px-2 py-1 bg-red-200 text-red-800 text-xs font-bold rounded-full">
+                      {stockSummary.critical} Critical
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
-            <div className="px-6 py-4">
-              <div className="space-y-4">
-                {lowStockProducts.map(product => (
-                  <div key={product.id} className="flex items-center justify-between p-4 bg-amber-50 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      {product.image && (
-                        <img src={product.image} alt={product.name} className="w-10 h-10 rounded-md object-cover" />
-                      )}
-                      <div>
-                        <h4 className="font-medium text-gray-900">{product.name}</h4>
-                        <p className="text-sm text-gray-600">SKU: {product.sku} • {product.category}</p>
+            <div className="px-6 py-4 max-h-96 overflow-y-auto">
+              <div className="space-y-3">
+                {productsNeedingAttention.map(product => {
+                  const status = product.stockStatus;
+                  return (
+                    <div
+                      key={product.id}
+                      className={`flex items-center justify-between p-4 ${status.bgColor} border ${status.borderColor} rounded-lg transition-all hover:shadow-md`}
+                    >
+                      <div className="flex items-center space-x-3 flex-1">
+                        {status.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600 flex-shrink-0" />}
+                        {status.level === 'critical' && <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />}
+                        {status.level === 'warning' && <AlertTriangle className="h-5 w-5 text-orange-500 flex-shrink-0" />}
+                        {status.level === 'low' && <Package className="h-5 w-5 text-yellow-500 flex-shrink-0" />}
+
+                        {product.image && (
+                          <img src={product.image} alt={product.name} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`font-semibold ${status.textColor} truncate`}>{product.name}</h4>
+                          <p className="text-xs text-gray-600 truncate">SKU: {product.sku} • {product.category}</p>
+                        </div>
+                      </div>
+                      <div className="text-right ml-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 ${status.bgColor} ${status.textColor} text-xs font-bold rounded-full border ${status.borderColor}`}>
+                            {status.label}
+                          </span>
+                        </div>
+                        <p className={`text-lg font-black ${status.textColor} mt-1`}>{product.stock}</p>
+                        <p className="text-xs text-gray-500">Min: {product.minStock}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-amber-600">{product.stock} left</p>
-                      <p className="text-sm text-gray-600">Min: {product.minStock}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  );
+                })}</div>
             </div>
           </div>
         )}
@@ -264,33 +296,80 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
           </div>
         </div>
         
-        {/* If no low stock, show stock summary */}
-        {lowStockProducts.length === 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Stock Status Summary</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+        {/* Enhanced Stock Summary - Always visible when needed */}
+        {productsNeedingAttention.length === 0 ? (
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg shadow-lg">
+                <Package className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">Stock Status Summary</h3>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="font-medium text-green-900">Well Stocked</span>
+                  <span className="font-semibold text-green-900">Well Stocked</span>
                 </div>
-                <span className="text-green-700">{products.filter(p => p.stock > p.minStock).length} items</span>
+                <span className="text-lg font-bold text-green-700">{stockSummary.good} items</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="font-medium text-yellow-900">Low Stock</span>
+                  <span className="font-semibold text-yellow-900">Low Stock</span>
                 </div>
-                <span className="text-yellow-700">{lowStockItems} items</span>
+                <span className="text-lg font-bold text-yellow-700">{stockSummary.low} items</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                  <span className="font-semibold text-orange-900">Warning</span>
+                </div>
+                <span className="text-lg font-bold text-orange-700">{stockSummary.warning} items</span>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
                 <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="font-medium text-red-900">Out of Stock</span>
+                  <span className="font-semibold text-red-900">Critical/Out</span>
                 </div>
-                <span className="text-red-700">{outOfStockItems} items</span>
+                <span className="text-lg font-bold text-red-700">{stockSummary.critical + stockSummary.outOfStock} items</span>
               </div>
             </div>
+          </div>
+        ) : (
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg">
+                <Package className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">Stock Overview</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="text-2xl font-black text-green-600">{stockSummary.good}</div>
+                <div className="text-xs font-medium text-green-700 mt-1">Well Stocked</div>
+              </div>
+              <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div className="text-2xl font-black text-yellow-600">{stockSummary.low}</div>
+                <div className="text-xs font-medium text-yellow-700 mt-1">Low Stock</div>
+              </div>
+              <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="text-2xl font-black text-orange-600">{stockSummary.warning}</div>
+                <div className="text-xs font-medium text-orange-700 mt-1">Warning</div>
+              </div>
+              <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+                <div className="text-2xl font-black text-red-600">{stockSummary.critical}</div>
+                <div className="text-xs font-medium text-red-700 mt-1">Critical</div>
+              </div>
+            </div>
+            {stockSummary.outOfStock > 0 && (
+              <div className="mt-4 p-4 bg-red-100 rounded-lg border-2 border-red-300">
+                <div className="flex items-center justify-center gap-2">
+                  <AlertOctagon className="h-5 w-5 text-red-600" />
+                  <span className="font-bold text-red-900">{stockSummary.outOfStock} items OUT OF STOCK</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
