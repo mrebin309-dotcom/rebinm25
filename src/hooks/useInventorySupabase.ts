@@ -392,8 +392,8 @@ export function useInventorySupabase() {
     }
   };
 
-  const addSale = async (saleData: Omit<Sale, 'id' | 'date'>) => {
-    const { error } = await supabase.from('sales').insert({
+  const addSale = async (saleData: Omit<Sale, 'id' | 'date'> & { saleDate?: string }) => {
+    const saleRecord: any = {
       product_id: saleData.productId,
       product_name: saleData.productName,
       quantity: saleData.quantity,
@@ -409,7 +409,14 @@ export function useInventorySupabase() {
       seller_id: saleData.sellerId,
       seller_name: saleData.sellerName,
       location: saleData.location,
-    });
+    };
+
+    // Use custom sale date if provided
+    if (saleData.saleDate) {
+      saleRecord.created_at = saleData.saleDate;
+    }
+
+    const { error } = await supabase.from('sales').insert(saleRecord);
 
     if (!error) {
       await Promise.all([loadSales(), loadProducts()]);
