@@ -152,7 +152,7 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
-  const handleImportData = (file: File) => {
+  const handleImportData = async (file: File) => {
     const reader = new FileReader();
     reader.onload = async (e) => {
       setIsImporting(true);
@@ -163,10 +163,17 @@ function App() {
         console.log('Importing data:', data);
 
         await importData(data);
+
+        // Wait a moment for database to process
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Refresh all data from database
         await refreshData();
 
-        alert('Data imported successfully! Page will refresh to show imported data.');
-        window.location.reload();
+        // Reset importing state
+        setIsImporting(false);
+
+        alert('Data imported successfully! All data has been restored.');
       } catch (error) {
         console.error('Error importing data:', error);
         alert(`Error importing data: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -211,12 +218,17 @@ function App() {
       {/* Import Loading Overlay */}
       {isImporting && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-8 shadow-2xl text-center">
+          <div className="bg-white rounded-lg p-8 shadow-2xl text-center max-w-md">
             <div className="inline-flex p-4 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl shadow-lg mb-4 animate-pulse">
               <Upload className="w-12 h-12 text-white" />
             </div>
-            <p className="text-slate-900 font-bold text-xl mb-2">Importing Data</p>
-            <p className="text-slate-600">Please wait while we restore your backup...</p>
+            <p className="text-slate-900 font-bold text-xl mb-2">Restoring Backup</p>
+            <p className="text-slate-600 mb-4">Please wait while we import your data...</p>
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
           </div>
         </div>
       )}
