@@ -531,70 +531,28 @@ export function useInventorySupabase() {
   const importData = async (data: any) => {
     try {
       if (data.products && Array.isArray(data.products)) {
-        const processedSkus = new Set<string>();
-
         for (const product of data.products) {
-          if (!product.sku || processedSkus.has(product.sku)) {
-            console.warn(`Skipping duplicate SKU in backup: ${product.sku}`);
-            continue;
-          }
+          const productData = {
+            name: product.name,
+            sku: product.sku,
+            barcode: product.barcode || null,
+            category: product.category,
+            price: parseFloat(product.price),
+            cost: parseFloat(product.cost),
+            stock: parseInt(product.stock),
+            min_stock: parseInt(product.minStock || product.min_stock || 0),
+            description: product.description || null,
+            image: product.image || null,
+            supplier: product.supplier || null,
+            location: product.location || null,
+          };
 
-          const { data: existingProduct } = await supabase
+          const { error } = await supabase
             .from('products')
-            .select('id, sku')
-            .eq('sku', product.sku)
-            .maybeSingle();
+            .insert(productData);
 
-          if (existingProduct) {
-            const productData = {
-              name: product.name,
-              barcode: product.barcode || null,
-              category: product.category,
-              price: parseFloat(product.price),
-              cost: parseFloat(product.cost),
-              stock: parseInt(product.stock),
-              min_stock: parseInt(product.minStock || product.min_stock || 0),
-              description: product.description || null,
-              image: product.image || null,
-              supplier: product.supplier || null,
-              location: product.location || null,
-            };
-
-            const { error } = await supabase
-              .from('products')
-              .update(productData)
-              .eq('id', existingProduct.id);
-
-            if (error) {
-              console.error('Error updating product:', error);
-            } else {
-              processedSkus.add(product.sku);
-            }
-          } else {
-            const productData = {
-              name: product.name,
-              sku: product.sku,
-              barcode: product.barcode || null,
-              category: product.category,
-              price: parseFloat(product.price),
-              cost: parseFloat(product.cost),
-              stock: parseInt(product.stock),
-              min_stock: parseInt(product.minStock || product.min_stock || 0),
-              description: product.description || null,
-              image: product.image || null,
-              supplier: product.supplier || null,
-              location: product.location || null,
-            };
-
-            const { error } = await supabase
-              .from('products')
-              .insert(productData);
-
-            if (error) {
-              console.error('Error importing product:', error);
-            } else {
-              processedSkus.add(product.sku);
-            }
+          if (error) {
+            console.error('Error importing product:', error);
           }
         }
       }
