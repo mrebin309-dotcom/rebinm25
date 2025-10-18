@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut, RefreshCw, AlertTriangle } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut, RefreshCw, AlertTriangle, Upload } from 'lucide-react';
 import { Award } from 'lucide-react';
 import { PinAccess } from './components/PinAccess';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
@@ -93,7 +93,8 @@ function App() {
   ]);
   
   const [activityLogs, setActivityLogs] = useState([]);
-  
+  const [isImporting, setIsImporting] = useState(false);
+
   const currentUser = users[0];
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [showProductForm, setShowProductForm] = useState(false);
@@ -154,15 +155,27 @@ function App() {
   const handleImportData = (file: File) => {
     const reader = new FileReader();
     reader.onload = async (e) => {
+      setIsImporting(true);
       try {
         const content = e.target?.result as string;
         const data = JSON.parse(content);
+
+        console.log('Importing data:', data);
+
         await importData(data);
-        alert('Data imported successfully!');
+        await refreshData();
+
+        alert('Data imported successfully! Page will refresh to show imported data.');
+        window.location.reload();
       } catch (error) {
         console.error('Error importing data:', error);
-        alert('Error importing data. Please check the file format.');
+        alert(`Error importing data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        setIsImporting(false);
       }
+    };
+    reader.onerror = () => {
+      alert('Error reading file. Please try again.');
+      setIsImporting(false);
     };
     reader.readAsText(file);
   };
@@ -195,6 +208,19 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+      {/* Import Loading Overlay */}
+      {isImporting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-8 shadow-2xl text-center">
+            <div className="inline-flex p-4 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl shadow-lg mb-4 animate-pulse">
+              <Upload className="w-12 h-12 text-white" />
+            </div>
+            <p className="text-slate-900 font-bold text-xl mb-2">Importing Data</p>
+            <p className="text-slate-600">Please wait while we restore your backup...</p>
+          </div>
+        </div>
+      )}
+
       {/* Environment Variable Error Banner */}
       {showEnvError && (
         <div className="bg-red-600 text-white px-4 py-3 shadow-lg">
