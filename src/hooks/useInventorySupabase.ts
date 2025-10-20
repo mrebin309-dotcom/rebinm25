@@ -411,10 +411,12 @@ export function useInventorySupabase() {
       location: saleData.location,
     };
 
-    // Use custom sale date if provided (convert to ISO timestamp)
+    // Use custom sale date if provided (convert to ISO timestamp at noon to avoid timezone issues)
     if (saleData.saleDate) {
-      // Convert YYYY-MM-DD to full ISO timestamp
-      saleRecord.created_at = new Date(saleData.saleDate).toISOString();
+      // Convert YYYY-MM-DD to full ISO timestamp at noon local time
+      const [year, month, day] = saleData.saleDate.split('-').map(Number);
+      const dateAtNoon = new Date(year, month - 1, day, 12, 0, 0);
+      saleRecord.created_at = dateAtNoon.toISOString();
     }
 
     const { error } = await supabase.from('sales').insert(saleRecord);
