@@ -63,45 +63,45 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
 
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Quick Actions */}
-      <div className="bg-gradient-to-br from-white/95 to-slate-50/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-8">
-        <h3 className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 bg-clip-text text-transparent mb-8">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="bg-gradient-to-br from-white/95 to-slate-50/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/60 p-5">
+        <h3 className="text-xl font-extrabold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 bg-clip-text text-transparent mb-5">Quick Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {onQuickSale && (
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-40 group-hover:opacity-70 transition-opacity duration-300 animate-pulse-slow"></div>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-300"></div>
               <button
                 onClick={onQuickSale}
-                className="relative flex items-center justify-center space-x-4 p-8 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 overflow-hidden w-full"
+                className="relative flex items-center justify-center space-x-3 p-4 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden w-full"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                <div className="relative p-3 bg-white/20 rounded-xl shadow-lg backdrop-blur-sm">
-                  <Zap className="h-7 w-7 text-white" />
+                <div className="relative p-2 bg-white/20 rounded-lg shadow-md backdrop-blur-sm">
+                  <Zap className="h-5 w-5 text-white" />
                 </div>
-                <span className="relative text-xl font-extrabold text-white">Quick Sale</span>
+                <span className="relative text-base font-extrabold text-white">Quick Sale</span>
               </button>
             </div>
           )}
 
           {onQuickSale && (
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-40 group-hover:opacity-70 transition-opacity duration-300 animate-pulse-slow"></div>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-300"></div>
               <button
                 onClick={onAddProduct}
-                className="relative flex items-center justify-center space-x-4 p-8 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 overflow-hidden w-full"
+                className="relative flex items-center justify-center space-x-3 p-4 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden w-full"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                <div className="relative p-3 bg-white/20 rounded-xl shadow-lg backdrop-blur-sm">
-                  <Plus className="h-7 w-7 text-white" />
+                <div className="relative p-2 bg-white/20 rounded-lg shadow-md backdrop-blur-sm">
+                  <Plus className="h-5 w-5 text-white" />
                 </div>
-                <span className="relative text-xl font-extrabold text-white">Add Product</span>
+                <span className="relative text-base font-extrabold text-white">Add Product</span>
               </button>
             </div>
           )}
           
           <div className="group relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl blur opacity-40 group-hover:opacity-70 transition-opacity duration-300 animate-pulse-slow"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 to-purple-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-300"></div>
             <button
               onClick={() => {
                 const data = {
@@ -129,65 +129,65 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                 a.click();
                 URL.revokeObjectURL(url);
               }}
-              className="relative flex items-center justify-center space-x-4 p-8 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 overflow-hidden w-full"
+              className="relative flex items-center justify-center space-x-3 p-4 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden w-full"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-              <div className="relative p-3 bg-white/20 rounded-xl shadow-lg backdrop-blur-sm">
-                <Download className="h-7 w-7 text-white" />
+              <div className="relative p-2 bg-white/20 rounded-lg shadow-md backdrop-blur-sm">
+                <Download className="h-5 w-5 text-white" />
               </div>
-              <span className="relative text-xl font-extrabold text-white">Quick Backup</span>
+              <span className="relative text-base font-extrabold text-white">Quick Backup</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* KPI Cards - In one line below Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="group relative">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-          <div className="relative bg-gradient-to-br from-white/95 to-emerald-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-7 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+          <div className="relative bg-gradient-to-br from-white/95 to-emerald-50/90 backdrop-blur-xl rounded-2xl shadow-lg border border-white/60 p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm font-bold text-emerald-700/80 mb-2 uppercase tracking-wide">Total Income</p>
-                <p className="text-4xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">{formatCurrency(netRevenue)}</p>
-                <p className="text-xs text-slate-600 font-semibold">
+                <p className="text-xs font-bold text-emerald-700/80 mb-1.5 uppercase tracking-wide">Total Income</p>
+                <p className="text-2xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">{formatCurrency(netRevenue)}</p>
+                <p className="text-xs text-slate-600 font-medium">
                   Net revenue {returnAdjustments.length > 0 ? '(after returns)' : ''}
                 </p>
               </div>
-              <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <DollarSign className="h-7 w-7 text-white" />
+              <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg group-hover:scale-110 transition-all duration-300">
+                <DollarSign className="h-5 w-5 text-white" />
               </div>
             </div>
           </div>
         </div>
 
         <div className="group relative">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-          <div className="relative bg-gradient-to-br from-white/95 to-blue-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-7 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+          <div className="relative bg-gradient-to-br from-white/95 to-blue-50/90 backdrop-blur-xl rounded-2xl shadow-lg border border-white/60 p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm font-bold text-blue-700/80 mb-2 uppercase tracking-wide">Inventory Cost</p>
-                <p className="text-4xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">{formatCurrency(totalCost)}</p>
-                <p className="text-xs text-slate-600 font-semibold">{totalProducts} products</p>
+                <p className="text-xs font-bold text-blue-700/80 mb-1.5 uppercase tracking-wide">Inventory Cost</p>
+                <p className="text-2xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1">{formatCurrency(totalCost)}</p>
+                <p className="text-xs text-slate-600 font-medium">{totalProducts} products</p>
               </div>
-              <div className="p-4 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <Package className="h-7 w-7 text-white" />
+              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-lg group-hover:scale-110 transition-all duration-300">
+                <Package className="h-5 w-5 text-white" />
               </div>
             </div>
           </div>
         </div>
 
         <div className="group relative">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-amber-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-          <div className="relative bg-gradient-to-br from-white/95 to-orange-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-7 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-amber-400 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+          <div className="relative bg-gradient-to-br from-white/95 to-orange-50/90 backdrop-blur-xl rounded-2xl shadow-lg border border-white/60 p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm font-bold text-orange-700/80 mb-2 uppercase tracking-wide">Cost of Goods Sold</p>
-                <p className="text-4xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">{formatCurrency(totalCOGS)}</p>
-                <p className="text-xs text-slate-600 font-semibold">Returns: {formatCurrency(totalReturns)}</p>
+                <p className="text-xs font-bold text-orange-700/80 mb-1.5 uppercase tracking-wide">Cost of Goods Sold</p>
+                <p className="text-2xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-1">{formatCurrency(totalCOGS)}</p>
+                <p className="text-xs text-slate-600 font-medium">Returns: {formatCurrency(totalReturns)}</p>
               </div>
-              <div className="p-4 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <ShoppingCart className="h-7 w-7 text-white" />
+              <div className="p-2.5 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg group-hover:scale-110 transition-all duration-300">
+                <ShoppingCart className="h-5 w-5 text-white" />
               </div>
             </div>
           </div>
@@ -195,19 +195,19 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
 
 
         <div className="group relative">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-400 to-purple-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-          <div className="relative bg-gradient-to-br from-white/95 to-violet-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-7 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-400 to-purple-400 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+          <div className="relative bg-gradient-to-br from-white/95 to-violet-50/90 backdrop-blur-xl rounded-2xl shadow-lg border border-white/60 p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-sm font-bold text-violet-700/80 mb-2 uppercase tracking-wide">Total Profit</p>
-                <p className="text-4xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">{formatCurrency(netProfit)}</p>
-                <p className="text-xs text-slate-600 font-semibold">
+                <p className="text-xs font-bold text-violet-700/80 mb-1.5 uppercase tracking-wide">Total Profit</p>
+                <p className="text-2xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-1">{formatCurrency(netProfit)}</p>
+                <p className="text-xs text-slate-600 font-medium">
                   Margin: {netRevenue > 0 ? ((netProfit / netRevenue) * 100).toFixed(1) : 0}%
                   {returnAdjustments.length > 0 ? ' (net)' : ''}
                 </p>
               </div>
-              <div className="p-4 bg-gradient-to-br from-violet-500 to-purple-500 rounded-2xl shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <TrendingUp className="h-7 w-7 text-white" />
+              <div className="p-2.5 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl shadow-lg group-hover:scale-110 transition-all duration-300">
+                <TrendingUp className="h-5 w-5 text-white" />
               </div>
             </div>
           </div>
