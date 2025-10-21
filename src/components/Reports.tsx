@@ -396,14 +396,14 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
                           {sale.customerName || 'Walk-in'}
                         </td>
                         {onDeleteSale && (
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <button
                               onClick={() => {
-                                if (window.confirm('Are you sure you want to delete this sale? This will update all reports and seller statistics.')) {
+                                if (window.confirm(`Are you sure you want to delete this sale?\n\nProduct: ${sale.productName}\nQuantity: ${sale.quantity}\nTotal: $${sale.total.toFixed(2)}\n\nThis will restore ${sale.quantity} units back to inventory.`)) {
                                   onDeleteSale(sale.id);
                                 }
                               }}
-                              className="text-red-600 hover:text-red-900 transition-colors"
+                              className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition-colors"
                               title="Delete sale"
                             >
                               <Trash2 className="h-4 w-4" />

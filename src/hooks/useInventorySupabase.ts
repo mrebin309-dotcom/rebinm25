@@ -427,13 +427,27 @@ export function useInventorySupabase() {
   };
 
   const deleteSale = async (saleId: string) => {
-    const { error } = await supabase
-      .from('sales')
-      .delete()
-      .eq('id', saleId);
+    try {
+      console.log('Attempting to delete sale:', saleId);
 
-    if (!error) {
+      const { data, error } = await supabase
+        .from('sales')
+        .delete()
+        .eq('id', saleId)
+        .select();
+
+      if (error) {
+        console.error('Error deleting sale:', error);
+        alert(`Failed to delete sale: ${error.message}`);
+        return;
+      }
+
+      console.log('Sale deleted successfully:', data);
       await Promise.all([loadSales(), loadProducts(), loadSellers()]);
+      alert('Sale deleted successfully! Inventory has been restored.');
+    } catch (err) {
+      console.error('Exception deleting sale:', err);
+      alert('An error occurred while deleting the sale.');
     }
   };
 
