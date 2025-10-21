@@ -20,8 +20,8 @@ export function registerServiceWorker() {
             }
           });
         })
-        .catch((error) => {
-          console.error('Service Worker registration failed:', error);
+        .catch(() => {
+          // Service Worker not supported or registration failed - silently ignore
         });
     });
 

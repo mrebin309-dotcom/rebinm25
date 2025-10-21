@@ -246,63 +246,49 @@ export function useInventorySupabase() {
   const setupRealtimeSubscriptions = () => {
     if (!supabase) return;
 
-    const productsChannel = supabase
-      .channel('products-changes')
+    let debounceTimers: Record<string, NodeJS.Timeout> = {};
+
+    const debounce = (key: string, fn: () => void, delay: number = 300) => {
+      if (debounceTimers[key]) {
+        clearTimeout(debounceTimers[key]);
+      }
+      debounceTimers[key] = setTimeout(fn, delay);
+    };
+
+    const channel = supabase
+      .channel('db-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => {
-        loadProducts();
+        debounce('products', loadProducts);
       })
-      .subscribe();
-
-    const salesChannel = supabase
-      .channel('sales-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
-        loadSales();
+        debounce('sales', () => {
+          loadSales();
+          loadProducts();
+        });
       })
-      .subscribe();
-
-    const returnsChannel = supabase
-      .channel('returns-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'returns' }, () => {
-        loadReturns();
+        debounce('returns', () => {
+          loadReturns();
+          loadProducts();
+        });
       })
-      .subscribe();
-
-    const customersChannel = supabase
-      .channel('customers-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, () => {
-        loadCustomers();
+        debounce('customers', loadCustomers);
       })
-      .subscribe();
-
-    const categoriesChannel = supabase
-      .channel('categories-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => {
-        loadCategories();
+        debounce('categories', loadCategories);
       })
-      .subscribe();
-
-    const sellersChannel = supabase
-      .channel('sellers-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'sellers' }, () => {
-        loadSellers();
+        debounce('sellers', loadSellers);
       })
-      .subscribe();
-
-    const settingsChannel = supabase
-      .channel('settings-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, () => {
-        loadSettings();
+        debounce('settings', loadSettings);
       })
       .subscribe();
 
     return () => {
-      supabase.removeChannel(productsChannel);
-      supabase.removeChannel(salesChannel);
-      supabase.removeChannel(returnsChannel);
-      supabase.removeChannel(customersChannel);
-      supabase.removeChannel(categoriesChannel);
-      supabase.removeChannel(sellersChannel);
-      supabase.removeChannel(settingsChannel);
+      Object.values(debounceTimers).forEach(clearTimeout);
+      supabase.removeChannel(channel);
     };
   };
 

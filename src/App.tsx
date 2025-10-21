@@ -31,12 +31,6 @@ function App() {
   useEffect(() => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    console.log('Environment check:', {
-      hasUrl: !!supabaseUrl,
-      hasKey: !!supabaseKey,
-      urlValue: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'MISSING',
-      keyValue: supabaseKey ? `${supabaseKey.substring(0, 20)}...` : 'MISSING'
-    });
     if (!supabaseUrl || !supabaseKey) {
       setShowEnvError(true);
     }
@@ -179,8 +173,6 @@ function App() {
       try {
         const content = e.target?.result as string;
         const data = JSON.parse(content);
-
-        console.log('Importing data:', data);
 
         setImportProgress(20);
         setImportStatus('Preparing data...');
