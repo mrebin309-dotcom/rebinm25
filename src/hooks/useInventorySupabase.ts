@@ -248,7 +248,7 @@ export function useInventorySupabase() {
 
     let debounceTimers: Record<string, NodeJS.Timeout> = {};
 
-    const debounce = (key: string, fn: () => void, delay: number = 300) => {
+    const debounce = (key: string, fn: () => void, delay: number = 100) => {
       if (debounceTimers[key]) {
         clearTimeout(debounceTimers[key]);
       }
@@ -408,6 +408,8 @@ export function useInventorySupabase() {
     const { error } = await supabase.from('sales').insert(saleRecord);
 
     if (!error) {
+      // Wait a moment for the trigger to execute, then reload
+      await new Promise(resolve => setTimeout(resolve, 100));
       await Promise.all([loadSales(), loadProducts()]);
     }
   };
