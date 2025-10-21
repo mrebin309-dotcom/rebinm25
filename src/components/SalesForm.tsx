@@ -52,10 +52,10 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
   });
 
   const selectedProduct = products.find(p => p.id === formData.productId);
-  const unitPrice = isServiceSale ? serviceData.servicePrice : 
+  const unitPrice = isServiceSale ? serviceData.servicePrice :
                    useCustomPrice ? customPrice : (selectedProduct?.price || 0);
   const subtotal = unitPrice * formData.quantity;
-  const discountAmount = (subtotal * formData.discount) / 100;
+  const discountAmount = formData.discount;
   const total = subtotal - discountAmount;
   const profit = isServiceSale ?
                  (serviceData.servicePrice - serviceData.serviceCost) * formData.quantity - discountAmount :
@@ -431,7 +431,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Discount (%)
+                Discount ($)
               </label>
               <input
                 type="number"
@@ -439,10 +439,13 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                 value={formData.discount}
                 onChange={handleChange}
                 min="0"
-                max="100"
-                step="0.1"
+                max={subtotal}
+                step="0.01"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Max: ${subtotal.toFixed(2)}
+              </p>
             </div>
           </div>
 
@@ -643,7 +646,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
               </div>
               {formData.discount > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-700">Discount ({formData.discount}%):</span>
+                  <span className="text-gray-700">Discount:</span>
                   <span className="font-medium text-red-600">-${discountAmount.toFixed(2)}</span>
                 </div>
               )}

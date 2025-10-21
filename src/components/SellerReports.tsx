@@ -46,6 +46,7 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
       const totalSales = sellerSales.length;
       const totalRevenue = sellerSales.reduce((sum, sale) => sum + sale.total, 0);
       const totalProfit = sellerSales.reduce((sum, sale) => sum + sale.profit, 0);
+      const totalDiscount = sellerSales.reduce((sum, sale) => sum + sale.discount, 0);
       const averageOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
       
       // Top products for this seller
@@ -84,6 +85,7 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
         totalSales,
         totalRevenue,
         totalProfit,
+        totalDiscount,
         averageOrderValue,
         topProducts,
         dailyPerformance,
@@ -191,6 +193,9 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                     Profit
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Discount
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Avg Order
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -225,6 +230,9 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                       {formatCurrency(report.totalProfit)}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
+                      {formatCurrency(report.totalDiscount)}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatCurrency(report.averageOrderValue)}
                     </td>
@@ -251,7 +259,7 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
       {selectedReport && (
         <div className="space-y-6">
           {/* Seller KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -279,6 +287,16 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                   <p className="text-2xl font-bold text-purple-600">{formatCurrency(selectedReport.totalProfit)}</p>
                 </div>
                 <TrendingUp className="h-10 w-10 text-purple-500" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Discount</p>
+                  <p className="text-2xl font-bold text-red-600">{formatCurrency(selectedReport.totalDiscount)}</p>
+                </div>
+                <DollarSign className="h-10 w-10 text-red-500" />
               </div>
             </div>
 
@@ -362,6 +380,9 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                       Revenue
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Discount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Profit
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -395,6 +416,9 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
                           {formatCurrency(sale.total)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
+                          {formatCurrency(sale.discount)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                           {formatCurrency(sale.profit)}
