@@ -105,6 +105,7 @@ export function useInventorySupabase() {
           id: s.id,
           productId: s.product_id,
           productName: s.product_name,
+          productCategory: s.product_category,
           quantity: s.quantity,
           unitPrice: parseFloat(s.unit_price),
           discount: parseFloat(s.discount),
@@ -396,6 +397,7 @@ export function useInventorySupabase() {
     const saleRecord: any = {
       product_id: saleData.productId,
       product_name: saleData.productName,
+      product_category: saleData.productCategory,
       quantity: saleData.quantity,
       unit_price: saleData.unitPrice,
       discount: saleData.discount,

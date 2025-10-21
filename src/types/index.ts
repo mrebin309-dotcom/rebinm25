@@ -28,6 +28,7 @@ export interface Sale {
   id: string;
   productId: string;
   productName: string;
+  productCategory?: string;
   quantity: number;
   unitPrice: number;
   discount: number;
