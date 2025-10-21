@@ -12,21 +12,25 @@ interface DashboardProps {
 }
 
 export function Dashboard({ products, sales, returns, customers, onQuickSale, onAddProduct, settings }: DashboardProps) {
-  const totalCost = products.reduce((sum, p) => sum + (p.cost * p.stock), 0);
-  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
-  const totalRevenue = sales.reduce((sum, sale) => sum + sale.total, 0);
-  const totalCOGS = sales.reduce((sum, sale) => sum + (sale.items.reduce((s, item) => s + (item.cost * item.quantity), 0)), 0);
-  const totalReturns = returns.reduce((sum, ret) => sum + ret.totalAmount, 0);
-  const totalProducts = products.length;
+  const safeProducts = products || [];
+  const safeSales = sales || [];
+  const safeReturns = returns || [];
+
+  const totalCost = safeProducts.reduce((sum, p) => sum + (p.cost * p.stock), 0);
+  const totalValue = safeProducts.reduce((sum, p) => sum + (p.price * p.stock), 0);
+  const totalRevenue = safeSales.reduce((sum, sale) => sum + sale.total, 0);
+  const totalCOGS = safeSales.reduce((sum, sale) => sum + ((sale.items || []).reduce((s, item) => s + (item.cost * item.quantity), 0)), 0);
+  const totalReturns = safeReturns.reduce((sum, ret) => sum + ret.totalAmount, 0);
+  const totalProducts = safeProducts.length;
 
   // Calculate return adjustments
-  const returnAdjustments = returns.map(ret => {
-    const sale = sales.find(s => s.id === ret.saleId);
+  const returnAdjustments = safeReturns.map(ret => {
+    const sale = safeSales.find(s => s.id === ret.saleId);
     if (!sale) return { revenue: 0, cogs: 0 };
 
     return {
       revenue: ret.totalAmount,
-      cogs: ret.items.reduce((sum, item) => {
+      cogs: (ret.items || []).reduce((sum, item) => {
         const saleItem = sale.items.find(si => si.productId === item.productId);
         return sum + ((saleItem?.cost || 0) * item.quantity);
       }, 0)
@@ -49,8 +53,8 @@ export function Dashboard({ products, sales, returns, customers, onQuickSale, on
   };
 
   // Get low stock products
-  const lowStockProducts = products.filter(p => p.stock <= (p.lowStockThreshold || 10) && p.stock > 0);
-  const outOfStockProducts = products.filter(p => p.stock === 0);
+  const lowStockProducts = safeProducts.filter(p => p.stock <= (p.lowStockThreshold || 10) && p.stock > 0);
+  const outOfStockProducts = safeProducts.filter(p => p.stock === 0);
 
   return (
     <div className="space-y-6">
@@ -85,10 +89,10 @@ export function Dashboard({ products, sales, returns, customers, onQuickSale, on
           <button
             onClick={() => {
               const data = {
-                products,
+                products: safeProducts,
                 categories: [],
-                sales,
-                returns,
+                sales: safeSales,
+                returns: safeReturns,
                 customers,
                 sellers: [],
                 alertRules: [],
@@ -97,8 +101,8 @@ export function Dashboard({ products, sales, returns, customers, onQuickSale, on
                 metadata: {
                   exportDate: new Date().toISOString(),
                   version: '1.0.0',
-                  totalProducts: products.length,
-                  totalSales: sales.length,
+                  totalProducts: safeProducts.length,
+                  totalSales: safeSales.length,
                 }
               };
               const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -230,17 +234,17 @@ export function Dashboard({ products, sales, returns, customers, onQuickSale, on
         <div className="bg-white rounded-xl border border-slate-200 p-6">
           <h3 className="text-lg font-bold text-slate-900 mb-4">Recent Sales</h3>
           <div className="space-y-2 max-h-64 overflow-y-auto">
-            {sales.length === 0 ? (
+            {safeSales.length === 0 ? (
               <p className="text-sm text-slate-500 text-center py-8">No sales yet</p>
             ) : (
-              sales.slice(-10).reverse().map(sale => (
+              safeSales.slice(-10).reverse().map(sale => (
                 <div key={sale.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                   <div>
                     <p className="text-sm font-medium text-slate-900">
                       {sale.customerName || 'Walk-in Customer'}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {new Date(sale.date).toLocaleDateString()} • Qty: {sale.items.reduce((sum, item) => sum + item.quantity, 0)}
+                      {new Date(sale.date).toLocaleDateString()} • Qty: {(sale.items || []).reduce((sum, item) => sum + item.quantity, 0)}
                     </p>
                   </div>
                   <span className="text-sm font-bold text-slate-900">
