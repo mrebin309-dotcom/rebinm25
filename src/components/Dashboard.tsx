@@ -56,21 +56,9 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
   const recentSales = sales.filter(sale => isAfter(sale.date, subDays(new Date(), 7)));
   const recentRevenue = recentSales.reduce((sum, sale) => sum + sale.total, 0);
 
-  // Top selling products
-  const productSales = sales.reduce((acc, sale) => {
-    acc[sale.productId] = (acc[sale.productId] || 0) + sale.quantity;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const topProducts = Object.entries(productSales)
-    .map(([productId, quantity]) => {
-      const product = products.find(p => p.id === productId);
-      return {
-        name: product?.name || 'Unknown',
-        value: quantity,
-      };
-    })
-    .sort((a, b) => b.value - a.value)
+  // Last selling products (most recent sales)
+  const lastSales = [...sales]
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 5);
 
 
@@ -272,21 +260,30 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
           </div>
         )}
         
-        {/* Top Selling Products - Simplified */}
+        {/* Recent Sales */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Top Products</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Sales</h3>
           <div className="space-y-3">
-            {topProducts.slice(0, 5).map((product, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
-                    {index + 1}
-                  </span>
-                  <span className="font-medium text-gray-900">{product.name}</span>
+            {lastSales.length > 0 ? (
+              lastSales.map((sale, index) => (
+                <div key={sale.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">{sale.productName}</p>
+                    <p className="text-xs text-gray-500">
+                      {format(sale.date, settings.dateFormat)} • Qty: {sale.quantity}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-emerald-600">{formatCurrency(sale.total)}</p>
+                    {sale.sellerName && (
+                      <p className="text-xs text-gray-500">{sale.sellerName}</p>
+                    )}
+                  </div>
                 </div>
-                <span className="text-sm font-medium text-green-600">{product.value} sold</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-4">No sales yet</p>
+            )}
           </div>
         </div>
         
