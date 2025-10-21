@@ -137,21 +137,6 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
         <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-600 mb-2">Total Income</p>
-              <p className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">{formatCurrency(netRevenue)}</p>
-              <p className="text-xs text-slate-500 font-medium">
-                Net revenue {returnAdjustments.length > 0 ? '(after returns)' : ''}
-              </p>
-            </div>
-            <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <DollarSign className="h-6 w-6 text-white" />
-            </div>
-          </div>
-        </div>
-
-        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
               <p className="text-sm font-semibold text-slate-600 mb-2">Inventory Cost</p>
               <p className="text-3xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1">{formatCurrency(totalCost)}</p>
               <p className="text-xs text-slate-500 font-medium">{totalProducts} products</p>
@@ -175,6 +160,20 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
           </div>
         </div>
 
+        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-slate-600 mb-2">Total Income</p>
+              <p className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">{formatCurrency(netRevenue)}</p>
+              <p className="text-xs text-slate-500 font-medium">
+                Net revenue {returnAdjustments.length > 0 ? '(after returns)' : ''}
+              </p>
+            </div>
+            <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <DollarSign className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        </div>
 
         <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
           <div className="flex items-start justify-between">
