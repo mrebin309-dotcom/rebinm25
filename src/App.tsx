@@ -81,6 +81,7 @@ function App() {
     updateProduct,
     deleteProduct,
     addSale,
+    deleteSale,
     addReturn,
     addCustomer,
     addSeller,
