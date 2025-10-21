@@ -125,16 +125,32 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
     setCustomPrice(defaultPrice);
   };
 
+  const safeCalculate = (expression: string): number | null => {
+    try {
+      const sanitized = expression.replace(/[^0-9+\-*/().]/g, '');
+      if (!sanitized) return null;
+
+      const result = Function('"use strict"; return (' + sanitized + ')')();
+
+      if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+        return result;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
   const handleCalculatorInput = (value: string) => {
     if (value === 'C') {
       setCalculatorValue('');
     } else if (value === '=') {
-      try {
-        const result = eval(calculatorValue);
+      const result = safeCalculate(calculatorValue);
+      if (result !== null) {
         setFormData(prev => ({ ...prev, quantity: Math.max(1, Math.floor(result)) }));
         setCalculatorValue('');
         setShowCalculator(false);
-      } catch {
+      } else {
         setCalculatorValue('Error');
       }
     } else {

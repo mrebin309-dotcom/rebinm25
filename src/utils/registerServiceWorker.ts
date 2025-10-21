@@ -21,7 +21,7 @@ export function registerServiceWorker() {
           });
         })
         .catch((error) => {
-          console.error('Service Worker registration failed:', error);
+          console.warn('Service Worker registration failed (expected in some environments):', error.message);
         });
     });
 
