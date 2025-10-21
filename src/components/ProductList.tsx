@@ -247,17 +247,17 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {sortedProducts.map(product => {
           const stockStatus = getEnhancedStockStatus(product);
           const profitMargin = product.price > 0 ? ((product.price - product.cost) / product.price) * 100 : 0;
 
           return (
             <div key={product.id} className="group relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-500 rounded-3xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
-              <div className="relative bg-gradient-to-br from-white via-white to-slate-50/50 rounded-3xl shadow-xl overflow-hidden hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2 border border-white/60">
+              <div className="absolute -inset-0.5 bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="relative bg-gradient-to-br from-white via-white to-slate-50/50 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-white/60">
               {/* Product Image */}
-              <div className="h-56 bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
+              <div className="h-36 bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
                 {product.image ? (
                   <img
                     src={product.image}
@@ -266,26 +266,26 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50">
-                    <div className="p-4 bg-white/40 backdrop-blur-sm rounded-2xl">
-                      <Package className="h-20 w-20 text-blue-400 group-hover:text-blue-600 transition-colors" />
+                    <div className="p-2 bg-white/40 backdrop-blur-sm rounded-xl">
+                      <Package className="h-10 w-10 text-blue-400 group-hover:text-blue-600 transition-colors" />
                     </div>
                   </div>
                 )}
 
                 {/* Enhanced Stock Status Badge */}
-                <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                  {stockStatus.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600" />}
-                  {stockStatus.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
-                  <span className={`px-3 py-1.5 rounded-xl text-xs font-extrabold ${stockStatus.bgColor} ${stockStatus.textColor} border-2 ${stockStatus.borderColor} shadow-lg backdrop-blur-sm`}>
+                <div className="absolute top-2 right-2 flex items-center gap-1">
+                  {stockStatus.level === 'out' && <AlertOctagon className="h-3 w-3 text-red-600" />}
+                  {stockStatus.level === 'low' && <AlertTriangle className="h-3 w-3 text-yellow-500" />}
+                  <span className={`px-2 py-0.5 rounded-lg text-xs font-bold ${stockStatus.bgColor} ${stockStatus.textColor} border ${stockStatus.borderColor} shadow-md backdrop-blur-sm`}>
                     {stockStatus.label}
                   </span>
                 </div>
               </div>
 
               {/* Product Info */}
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg font-extrabold text-slate-900 truncate">{product.name}</h3>
+              <div className="p-3">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-sm font-extrabold text-slate-900 truncate">{product.name}</h3>
                   {stockStatus.needsAttention && (
                     <div className="flex-shrink-0 ml-2">
                       {stockStatus.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600" />}
@@ -294,31 +294,31 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
                   )}
                 </div>
                 
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">SKU:</span>
-                  <span className="text-xs font-mono font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">{product.sku}</span>
+                <div className="flex items-center gap-1 mb-1.5">
+                  <span className="text-xs font-bold text-slate-500 uppercase">SKU:</span>
+                  <span className="text-xs font-mono font-semibold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-xs">{product.sku}</span>
                 </div>
-                <div className="inline-block px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full mb-4 shadow-md">{product.category}</div>
+                <div className="inline-block px-2 py-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full mb-2 shadow-sm">{product.category}</div>
 
                 {/* Price and Stock Info */}
-                <div className="space-y-3 mb-5">
-                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
+                <div className="space-y-1.5 mb-3">
+                  <div className="flex justify-between items-center p-1.5 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
                     <span className="text-xs font-bold text-emerald-700 uppercase">Price:</span>
-                    <span className="text-lg font-extrabold text-emerald-600">${product.price.toFixed(2)}</span>
+                    <span className="text-sm font-extrabold text-emerald-600">${product.price.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200">
+                  <div className="flex justify-between items-center p-1.5 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200">
                     <span className="text-xs font-bold text-orange-700 uppercase">Cost:</span>
-                    <span className="text-lg font-extrabold text-orange-600">${product.cost.toFixed(2)}</span>
+                    <span className="text-sm font-extrabold text-orange-600">${product.cost.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                  <div className="flex justify-between items-center p-1.5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
                     <span className="text-xs font-bold text-blue-700 uppercase">Stock:</span>
-                    <span className={`text-lg font-extrabold ${stockStatus.color}`}>
+                    <span className={`text-sm font-extrabold ${stockStatus.color}`}>
                       {product.stock} units
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-200">
+                  <div className="flex justify-between items-center p-1.5 bg-gradient-to-r from-violet-50 to-purple-50 rounded-lg border border-violet-200">
                     <span className="text-xs font-bold text-violet-700 uppercase">Margin:</span>
-                    <span className={`text-lg font-extrabold ${profitMargin >= 20 ? 'text-green-600' : profitMargin >= 10 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    <span className={`text-sm font-extrabold ${profitMargin >= 20 ? 'text-green-600' : profitMargin >= 10 ? 'text-yellow-600' : 'text-red-600'}`}>
                       {profitMargin.toFixed(1)}%
                     </span>
                   </div>
@@ -326,22 +326,22 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
 
                 {/* Actions */}
                 {isAuthenticated ? (
-                  <div className="flex gap-3">
+                  <div className="flex gap-1.5">
                     <div className="flex-1 relative group/edit">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-40 group-hover/edit:opacity-70 transition-opacity"></div>
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg blur opacity-30 group-hover/edit:opacity-60 transition-opacity"></div>
                       <button
                         onClick={() => onEdit(product)}
-                        className="relative w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-3 rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        className="relative w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-2 py-1.5 rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 text-xs font-bold flex items-center justify-center gap-1 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <Edit2 className="h-3 w-3" />
                         Edit
                       </button>
                     </div>
                     <div className="relative group/delete">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl blur opacity-40 group-hover/delete:opacity-70 transition-opacity"></div>
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg blur opacity-30 group-hover/delete:opacity-60 transition-opacity"></div>
                       <button
                         onClick={() => onDelete(product.id)}
-                        className="relative bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-3 rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-300 text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        className="relative bg-gradient-to-r from-red-600 to-pink-600 text-white px-2 py-1.5 rounded-lg hover:from-red-700 hover:to-pink-700 transition-all duration-300 text-xs font-bold flex items-center justify-center gap-1 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
