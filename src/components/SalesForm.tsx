@@ -54,12 +54,13 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
   const selectedProduct = products.find(p => p.id === formData.productId);
   const unitPrice = isServiceSale ? serviceData.servicePrice :
                    useCustomPrice ? customPrice : (selectedProduct?.price || 0);
+  const costPrice = isServiceSale ? serviceData.serviceCost : (selectedProduct?.cost || 0);
   const subtotal = unitPrice * formData.quantity;
   const discountAmount = formData.discount;
   const total = subtotal - discountAmount;
   const profit = isServiceSale ?
-                 (serviceData.servicePrice - serviceData.serviceCost) * formData.quantity - discountAmount :
-                 selectedProduct ? (unitPrice - selectedProduct.cost) * formData.quantity - discountAmount : 0;
+                 ((serviceData.servicePrice - discountAmount / formData.quantity) - serviceData.serviceCost) * formData.quantity :
+                 selectedProduct ? ((unitPrice - discountAmount / formData.quantity) - selectedProduct.cost) * formData.quantity : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -342,9 +343,9 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                     </div>
                   </div>
                   <div className="text-right">
+                    <div className="text-sm text-gray-500">Cost: ${selectedProduct.cost.toFixed(2)}</div>
                     <div className="text-lg font-bold text-green-600">${selectedProduct.price.toFixed(2)}</div>
                     <div className="text-sm text-gray-600">Available: {selectedProduct.stock}</div>
-                    <div className="text-xs text-gray-500">Default Price</div>
                   </div>
                 </div>
                 <button
@@ -629,7 +630,11 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-gray-700">Unit Price:</span>
+                <span className="text-gray-700">Cost Price:</span>
+                <span className="font-medium text-gray-600">${costPrice.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-700">Selling Price:</span>
                 <span className="font-medium">
                   ${unitPrice.toFixed(2)}
                   {!isServiceSale && useCustomPrice && (
@@ -655,7 +660,11 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                 <span className="font-bold text-2xl text-green-900">${total.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-700">Profit:</span>
+                <span className="text-gray-700">Unit Profit After Discount:</span>
+                <span className="font-medium text-green-700">${((unitPrice - discountAmount / formData.quantity) - costPrice).toFixed(2)} per unit</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-700">Total Profit:</span>
                 <span className="font-medium text-green-700">${profit.toFixed(2)}</span>
               </div>
               {isServiceSale && serviceData.serviceDescription && (
