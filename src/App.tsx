@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, RefreshCw, AlertTriangle, Upload } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, RefreshCw, AlertTriangle, Upload, LogOut } from 'lucide-react';
 import { Award } from 'lucide-react';
+import { supabase } from './lib/supabase';
+import { AuthForm } from './components/AuthForm';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
 import { Dashboard } from './components/Dashboard';
 import { ProductList } from './components/ProductList';
@@ -23,8 +25,9 @@ import { formatDateWithSettings } from './utils/dateFormat';
 type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'users' | 'mobile' | 'settings';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showEnvError, setShowEnvError] = useState(false);
+  const [authUser, setAuthUser] = useState<any>(null);
 
   useEffect(() => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -40,8 +43,29 @@ function App() {
     }
   }, []);
 
-  const handleSignOut = () => {
+  useEffect(() => {
+    if (!supabase) return;
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setAuthUser(session?.user ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+      setAuthUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    if (!supabase) return;
+    await supabase.auth.signOut();
     setIsAuthenticated(false);
+    setAuthUser(null);
   };
 
   const {
@@ -344,6 +368,15 @@ function App() {
                 onMarkRead={markNotificationRead}
                 onClearAll={handleClearNotifications}
               />
+              {isAuthenticated && (
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              )}
               {currentView === 'products' && isAuthenticated && (
                 <button
                   onClick={handleAddProduct}
@@ -632,6 +665,11 @@ function App() {
           settings={settings}
           onClose={() => setSelectedSaleForInvoice(undefined)}
         />
+      )}
+
+      {/* Authentication Form */}
+      {!isAuthenticated && (
+        <AuthForm onAuthSuccess={() => setIsAuthenticated(true)} />
       )}
 
       {/* Mobile Bottom Navigation */}

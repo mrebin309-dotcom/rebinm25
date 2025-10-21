@@ -101,12 +101,6 @@ export function AuthForm({ onAuthSuccess }: AuthFormProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md relative">
-        <button
-          onClick={onAuthSuccess}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl leading-none"
-        >
-          ×
-        </button>
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
             {isLogin ? (
