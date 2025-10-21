@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, FileText, Users, Smartphone, Receipt, TrendingUp, RefreshCw, AlertTriangle, Upload, LogOut } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, RefreshCw, AlertTriangle, Upload, LogOut } from 'lucide-react';
 import { Award } from 'lucide-react';
 import { PinAccess } from './components/PinAccess';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
@@ -31,6 +31,12 @@ function App() {
   useEffect(() => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    console.log('Environment check:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseKey,
+      urlValue: supabaseUrl ? `${supabaseUrl.substring(0, 20)}...` : 'MISSING',
+      keyValue: supabaseKey ? `${supabaseKey.substring(0, 20)}...` : 'MISSING'
+    });
     if (!supabaseUrl || !supabaseKey) {
       setShowEnvError(true);
     }
@@ -76,6 +82,7 @@ function App() {
     deleteProduct,
     addSale,
     addReturn,
+    addCustomer,
     addSeller,
     markNotificationRead,
     setSettings,
@@ -100,7 +107,7 @@ function App() {
     }
   ]);
   
-  const [activityLogs] = useState([]);
+  const [activityLogs, setActivityLogs] = useState([]);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   const [importStatus, setImportStatus] = useState('');
@@ -140,7 +147,7 @@ function App() {
 
   const handleClearNotifications = () => {
     // Mark all notifications as read
-    notifications.forEach((n: { read: boolean; id: string }) => {
+    notifications.forEach(n => {
       if (!n.read) markNotificationRead(n.id);
     });
   };
@@ -172,6 +179,8 @@ function App() {
       try {
         const content = e.target?.result as string;
         const data = JSON.parse(content);
+
+        console.log('Importing data:', data);
 
         setImportProgress(20);
         setImportStatus('Preparing data...');
@@ -588,9 +597,9 @@ function App() {
                 users={users}
                 activityLogs={activityLogs}
                 currentUser={currentUser}
-                onAddUser={(user: any) => setUsers(prev => [...prev, { ...user, id: Date.now().toString(), createdAt: new Date() }])}
-                onUpdateUser={(id: string, userData: any) => setUsers(prev => prev.map(u => u.id === id ? { ...u, ...userData } : u))}
-                onDeleteUser={(id: string) => setUsers(prev => prev.filter(u => u.id !== id))}
+                onAddUser={(user) => setUsers(prev => [...prev, { ...user, id: Date.now().toString(), createdAt: new Date() }])}
+                onUpdateUser={(id, userData) => setUsers(prev => prev.map(u => u.id === id ? { ...u, ...userData } : u))}
+                onDeleteUser={(id) => setUsers(prev => prev.filter(u => u.id !== id))}
               />
             )}
             {currentView === 'mobile' && (
