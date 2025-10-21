@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 
 type Language = 'en' | 'es' | 'fr' | 'de' | 'zh' | 'ar';
 
@@ -306,11 +306,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    if (typeof key !== 'string') {
+      console.error('Translation key must be a string, received:', typeof key, key);
+      return String(key);
+    }
+    return translations[language]?.[key] || key;
   };
 
+  const value = useMemo(() => ({ language, setLanguage, t }), [language]);
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
