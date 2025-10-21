@@ -690,9 +690,20 @@ export function useInventorySupabase() {
   };
 
   const resetSalesHistory = async () => {
-    const { error } = await supabase.from('sales').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    if (!error) {
-      await loadSales();
+    try {
+      await Promise.all([
+        supabase.from('sales').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+        supabase.from('returns').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+      ]);
+
+      await Promise.all([
+        loadSales(),
+        loadReturns(),
+        loadSellers(),
+      ]);
+    } catch (error) {
+      console.error('Error resetting sales history:', error);
+      throw error;
     }
   };
 
