@@ -296,33 +296,28 @@ function App() {
       )}
 
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-xl shadow-2xl border-b border-slate-200/60 md:sticky md:top-0 z-40 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4 md:py-5">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-slate-200/50 md:sticky md:top-0 z-40">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center py-3 md:py-4">
             {/* Mobile Layout */}
-            <div className="flex items-center space-x-3 md:hidden">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl blur opacity-60 animate-pulse"></div>
-                <div className="relative bg-gradient-to-br from-blue-600 to-cyan-500 p-2.5 rounded-2xl shadow-xl">
-                  <BarChart3 className="h-6 w-6 text-white" />
-                </div>
+            <div className="flex items-center space-x-2 md:space-x-4 md:hidden">
+              <div className="bg-gradient-to-br from-blue-600 to-cyan-500 p-2 rounded-xl shadow-lg">
+                <BarChart3 className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 bg-clip-text text-transparent">{settings.companyName}</h1>
+                <h1 className="text-base font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">{settings.companyName}</h1>
               </div>
             </div>
 
             {/* Desktop Layout */}
-            <div className="hidden md:flex items-center space-x-5">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl blur-md opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                <div className="relative bg-gradient-to-br from-blue-600 to-cyan-500 p-3 rounded-2xl shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
-                  <BarChart3 className="h-8 w-8 text-white" />
-                </div>
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="bg-gradient-to-br from-blue-600 to-cyan-500 p-2.5 rounded-xl shadow-lg">
+                <BarChart3 className="h-7 w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 bg-clip-text text-transparent">{settings.companyName}</h1>
-                <p className="text-sm text-slate-600 font-medium">Inventory Management System</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">{settings.companyName}</h1>
+                <p className="text-xs text-slate-500">Inventory Management System</p>
               </div>
             </div>
 
@@ -344,28 +339,22 @@ function App() {
             </div>
 
             {/* Right side - Desktop */}
-            <div className="hidden md:flex items-center space-x-3">
-              <div className="flex items-center gap-3">
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl blur opacity-40 group-hover:opacity-60 transition-opacity"></div>
-                  <div className="relative px-5 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl shadow-lg group-hover:shadow-xl transition-all transform group-hover:-translate-y-0.5">
-                    <span className="text-lg font-bold text-white">{products.length}</span>
-                    <span className="text-xs text-blue-100 ml-1.5 font-medium">Products</span>
-                  </div>
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="flex items-center gap-4">
+                <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
+                  <span className="text-sm font-semibold text-blue-900">{products.length}</span>
+                  <span className="text-xs text-blue-600 ml-1">Products</span>
                 </div>
                 {products.filter(p => p.stock <= p.minStock).length > 0 && (
-                  <div className="relative group animate-pulse-slow">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-red-400 rounded-2xl blur opacity-40"></div>
-                    <div className="relative px-5 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl shadow-lg">
-                      <span className="text-lg font-bold text-white">{products.filter(p => p.stock <= p.minStock).length}</span>
-                      <span className="text-xs text-orange-100 ml-1.5 font-medium">Low Stock</span>
-                    </div>
+                  <div className="px-4 py-2 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200 animate-pulse">
+                    <span className="text-sm font-semibold text-orange-900">{products.filter(p => p.stock <= p.minStock).length}</span>
+                    <span className="text-xs text-orange-600 ml-1">Low Stock</span>
                   </div>
                 )}
               </div>
               <button
                 onClick={refreshData}
-                className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-700 hover:text-blue-600 bg-slate-100/80 hover:bg-blue-50 rounded-2xl transition-all duration-300 hover:shadow-lg group backdrop-blur-sm"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md group"
                 title="Sync data from cloud"
               >
                 <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
@@ -380,46 +369,40 @@ function App() {
               {isAuthenticated && (
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-red-600 hover:text-red-700 bg-red-50/80 hover:bg-red-100 rounded-2xl transition-all duration-300 hover:shadow-lg backdrop-blur-sm"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md"
                 >
                   <LogOut className="w-4 h-4" />
-                  Lock
+                  Lock System
                 </button>
               )}
               {currentView === 'products' && isAuthenticated && (
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl blur opacity-50 group-hover:opacity-70 transition-opacity"></div>
-                  <button
-                    onClick={handleAddProduct}
-                    className="relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 font-semibold"
-                  >
-                    <Package className="w-5 h-5" />
-                    Add Product
-                  </button>
-                </div>
+                <button
+                  onClick={handleAddProduct}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
+                >
+                  <Package className="w-4 h-4" />
+                  Add Product
+                </button>
               )}
               {currentView === 'sales' && isAuthenticated && (
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl blur opacity-50 group-hover:opacity-70 transition-opacity"></div>
-                  <button
-                    onClick={() => setShowSalesForm(true)}
-                    className="relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 font-semibold"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    New Sale
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowSalesForm(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  New Sale
+                </button>
               )}
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 pb-24 md:pb-10">
-        <div className="flex flex-col lg:flex-row gap-6 md:gap-10">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 md:py-8 pb-20 md:pb-8">
+        <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
           {/* Sidebar Navigation - Hidden on Mobile */}
-          <nav className="hidden md:block lg:w-80 space-y-3">
-            <div className="bg-gradient-to-br from-white/90 to-slate-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-4">
+          <nav className="hidden md:block lg:w-72 space-y-2">
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-3">
               {navigation.map(item => {
                 const Icon = item.icon;
                 const isActive = currentView === item.id;
@@ -427,23 +410,20 @@ function App() {
                   <button
                     key={item.id}
                     onClick={() => setCurrentView(item.id as View)}
-                    className={`w-full flex items-center space-x-4 px-5 py-4 text-left rounded-2xl transition-all duration-300 group ${
+                    className={`w-full flex items-center space-x-3 px-4 py-3.5 text-left rounded-xl transition-all duration-200 group ${
                       isActive
-                        ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-xl shadow-blue-500/40 scale-105 transform'
-                        : 'text-slate-700 hover:bg-gradient-to-r hover:from-slate-100 hover:to-slate-50 hover:shadow-lg hover:scale-102'
+                        ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30 scale-105'
+                        : 'text-slate-700 hover:bg-slate-100 hover:scale-102'
                     }`}
                   >
-                    <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                      isActive ? 'bg-white/25 shadow-lg' : 'bg-gradient-to-br from-slate-100 to-slate-200 group-hover:from-blue-50 group-hover:to-cyan-50'
+                    <div className={`p-2 rounded-lg transition-all duration-200 ${
+                      isActive ? 'bg-white/20' : 'bg-slate-100 group-hover:bg-slate-200'
                     }`}>
                       <Icon className="h-5 w-5" />
                     </div>
-                    <span className="font-bold text-base">{item.name}</span>
+                    <span className="font-semibold">{item.name}</span>
                     {isActive && (
-                      <div className="ml-auto flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-white animate-pulse"></div>
-                        <div className="w-2 h-2 rounded-full bg-white/70 animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                      </div>
+                      <div className="ml-auto w-2 h-2 rounded-full bg-white animate-pulse"></div>
                     )}
                   </button>
                 );
