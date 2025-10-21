@@ -430,6 +430,28 @@ export function useInventorySupabase() {
     try {
       console.log('Attempting to delete sale:', saleId);
 
+      // First, check if there are any returns associated with this sale
+      const { data: relatedReturns } = await supabase
+        .from('returns')
+        .select('id')
+        .eq('sale_id', saleId);
+
+      // If there are returns, set their sale_id to NULL first
+      if (relatedReturns && relatedReturns.length > 0) {
+        console.log(`Found ${relatedReturns.length} returns associated with this sale. Unlinking them...`);
+        const { error: unlinkError } = await supabase
+          .from('returns')
+          .update({ sale_id: null })
+          .eq('sale_id', saleId);
+
+        if (unlinkError) {
+          console.error('Error unlinking returns:', unlinkError);
+          alert(`Failed to unlink returns: ${unlinkError.message}`);
+          return;
+        }
+      }
+
+      // Now delete the sale
       const { data, error } = await supabase
         .from('sales')
         .delete()
@@ -443,7 +465,7 @@ export function useInventorySupabase() {
       }
 
       console.log('Sale deleted successfully:', data);
-      await Promise.all([loadSales(), loadProducts(), loadSellers()]);
+      await Promise.all([loadSales(), loadProducts(), loadSellers(), loadReturns()]);
       alert('Sale deleted successfully! Inventory has been restored.');
     } catch (err) {
       console.error('Exception deleting sale:', err);
