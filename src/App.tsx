@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, LogOut, RefreshCw, AlertTriangle, Upload } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, RefreshCw, AlertTriangle, Upload } from 'lucide-react';
 import { Award } from 'lucide-react';
-import { PinAccess } from './components/PinAccess';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
 import { Dashboard } from './components/Dashboard';
 import { ProductList } from './components/ProductList';
@@ -24,7 +23,7 @@ import { formatDateWithSettings } from './utils/dateFormat';
 type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'users' | 'mobile' | 'settings';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [showEnvError, setShowEnvError] = useState(false);
 
   useEffect(() => {
@@ -41,15 +40,7 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    const verified = sessionStorage.getItem('pin-verified');
-    if (verified === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
   const handleSignOut = () => {
-    sessionStorage.removeItem('pin-verified');
     setIsAuthenticated(false);
   };
 
@@ -353,15 +344,6 @@ function App() {
                 onMarkRead={markNotificationRead}
                 onClearAll={handleClearNotifications}
               />
-              {isAuthenticated && (
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Lock System
-                </button>
-              )}
               {currentView === 'products' && isAuthenticated && (
                 <button
                   onClick={handleAddProduct}
@@ -650,11 +632,6 @@ function App() {
           settings={settings}
           onClose={() => setSelectedSaleForInvoice(undefined)}
         />
-      )}
-
-      {/* PIN Access Screen */}
-      {!isAuthenticated && (
-        <PinAccess onSuccess={() => setIsAuthenticated(true)} />
       )}
 
       {/* Mobile Bottom Navigation */}
