@@ -55,12 +55,15 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
   const unitPrice = isServiceSale ? serviceData.servicePrice :
                    useCustomPrice ? customPrice : (selectedProduct?.price || 0);
   const costPrice = isServiceSale ? serviceData.serviceCost : (selectedProduct?.cost || 0);
+  const discountPerUnit = formData.discount / formData.quantity;
+  const effectiveCost = costPrice - discountPerUnit;
+  const effectiveSellingPrice = unitPrice - discountPerUnit;
   const subtotal = unitPrice * formData.quantity;
   const discountAmount = formData.discount;
   const total = subtotal - discountAmount;
   const profit = isServiceSale ?
-                 ((serviceData.servicePrice - discountAmount / formData.quantity) - serviceData.serviceCost) * formData.quantity :
-                 selectedProduct ? ((unitPrice - discountAmount / formData.quantity) - selectedProduct.cost) * formData.quantity : 0;
+                 (serviceData.servicePrice - serviceData.serviceCost) * formData.quantity :
+                 selectedProduct ? (selectedProduct.price - selectedProduct.cost) * formData.quantity : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -432,7 +435,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Discount ($)
+                Discount ($) - Reduces Cost & Price Equally
               </label>
               <input
                 type="number"
@@ -445,7 +448,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Max: ${subtotal.toFixed(2)}
+                Profit stays ${profit.toFixed(2)}
               </p>
             </div>
           </div>
@@ -629,44 +632,78 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                   <span className="font-medium">{serviceData.serviceName}</span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-gray-700">Cost Price:</span>
-                <span className="font-medium text-gray-600">${costPrice.toFixed(2)}</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Original Cost per unit:</span>
+                <span className="text-gray-600">${costPrice.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">Selling Price:</span>
-                <span className="font-medium">
-                  ${unitPrice.toFixed(2)}
-                  {!isServiceSale && useCustomPrice && (
-                    <span className="text-xs text-orange-600 ml-1">(Custom)</span>
-                  )}
-                  {isServiceSale && (
-                    <span className="text-xs text-blue-600 ml-1">(Service)</span>
-                  )}
-                </span>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Original Price per unit:</span>
+                <span className="text-gray-600">${unitPrice.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">Subtotal:</span>
-                <span className="font-medium">${subtotal.toFixed(2)}</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Original Profit per unit:</span>
+                <span className="text-green-600 font-medium">${(unitPrice - costPrice).toFixed(2)}</span>
               </div>
               {formData.discount > 0 && (
+                <>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-orange-600">Discount per unit:</span>
+                    <span className="text-orange-600 font-medium">-${discountPerUnit.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Final Cost per unit:</span>
+                    <span className="font-medium text-blue-600">${effectiveCost.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Final Price per unit:</span>
+                    <span className="font-medium text-blue-600">
+                      ${effectiveSellingPrice.toFixed(2)}
+                      {!isServiceSale && useCustomPrice && (
+                        <span className="text-xs text-orange-600 ml-1">(Custom)</span>
+                      )}
+                      {isServiceSale && (
+                        <span className="text-xs text-blue-600 ml-1">(Service)</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Profit per unit:</span>
+                    <span className="font-medium text-green-600">${(effectiveSellingPrice - effectiveCost).toFixed(2)}</span>
+                  </div>
+                </>
+              )}
+              {formData.discount === 0 && (
+                <>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-700">Quantity:</span>
+                    <span className="font-medium">{formData.quantity}</span>
+                  </div>
+                </>
+              )}
+              {formData.discount > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-700">Discount:</span>
-                  <span className="font-medium text-red-600">-${discountAmount.toFixed(2)}</span>
+                  <span className="text-gray-700">Quantity:</span>
+                  <span className="font-medium">{formData.quantity}</span>
                 </div>
               )}
               <div className="flex justify-between border-t border-green-300 pt-3">
-                <span className="font-medium text-green-900">Total:</span>
+                <span className="font-medium text-green-900">Customer Pays:</span>
                 <span className="font-bold text-2xl text-green-900">${total.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-700">Unit Profit After Discount:</span>
-                <span className="font-medium text-green-700">${((unitPrice - discountAmount / formData.quantity) - costPrice).toFixed(2)} per unit</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-gray-700">Total Profit:</span>
-                <span className="font-medium text-green-700">${profit.toFixed(2)}</span>
+                <span className="font-bold text-xl text-green-700">${profit.toFixed(2)}</span>
               </div>
+              {formData.discount > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded p-2 mt-2">
+                  <p className="text-xs text-green-800">
+                    Discount reduces both cost and price by ${discountPerUnit.toFixed(2)}/unit. Profit margin stays ${(unitPrice - costPrice).toFixed(2)}/unit
+                  </p>
+                </div>
+              )}
               {isServiceSale && serviceData.serviceDescription && (
                 <div className="pt-2 border-t border-green-300">
                   <span className="text-gray-700 text-sm">Description:</span>
