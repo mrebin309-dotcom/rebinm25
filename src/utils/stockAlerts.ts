@@ -22,13 +22,7 @@ export interface StockStatus {
 export function getStockStatus(product: Product, globalThreshold?: number): StockStatus {
   const { stock, minStock } = product;
 
-  // Use product's minStock or fallback to global threshold
-  const threshold = minStock > 0 ? minStock : (globalThreshold || 10);
-
-  // Calculate percentage of stock remaining
-  const percentage = threshold > 0 ? (stock / threshold) * 100 : 100;
-
-  // Out of stock
+  // Out of stock - always show this warning
   if (stock === 0) {
     return {
       level: 'out',
@@ -41,6 +35,26 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       needsAttention: true,
     };
   }
+
+  // If minStock is 0, only warn when out of stock (not for low stock)
+  if (minStock === 0) {
+    return {
+      level: 'good',
+      color: 'green',
+      bgColor: 'bg-green-50',
+      textColor: 'text-green-700',
+      borderColor: 'border-green-300',
+      label: 'In Stock',
+      percentage: 100,
+      needsAttention: false,
+    };
+  }
+
+  // Use product's minStock or fallback to global threshold
+  const threshold = minStock > 0 ? minStock : (globalThreshold || 10);
+
+  // Calculate percentage of stock remaining
+  const percentage = threshold > 0 ? (stock / threshold) * 100 : 100;
 
   // Low: At or below minimum stock threshold
   if (stock <= threshold) {

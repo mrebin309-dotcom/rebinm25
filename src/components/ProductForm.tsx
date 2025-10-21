@@ -271,6 +271,9 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
                 required
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Set to 0 to only warn when out of stock. Set higher to get low stock warnings.
+              </p>
             </div>
           </div>
 
