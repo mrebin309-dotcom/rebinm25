@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Language = 'en' | 'es' | 'fr' | 'de' | 'zh' | 'ar';
 
@@ -291,23 +291,14 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
-    try {
-      const saved = localStorage.getItem('language');
-      return (saved as Language) || 'en';
-    } catch (error) {
-      console.error('Error reading language from localStorage:', error);
-      return 'en';
-    }
+    const saved = localStorage.getItem('language');
+    return (saved as Language) || 'en';
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem('language', language);
-      document.documentElement.lang = language;
-      document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-    } catch (error) {
-      console.error('Error saving language to localStorage:', error);
-    }
+    localStorage.setItem('language', language);
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
   }, [language]);
 
   const setLanguage = (lang: Language) => {
@@ -315,17 +306,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: string): string => {
-    if (typeof key !== 'string') {
-      console.error('Translation key must be a string, received:', typeof key, key);
-      return String(key);
-    }
-    return translations[language]?.[key] || key;
+    return translations[language][key] || key;
   };
 
-  const value = useMemo(() => ({ language, setLanguage, t }), [language]);
-
   return (
-    <LanguageContext.Provider value={value}>
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
