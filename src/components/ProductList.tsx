@@ -129,8 +129,8 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
         </div>
       )}
       {/* Filters */}
-      <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl shadow-xl border border-slate-200/50 p-3 md:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
           <SearchWithSuggestions
             products={products}
             value={searchTerm}

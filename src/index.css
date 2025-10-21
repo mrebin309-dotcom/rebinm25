@@ -36,11 +36,33 @@
 }
 
 @layer base {
+  html {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
   body {
     @apply antialiased;
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
   }
 
   * {
     @apply scroll-smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    body {
+      touch-action: pan-y;
+      overscroll-behavior-y: none;
+    }
+  }
+
+  /* Safe area for mobile devices with notches */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
