@@ -1,42 +1,54 @@
-# URGENT: Vercel Environment Variables Setup
+# Vercel Deployment Setup Guide
 
-## The Problem
-Your app is deployed but the Supabase connection is failing because environment variables are not set in Vercel.
+## Step 1: Deploy to Vercel
 
-## Fix This Now
+If you haven't deployed yet:
+
+1. **Go to**: https://vercel.com
+2. **Sign in** with your GitHub account
+3. **Click "Add New Project"**
+4. **Import your GitHub repository**
+5. Vercel will auto-detect it's a Vite app - just click **Deploy**
+
+## Step 2: Configure Environment Variables
+
+**IMPORTANT**: Your app needs Supabase credentials to work properly.
 
 1. **Go to your Vercel dashboard**: https://vercel.com/dashboard
-2. **Click on your project**: "rebinm25rebinmm"
+2. **Click on your project**
 3. **Go to Settings** → **Environment Variables**
 4. **Add these two variables**:
 
 ### Variable 1:
 - **Name**: `VITE_SUPABASE_URL`
-- **Value**: `https://tcskxlfhwqaylegiodwa.supabase.co`
-- **Environment**: Production, Preview, Development (select all)
+- **Value**: `https://rljmsqmzucindvulbvlj.supabase.co`
+- **Environment**: Select all 3 (Production, Preview, Development)
 
 ### Variable 2:
 - **Name**: `VITE_SUPABASE_ANON_KEY`
-- **Value**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRjc2t4bGZod3FheWxlZ2lvZHdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjY0OTcsImV4cCI6MjA3NjEwMjQ5N30.yhLysjBHEZjpcLWI7Y6Hhr53tN1s5UUUI6vBuPFx5fA`
-- **Environment**: Production, Preview, Development (select all)
+- **Value**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsam1zcW16dWNpbmR2dWxidmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNDM4MjksImV4cCI6MjA3NjYxOTgyOX0.XE05uRWSjcIaDF3GwoYa2bDB5GTXdpBBr5IXaTkPYFI`
+- **Environment**: Select all 3 (Production, Preview, Development)
 
-5. **Redeploy your app**:
-   - Go to **Deployments** tab
-   - Click the three dots (...) on the latest deployment
-   - Click **Redeploy**
-   - OR just push a new commit to GitHub
+## Step 3: Redeploy
 
-## After Redeployment
+After adding the environment variables:
 
-Your app will work correctly! You'll be able to:
-- Sign up for new accounts
-- Sign in
-- Add products
-- Record sales
-- All features will work
+1. Go to **Deployments** tab
+2. Click the three dots (...) on the latest deployment
+3. Click **Redeploy**
+
+OR simply push a new commit to your GitHub repo and Vercel will auto-deploy.
+
+## What This Fixes
+
+With these environment variables set, your inventory management app will:
+- ✅ Connect to your Supabase database
+- ✅ Automatically reduce stock when you make sales (the trigger will work!)
+- ✅ Store all data persistently
+- ✅ Sync across all devices
+- ✅ Handle PIN authentication properly
 
 ## Quick Access Links
 
 - Vercel Dashboard: https://vercel.com/dashboard
-- Your App: https://rebinm25rebinmm.vercel.app
-- Supabase Dashboard: https://supabase.com/dashboard/project/tcskxlfhwqaylegiodwa
+- Supabase Dashboard: https://supabase.com/dashboard/project/rljmsqmzucindvulbvlj
