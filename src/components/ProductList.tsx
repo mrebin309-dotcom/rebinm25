@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle, AlertOctagon } from 'lucide-react';
 import { Product, Category } from '../types';
 import { SearchWithSuggestions } from './SearchWithSuggestions';
 import { getStockStatus as getEnhancedStockStatus } from '../utils/stockAlerts';
+import { MobileProductCard } from './MobileProductCard';
 
 interface ProductListProps {
   products: Product[];
@@ -18,6 +19,16 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'stock' | 'price'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Debug: Log categories when component renders
   console.log('ProductList - Categories received:', categories.length, categories);
@@ -220,8 +231,21 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
       </div>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {sortedProducts.map(product => {
+      {isMobile ? (
+        <div className="space-y-3">
+          {sortedProducts.map(product => (
+            <MobileProductCard
+              key={product.id}
+              product={product}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              isAuthenticated={isAuthenticated}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {sortedProducts.map(product => {
           const stockStatus = getEnhancedStockStatus(product);
           const profitMargin = product.price > 0 ? ((product.price - product.cost) / product.price) * 100 : 0;
 
@@ -318,6 +342,7 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
           );
         })}
       </div>
+      )}
 
       {/* Empty State */}
       {sortedProducts.length === 0 && (

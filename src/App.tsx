@@ -16,6 +16,8 @@ import { SellerReports } from './components/SellerReports';
 import { MobileSync } from './components/MobileSync';
 import { InvoiceGenerator } from './components/InvoiceGenerator';
 import { AdvancedReports } from './components/AdvancedReports';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import { MobileQuickActions } from './components/MobileQuickActions';
 import { Product, Sale } from './types';
 import { formatDateWithSettings } from './utils/dateFormat';
 
@@ -352,10 +354,10 @@ function App() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Navigation */}
-          <nav className="lg:w-72 space-y-2">
+          {/* Sidebar Navigation - Hidden on Mobile */}
+          <nav className="hidden md:block lg:w-72 space-y-2">
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-3">
               {navigation.map(item => {
                 const Icon = item.icon;
@@ -623,6 +625,21 @@ function App() {
       {!isAuthenticated && (
         <PinAccess onSuccess={() => setIsAuthenticated(true)} />
       )}
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav
+        currentView={currentView}
+        onNavigate={setCurrentView}
+        productCount={products.length}
+        lowStockCount={products.filter(p => p.stock <= p.minStock).length}
+      />
+
+      {/* Mobile Quick Actions */}
+      <MobileQuickActions
+        onAddProduct={handleAddProduct}
+        onNewSale={() => setShowSalesForm(true)}
+        isAuthenticated={isAuthenticated}
+      />
     </div>
   );
 }
