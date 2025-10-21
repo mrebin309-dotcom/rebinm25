@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Language = 'en' | 'es' | 'fr' | 'de' | 'zh' | 'ar';
+type Language = 'en' | 'es' | 'fr' | 'de' | 'zh' | 'ar' | 'ku';
 
 interface LanguageContextType {
   language: Language;
@@ -285,6 +285,52 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.lowStock': 'عناصر منخفضة المخزون',
     'dashboard.outOfStock': 'نفذ من المخزون',
   },
+  ku: {
+    'app.title': 'سیستەمی بەڕێوەبردنی کۆگا',
+    'nav.dashboard': 'داشبۆرد',
+    'nav.products': 'بەرهەمەکان',
+    'nav.sales': 'فرۆشتن',
+    'nav.returns': 'گەڕاندنەوە',
+    'nav.reports': 'ڕاپۆرتەکان',
+    'nav.advancedReports': 'ڕاپۆرتی پێشکەوتوو',
+    'nav.sellers': 'ڕاپۆرتی فرۆشیاران',
+    'nav.users': 'بەکارهێنەران',
+    'nav.mobile': 'هاوکاتکردنی مۆبایل',
+    'nav.settings': 'ڕێکخستنەکان',
+    'nav.notifications': 'ئاگادارکردنەوەکان',
+    'auth.login': 'چوونەژوورەوە',
+    'auth.logout': 'چوونەدەرەوە',
+    'auth.signup': 'تۆمارکردن',
+    'auth.email': 'ئیمەیڵ',
+    'auth.password': 'وشەی نهێنی',
+    'common.add': 'زیادکردن',
+    'common.edit': 'دەستکاریکردن',
+    'common.delete': 'سڕینەوە',
+    'common.save': 'پاشەکەوتکردن',
+    'common.cancel': 'هەڵوەشاندنەوە',
+    'common.search': 'گەڕان',
+    'common.filter': 'پاڵاوتن',
+    'common.export': 'هەناردەکردن',
+    'common.import': 'هاوردەکردن',
+    'common.loading': 'بارکردن...',
+    'common.noData': 'هیچ زانیاریەک نییە',
+    'product.name': 'ناوی بەرهەم',
+    'product.sku': 'کۆدی بەرهەم',
+    'product.price': 'نرخ',
+    'product.cost': 'تێچوون',
+    'product.stock': 'کۆگا',
+    'product.category': 'جۆر',
+    'product.addProduct': 'زیادکردنی بەرهەم',
+    'product.editProduct': 'دەستکاریکردنی بەرهەم',
+    'sale.recordSale': 'تۆمارکردنی فرۆشتن',
+    'sale.customer': 'کڕیار',
+    'sale.total': 'کۆی گشتی',
+    'sale.date': 'بەروار',
+    'dashboard.totalRevenue': 'کۆی گشتی داهات',
+    'dashboard.totalSales': 'کۆی گشتی فرۆشتن',
+    'dashboard.lowStock': 'کۆگای کەم',
+    'dashboard.outOfStock': 'کۆگا بەتاڵە',
+  },
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -298,7 +344,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem('language', language);
     document.documentElement.lang = language;
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = (language === 'ar' || language === 'ku') ? 'rtl' : 'ltr';
   }, [language]);
 
   const setLanguage = (lang: Language) => {
@@ -331,4 +377,5 @@ export const languages: { code: Language; name: string; flag: string }[] = [
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
   { code: 'zh', name: '中文', flag: '🇨🇳' },
   { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'ku', name: 'کوردی', flag: '🟥🟩' },
 ];
