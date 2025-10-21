@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key } from 'lucide-react';
+import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key, Globe } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Settings as SettingsType, AlertRule, Product, Sale, Customer, Seller } from '../types';
+import { useLanguage, languages } from '../contexts/LanguageContext';
 
 interface SettingsProps {
   settings: SettingsType;
@@ -28,6 +29,7 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
   const [pinError, setPinError] = useState('');
   const [pinSuccess, setPinSuccess] = useState(false);
   const [isChangingPin, setIsChangingPin] = useState(false);
+  const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     const loadCurrentPin = async () => {
@@ -313,6 +315,24 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
                 <option value="MM/dd/yyyy">MM/dd/yyyy</option>
                 <option value="dd/MM/yyyy">dd/MM/yyyy</option>
                 <option value="yyyy-MM-dd">yyyy-MM-dd</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                <Globe className="h-4 w-4" />
+                Language
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as any)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {languages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.flag} {lang.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
