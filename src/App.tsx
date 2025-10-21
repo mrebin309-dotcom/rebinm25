@@ -26,6 +26,7 @@ type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanc
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showEnvError, setShowEnvError] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
 
   useEffect(() => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -44,9 +45,21 @@ function App() {
   useEffect(() => {
     const verified = sessionStorage.getItem('pin-verified');
     if (verified === 'true') {
-      setIsAuthenticated(true);
+      setShowLoadingScreen(true);
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        setShowLoadingScreen(false);
+      }, 2000);
     }
   }, []);
+
+  const handlePinSuccess = () => {
+    setShowLoadingScreen(true);
+    setTimeout(() => {
+      setIsAuthenticated(true);
+      setShowLoadingScreen(false);
+    }, 2000);
+  };
 
   const handleSignOut = () => {
     sessionStorage.removeItem('pin-verified');
@@ -653,8 +666,32 @@ function App() {
       )}
 
       {/* PIN Access Screen */}
-      {!isAuthenticated && (
-        <PinAccess onSuccess={() => setIsAuthenticated(true)} />
+      {!isAuthenticated && !showLoadingScreen && (
+        <PinAccess onSuccess={handlePinSuccess} />
+      )}
+
+      {/* Loading Screen After PIN */}
+      {showLoadingScreen && (
+        <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center z-50">
+          <div className="text-center animate-fade-in">
+            <div className="inline-flex p-6 bg-gradient-to-br from-green-500 to-emerald-500 rounded-3xl shadow-2xl mb-6 animate-pulse">
+              <svg className="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-4xl font-bold text-white mb-3 animate-slide-up">
+              Access Granted
+            </h2>
+            <p className="text-lg text-blue-200 animate-slide-up-delay">
+              Loading your dashboard...
+            </p>
+            <div className="mt-6 flex justify-center gap-2">
+              <div className="w-3 h-3 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-3 h-3 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-3 h-3 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Mobile Bottom Navigation */}

@@ -46,12 +46,15 @@ export function PinAccess({ onSuccess }: PinAccessProps) {
     setTimeout(() => {
       if (pin === correctPin) {
         sessionStorage.setItem('pin-verified', 'true');
-        onSuccess();
+        setIsLoading(false);
+        setTimeout(() => {
+          onSuccess();
+        }, 100);
       } else {
         setError('Incorrect PIN. Please try again.');
         setPin('');
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }, 500);
   };
 
