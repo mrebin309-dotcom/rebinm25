@@ -63,7 +63,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
   const total = subtotal - discountAmount;
   const profit = isServiceSale ?
                  (serviceData.servicePrice - serviceData.serviceCost) * formData.quantity :
-                 selectedProduct ? (selectedProduct.price - selectedProduct.cost) * formData.quantity : 0;
+                 selectedProduct ? (unitPrice - selectedProduct.cost) * formData.quantity : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
