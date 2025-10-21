@@ -63,131 +63,152 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Quick Actions */}
-      <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6">
-        <h3 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-6">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-gradient-to-br from-white/95 to-slate-50/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-8">
+        <h3 className="text-2xl font-extrabold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 bg-clip-text text-transparent mb-8">Quick Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {onQuickSale && (
-            <button
-              onClick={onQuickSale}
-              className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 rounded-xl border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/0 via-emerald-400/30 to-emerald-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-              <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg shadow-lg">
-                <Zap className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-emerald-700">Quick Sale</span>
-            </button>
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-40 group-hover:opacity-70 transition-opacity duration-300 animate-pulse-slow"></div>
+              <button
+                onClick={onQuickSale}
+                className="relative flex items-center justify-center space-x-4 p-8 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 overflow-hidden w-full"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                <div className="relative p-3 bg-white/20 rounded-xl shadow-lg backdrop-blur-sm">
+                  <Zap className="h-7 w-7 text-white" />
+                </div>
+                <span className="relative text-xl font-extrabold text-white">Quick Sale</span>
+              </button>
+            </div>
           )}
 
           {onQuickSale && (
-            <button
-              onClick={onAddProduct}
-              className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 rounded-xl border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/30 to-blue-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg">
-                <Plus className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-blue-700">Add Product</span>
-            </button>
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-40 group-hover:opacity-70 transition-opacity duration-300 animate-pulse-slow"></div>
+              <button
+                onClick={onAddProduct}
+                className="relative flex items-center justify-center space-x-4 p-8 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 overflow-hidden w-full"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                <div className="relative p-3 bg-white/20 rounded-xl shadow-lg backdrop-blur-sm">
+                  <Plus className="h-7 w-7 text-white" />
+                </div>
+                <span className="relative text-xl font-extrabold text-white">Add Product</span>
+              </button>
+            </div>
           )}
           
-          <button
-            onClick={() => {
-              const data = {
-                products,
-                categories: [],
-                sales,
-                returns,
-                customers,
-                sellers: [],
-                alertRules: [],
-                notifications: [],
-                settings,
-                metadata: {
-                  exportDate: new Date().toISOString(),
-                  version: '1.0.0',
-                  totalProducts: products.length,
-                  totalSales: sales.length,
-                }
-              };
-              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `quick-backup-${new Date().toISOString().split('T')[0]}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-            className="group relative flex items-center justify-center space-x-3 p-6 bg-gradient-to-br from-violet-50 to-purple-50 hover:from-violet-100 hover:to-purple-100 rounded-xl border-2 border-violet-200 hover:border-violet-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-400/0 via-violet-400/30 to-violet-400/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-            <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-500 rounded-lg shadow-lg">
-              <Download className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-violet-700">Quick Backup</span>
-          </button>
+          <div className="group relative">
+            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl blur opacity-40 group-hover:opacity-70 transition-opacity duration-300 animate-pulse-slow"></div>
+            <button
+              onClick={() => {
+                const data = {
+                  products,
+                  categories: [],
+                  sales,
+                  returns,
+                  customers,
+                  sellers: [],
+                  alertRules: [],
+                  notifications: [],
+                  settings,
+                  metadata: {
+                    exportDate: new Date().toISOString(),
+                    version: '1.0.0',
+                    totalProducts: products.length,
+                    totalSales: sales.length,
+                  }
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `quick-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="relative flex items-center justify-center space-x-4 p-8 bg-gradient-to-br from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 overflow-hidden w-full"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+              <div className="relative p-3 bg-white/20 rounded-xl shadow-lg backdrop-blur-sm">
+                <Download className="h-7 w-7 text-white" />
+              </div>
+              <span className="relative text-xl font-extrabold text-white">Quick Backup</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* KPI Cards - In one line below Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-600 mb-2">Total Income</p>
-              <p className="text-3xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-1">{formatCurrency(netRevenue)}</p>
-              <p className="text-xs text-slate-500 font-medium">
-                Net revenue {returnAdjustments.length > 0 ? '(after returns)' : ''}
-              </p>
-            </div>
-            <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <DollarSign className="h-6 w-6 text-white" />
-            </div>
-          </div>
-        </div>
-
-        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-600 mb-2">Inventory Cost</p>
-              <p className="text-3xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-1">{formatCurrency(totalCost)}</p>
-              <p className="text-xs text-slate-500 font-medium">{totalProducts} products</p>
-            </div>
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <Package className="h-6 w-6 text-white" />
+        <div className="group relative">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+          <div className="relative bg-gradient-to-br from-white/95 to-emerald-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-7 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-bold text-emerald-700/80 mb-2 uppercase tracking-wide">Total Income</p>
+                <p className="text-4xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">{formatCurrency(netRevenue)}</p>
+                <p className="text-xs text-slate-600 font-semibold">
+                  Net revenue {returnAdjustments.length > 0 ? '(after returns)' : ''}
+                </p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <DollarSign className="h-7 w-7 text-white" />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-600 mb-2">Cost of Goods Sold</p>
-              <p className="text-3xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-1">{formatCurrency(totalCOGS)}</p>
-              <p className="text-xs text-slate-500 font-medium">Returns: {formatCurrency(totalReturns)}</p>
+        <div className="group relative">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+          <div className="relative bg-gradient-to-br from-white/95 to-blue-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-7 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-bold text-blue-700/80 mb-2 uppercase tracking-wide">Inventory Cost</p>
+                <p className="text-4xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">{formatCurrency(totalCost)}</p>
+                <p className="text-xs text-slate-600 font-semibold">{totalProducts} products</p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <Package className="h-7 w-7 text-white" />
+              </div>
             </div>
-            <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <ShoppingCart className="h-6 w-6 text-white" />
+          </div>
+        </div>
+
+        <div className="group relative">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-amber-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+          <div className="relative bg-gradient-to-br from-white/95 to-orange-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-7 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-bold text-orange-700/80 mb-2 uppercase tracking-wide">Cost of Goods Sold</p>
+                <p className="text-4xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-2">{formatCurrency(totalCOGS)}</p>
+                <p className="text-xs text-slate-600 font-semibold">Returns: {formatCurrency(totalReturns)}</p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <ShoppingCart className="h-7 w-7 text-white" />
+              </div>
             </div>
           </div>
         </div>
 
 
-        <div className="group bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-600 mb-2">Total Profit</p>
-              <p className="text-3xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-1">{formatCurrency(netProfit)}</p>
-              <p className="text-xs text-slate-500 font-medium">
-                Margin: {netRevenue > 0 ? ((netProfit / netRevenue) * 100).toFixed(1) : 0}%
-                {returnAdjustments.length > 0 ? ' (net)' : ''}
-              </p>
-            </div>
-            <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-              <TrendingUp className="h-6 w-6 text-white" />
+        <div className="group relative">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-400 to-purple-400 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+          <div className="relative bg-gradient-to-br from-white/95 to-violet-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-7 hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-bold text-violet-700/80 mb-2 uppercase tracking-wide">Total Profit</p>
+                <p className="text-4xl font-black bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">{formatCurrency(netProfit)}</p>
+                <p className="text-xs text-slate-600 font-semibold">
+                  Margin: {netRevenue > 0 ? ((netProfit / netRevenue) * 100).toFixed(1) : 0}%
+                  {returnAdjustments.length > 0 ? ' (net)' : ''}
+                </p>
+              </div>
+              <div className="p-4 bg-gradient-to-br from-violet-500 to-purple-500 rounded-2xl shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <TrendingUp className="h-7 w-7 text-white" />
+              </div>
             </div>
           </div>
         </div>

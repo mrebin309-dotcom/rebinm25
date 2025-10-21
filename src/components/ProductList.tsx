@@ -129,8 +129,8 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
         </div>
       )}
       {/* Filters */}
-      <div className="bg-white/60 backdrop-blur-sm rounded-xl md:rounded-2xl shadow-xl border border-slate-200/50 p-3 md:p-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
+      <div className="bg-gradient-to-br from-white/95 to-slate-50/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 p-6 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-5">
           <SearchWithSuggestions
             products={products}
             value={searchTerm}
@@ -178,18 +178,21 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
             <option value="desc">Descending</option>
           </select>
 
-          <button
-            onClick={() => {
-              setSearchTerm('');
-              setSelectedCategory('');
-              setSortBy('name');
-              setSortOrder('asc');
-            }}
-            className="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 rounded-xl hover:from-slate-200 hover:to-slate-300 transition-all duration-200 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-          >
-            <Filter className="h-5 w-5" />
-            Clear Filters
-          </button>
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-slate-400 to-slate-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('');
+                setSortBy('name');
+                setSortOrder('asc');
+              }}
+              className="relative flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-2xl hover:from-slate-700 hover:to-slate-800 transition-all duration-300 font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1 w-full"
+            >
+              <Filter className="h-5 w-5" />
+              Clear
+            </button>
+          </div>
         </div>
         
         {/* Active Filters Display */}
@@ -244,41 +247,45 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {sortedProducts.map(product => {
           const stockStatus = getEnhancedStockStatus(product);
           const profitMargin = product.price > 0 ? ((product.price - product.cost) / product.price) * 100 : 0;
 
           return (
-            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <div key={product.id} className="group relative">
+              <div className="absolute -inset-0.5 bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-500 rounded-3xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="relative bg-gradient-to-br from-white via-white to-slate-50/50 rounded-3xl shadow-xl overflow-hidden hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-2 border border-white/60">
               {/* Product Image */}
-              <div className="h-48 bg-gray-200 relative">
+              <div className="h-56 bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
                 {product.image ? (
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package className="h-16 w-16 text-gray-400" />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50">
+                    <div className="p-4 bg-white/40 backdrop-blur-sm rounded-2xl">
+                      <Package className="h-20 w-20 text-blue-400 group-hover:text-blue-600 transition-colors" />
+                    </div>
                   </div>
                 )}
 
                 {/* Enhanced Stock Status Badge */}
-                <div className="absolute top-2 right-2 flex items-center gap-1">
-                  {stockStatus.level === 'out' && <AlertOctagon className="h-4 w-4 text-red-600" />}
-                  {stockStatus.level === 'low' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${stockStatus.bgColor} ${stockStatus.textColor} border ${stockStatus.borderColor}`}>
+                <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                  {stockStatus.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600" />}
+                  {stockStatus.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500" />}
+                  <span className={`px-3 py-1.5 rounded-xl text-xs font-extrabold ${stockStatus.bgColor} ${stockStatus.textColor} border-2 ${stockStatus.borderColor} shadow-lg backdrop-blur-sm`}>
                     {stockStatus.label}
                   </span>
                 </div>
               </div>
 
               {/* Product Info */}
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="text-lg font-extrabold text-slate-900 truncate">{product.name}</h3>
                   {stockStatus.needsAttention && (
                     <div className="flex-shrink-0 ml-2">
                       {stockStatus.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600" />}
@@ -287,28 +294,31 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
                   )}
                 </div>
                 
-                <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
-                <p className="text-sm text-gray-600 mb-3">{product.category}</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">SKU:</span>
+                  <span className="text-xs font-mono font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">{product.sku}</span>
+                </div>
+                <div className="inline-block px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full mb-4 shadow-md">{product.category}</div>
 
                 {/* Price and Stock Info */}
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Price:</span>
-                    <span className="font-medium text-green-600">${product.price.toFixed(2)}</span>
+                <div className="space-y-3 mb-5">
+                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200">
+                    <span className="text-xs font-bold text-emerald-700 uppercase">Price:</span>
+                    <span className="text-lg font-extrabold text-emerald-600">${product.price.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Cost:</span>
-                    <span className="font-medium">${product.cost.toFixed(2)}</span>
+                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200">
+                    <span className="text-xs font-bold text-orange-700 uppercase">Cost:</span>
+                    <span className="text-lg font-extrabold text-orange-600">${product.cost.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Stock:</span>
-                    <span className={`font-medium ${stockStatus.color}`}>
+                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                    <span className="text-xs font-bold text-blue-700 uppercase">Stock:</span>
+                    <span className={`text-lg font-extrabold ${stockStatus.color}`}>
                       {product.stock} units
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Profit Margin:</span>
-                    <span className={`font-medium ${profitMargin >= 20 ? 'text-green-600' : profitMargin >= 10 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <div className="flex justify-between items-center p-3 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-200">
+                    <span className="text-xs font-bold text-violet-700 uppercase">Margin:</span>
+                    <span className={`text-lg font-extrabold ${profitMargin >= 20 ? 'text-green-600' : profitMargin >= 10 ? 'text-yellow-600' : 'text-red-600'}`}>
                       {profitMargin.toFixed(1)}%
                     </span>
                   </div>
@@ -316,27 +326,33 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
 
                 {/* Actions */}
                 {isAuthenticated ? (
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => onEdit(product)}
-                      className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition-colors text-sm flex items-center justify-center gap-1"
-                    >
-                      <Edit2 className="h-3 w-3" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onDelete(product.id)}
-                      className="flex-1 bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition-colors text-sm flex items-center justify-center gap-1"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      Delete
-                    </button>
+                  <div className="flex gap-3">
+                    <div className="flex-1 relative group/edit">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-40 group-hover/edit:opacity-70 transition-opacity"></div>
+                      <button
+                        onClick={() => onEdit(product)}
+                        className="relative w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-4 py-3 rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                        Edit
+                      </button>
+                    </div>
+                    <div className="relative group/delete">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl blur opacity-40 group-hover/delete:opacity-70 transition-opacity"></div>
+                      <button
+                        onClick={() => onDelete(product.id)}
+                        className="relative bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-3 rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-300 text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="bg-gray-50 text-gray-600 px-3 py-2 rounded-md text-sm text-center">
+                  <div className="bg-gradient-to-r from-slate-100 to-slate-200 text-slate-600 px-4 py-3 rounded-xl text-sm text-center font-bold border border-slate-300">
                     Sign in to edit or delete
                   </div>
                 )}
+              </div>
               </div>
             </div>
           );
