@@ -426,6 +426,17 @@ export function useInventorySupabase() {
     }
   };
 
+  const deleteSale = async (saleId: string) => {
+    const { error } = await supabase
+      .from('sales')
+      .delete()
+      .eq('id', saleId);
+
+    if (!error) {
+      await Promise.all([loadSales(), loadProducts(), loadSellers()]);
+    }
+  };
+
   const updateSettings = async (newSettings: Settings) => {
     const { data: existing } = await supabase
       .from('settings')
@@ -726,6 +737,7 @@ export function useInventorySupabase() {
     updateProduct,
     deleteProduct,
     addSale,
+    deleteSale,
     addReturn,
     updateReturn,
     addCustomer,

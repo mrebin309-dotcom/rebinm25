@@ -575,6 +575,7 @@ function App() {
                 sales={sales}
                 customers={customers}
                 settings={settings}
+                onDeleteSale={deleteSale}
               />
             )}
             {currentView === 'advanced-reports' && (

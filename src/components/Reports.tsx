@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Download, Calendar, Filter, TrendingUp, DollarSign, Package, Users } from 'lucide-react';
+import { FileText, Download, Calendar, Filter, TrendingUp, DollarSign, Package, Users, Trash2 } from 'lucide-react';
 import { Product, Sale, Customer, Settings } from '../types';
 import format from 'date-fns/format';
 import { subDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
@@ -13,9 +13,10 @@ interface ReportsProps {
   sales: Sale[];
   customers: Customer[];
   settings: Settings;
+  onDeleteSale?: (saleId: string) => void;
 }
 
-export function Reports({ products, sales, customers, settings }: ReportsProps) {
+export function Reports({ products, sales, customers, settings, onDeleteSale }: ReportsProps) {
   const [reportType, setReportType] = useState<'sales' | 'inventory' | 'financial' | 'customer'>('sales');
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'month' | 'custom'>('30d');
   const [customStartDate, setCustomStartDate] = useState('');
@@ -357,6 +358,11 @@ export function Reports({ products, sales, customers, settings }: ReportsProps) 
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Customer
                       </th>
+                      {onDeleteSale && (
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -389,6 +395,21 @@ export function Reports({ products, sales, customers, settings }: ReportsProps) 
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {sale.customerName || 'Walk-in'}
                         </td>
+                        {onDeleteSale && (
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <button
+                              onClick={() => {
+                                if (window.confirm('Are you sure you want to delete this sale? This will update all reports and seller statistics.')) {
+                                  onDeleteSale(sale.id);
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-900 transition-colors"
+                              title="Delete sale"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
