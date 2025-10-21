@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, RefreshCw, AlertTriangle, Upload, LogOut } from 'lucide-react';
 import { Award } from 'lucide-react';
-import { supabase } from './lib/supabase';
-import { AuthForm } from './components/AuthForm';
+import { PinAccess } from './components/PinAccess';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
 import { Dashboard } from './components/Dashboard';
 import { ProductList } from './components/ProductList';
@@ -27,7 +26,6 @@ type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanc
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showEnvError, setShowEnvError] = useState(false);
-  const [authUser, setAuthUser] = useState<any>(null);
 
   useEffect(() => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -44,28 +42,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!supabase) return;
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session);
-      setAuthUser(session?.user ?? null);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-      setAuthUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    const verified = sessionStorage.getItem('pin-verified');
+    if (verified === 'true') {
+      setIsAuthenticated(true);
+    }
   }, []);
 
-  const handleSignOut = async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+  const handleSignOut = () => {
+    sessionStorage.removeItem('pin-verified');
     setIsAuthenticated(false);
-    setAuthUser(null);
   };
 
   const {
@@ -374,7 +359,7 @@ function App() {
                   className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200 hover:shadow-md"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign Out
+                  Lock System
                 </button>
               )}
               {currentView === 'products' && isAuthenticated && (
@@ -667,9 +652,9 @@ function App() {
         />
       )}
 
-      {/* Authentication Form */}
+      {/* PIN Access Screen */}
       {!isAuthenticated && (
-        <AuthForm onAuthSuccess={() => setIsAuthenticated(true)} />
+        <PinAccess onSuccess={() => setIsAuthenticated(true)} />
       )}
 
       {/* Mobile Bottom Navigation */}
