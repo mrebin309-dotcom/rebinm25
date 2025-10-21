@@ -288,7 +288,7 @@ const translations: Record<Language, Record<string, string>> = {
   ku: {
     'app.title': 'سیستەمی بەڕێوەبردنی کۆگا',
     'nav.dashboard': 'داشبۆرد',
-    'nav.products': 'بەرهەمەکان',
+    'nav.products': 'پارچەکان',
     'nav.sales': 'فرۆشتن',
     'nav.returns': 'گەڕاندنەوە',
     'nav.reports': 'ڕاپۆرتەکان',
