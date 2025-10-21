@@ -57,9 +57,9 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
   const subtotal = unitPrice * formData.quantity;
   const discountAmount = (subtotal * formData.discount) / 100;
   const total = subtotal - discountAmount;
-  const profit = isServiceSale ? 
+  const profit = isServiceSale ?
                  (serviceData.servicePrice - serviceData.serviceCost) * formData.quantity - discountAmount :
-                 selectedProduct ? (selectedProduct.price - selectedProduct.cost) * formData.quantity - discountAmount : 0;
+                 selectedProduct ? (unitPrice - selectedProduct.cost) * formData.quantity - discountAmount : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
