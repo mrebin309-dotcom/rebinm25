@@ -408,6 +408,9 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                       Profit
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Cost Price
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Customer
                     </th>
                   </tr>
@@ -444,6 +447,12 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                           {formatCurrency(sale.profit)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600">
+                          {formatCurrency((() => {
+                            const product = products.find(p => p.id === sale.productId);
+                            return product ? product.cost * sale.quantity : 0;
+                          })())}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {sale.customerName || 'Walk-in'}
