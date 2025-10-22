@@ -47,7 +47,11 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
       const totalRevenue = sellerSales.reduce((sum, sale) => sum + sale.total, 0);
       const totalProfit = sellerSales.reduce((sum, sale) => sum + sale.profit, 0);
       const totalDiscount = sellerSales.reduce((sum, sale) => sum + sale.discount, 0);
-      const totalCostPrice = sellerSales.reduce((sum, sale) => sum + (sale.costPrice * sale.quantity), 0);
+      const totalCostPrice = sellerSales.reduce((sum, sale) => {
+        const product = products.find(p => p.id === sale.productId);
+        const costPrice = product ? product.cost : 0;
+        return sum + (costPrice * sale.quantity);
+      }, 0);
       const averageOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
       
       // Top products for this seller
