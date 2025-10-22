@@ -192,6 +192,7 @@ export interface SellerReport {
   totalRevenue: number;
   totalProfit: number;
   totalDiscount: number;
+  totalCostPrice: number;
   averageOrderValue: number;
   topProducts: { name: string; quantity: number; revenue: number }[];
   dailyPerformance: { date: string; sales: number; revenue: number }[];
