@@ -13,12 +13,14 @@ interface SellerReportsProps {
 
 export function SellerReports({ sellers, sales, products, settings }: SellerReportsProps) {
   const [selectedSeller, setSelectedSeller] = useState<string>('');
-  const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'month'>('30d');
+  const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'month' | 'custom'>('30d');
+  const [customStartDate, setCustomStartDate] = useState<string>(format(subDays(new Date(), 7), 'yyyy-MM-dd'));
+  const [customEndDate, setCustomEndDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
 
   const formatCurrency = (amount: number) => {
     const converted = settings.currency === 'IQD' ? amount * settings.usdToIqdRate : amount;
     const symbol = settings.currency === 'USD' ? '$' : 'IQD ';
-    return settings.currency === 'USD' 
+    return settings.currency === 'USD'
       ? `${symbol}${converted.toFixed(2)}`
       : `${symbol}${converted.toLocaleString()}`;
   };
@@ -30,6 +32,10 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
       case '30d': return { start: subDays(now, 30), end: now };
       case '90d': return { start: subDays(now, 90), end: now };
       case 'month': return { start: startOfMonth(now), end: endOfMonth(now) };
+      case 'custom': return {
+        start: new Date(customStartDate + 'T00:00:00'),
+        end: new Date(customEndDate + 'T23:59:59')
+      };
       default: return { start: subDays(now, 30), end: now };
     }
   };
@@ -131,21 +137,50 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold text-gray-900">Seller Reports</h2>
-        <div className="flex items-center space-x-2">
-          <Calendar className="h-5 w-5 text-gray-500" />
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value as any)}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="month">This month</option>
-          </select>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h2 className="text-2xl font-bold text-gray-900">Seller Reports</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <Calendar className="h-5 w-5 text-gray-500" />
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value as any)}
+              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+              <option value="month">This month</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
         </div>
+
+        {/* Custom Date Range Inputs */}
+        {dateRange === 'custom' && (
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">From:</label>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-700">To:</label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Seller Selection */}

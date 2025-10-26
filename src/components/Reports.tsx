@@ -19,8 +19,8 @@ interface ReportsProps {
 export function Reports({ products, sales, customers, settings, onDeleteSale }: ReportsProps) {
   const [reportType, setReportType] = useState<'sales' | 'inventory' | 'financial' | 'customer'>('sales');
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'month' | 'custom'>('30d');
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
+  const [customStartDate, setCustomStartDate] = useState(format(subDays(new Date(), 7), 'yyyy-MM-dd'));
+  const [customEndDate, setCustomEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [exportFormat, setExportFormat] = useState<'pdf' | 'excel' | 'csv'>('pdf');
 
   const getDateRange = () => {
@@ -35,9 +35,9 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
       case 'month':
         return { start: startOfMonth(now), end: endOfMonth(now) };
       case 'custom':
-        return { 
-          start: customStartDate ? new Date(customStartDate) : subDays(now, 30), 
-          end: customEndDate ? new Date(customEndDate) : now 
+        return {
+          start: new Date(customStartDate + 'T00:00:00'),
+          end: new Date(customEndDate + 'T23:59:59')
         };
       default:
         return { start: subDays(now, 30), end: now };
