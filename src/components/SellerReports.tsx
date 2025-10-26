@@ -271,64 +271,64 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
       {selectedReport && (
         <div className="space-y-6">
           {/* Seller KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Sales</p>
-                  <p className="text-2xl font-bold text-blue-600">{selectedReport.totalSales}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Sales</p>
+                  <p className="text-xl sm:text-2xl font-bold text-blue-600 truncate">{selectedReport.totalSales}</p>
                 </div>
-                <TrendingUp className="h-10 w-10 text-blue-500" />
+                <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 text-blue-500 flex-shrink-0 ml-2" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                  <p className="text-2xl font-bold text-green-600">{formatCurrency(selectedReport.totalRevenue)}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-600 truncate">{formatCurrency(selectedReport.totalRevenue)}</p>
                 </div>
-                <DollarSign className="h-10 w-10 text-green-500" />
+                <DollarSign className="h-8 w-8 sm:h-10 sm:w-10 text-green-500 flex-shrink-0 ml-2" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Profit</p>
-                  <p className="text-2xl font-bold text-purple-600">{formatCurrency(selectedReport.totalProfit)}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Profit</p>
+                  <p className="text-xl sm:text-2xl font-bold text-purple-600 truncate">{formatCurrency(selectedReport.totalProfit)}</p>
                 </div>
-                <TrendingUp className="h-10 w-10 text-purple-500" />
+                <TrendingUp className="h-8 w-8 sm:h-10 sm:w-10 text-purple-500 flex-shrink-0 ml-2" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Cost Price</p>
-                  <p className="text-2xl font-bold text-orange-600">{formatCurrency(selectedReport.totalCostPrice)}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Cost Price</p>
+                  <p className="text-xl sm:text-2xl font-bold text-orange-600 truncate">{formatCurrency(selectedReport.totalCostPrice)}</p>
                 </div>
-                <Package className="h-10 w-10 text-orange-500" />
+                <Package className="h-8 w-8 sm:h-10 sm:w-10 text-orange-500 flex-shrink-0 ml-2" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Discount</p>
-                  <p className="text-2xl font-bold text-red-600">{formatCurrency(selectedReport.totalDiscount)}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Total Discount</p>
+                  <p className="text-xl sm:text-2xl font-bold text-red-600 truncate">{formatCurrency(selectedReport.totalDiscount)}</p>
                 </div>
-                <DollarSign className="h-10 w-10 text-red-500" />
+                <DollarSign className="h-8 w-8 sm:h-10 sm:w-10 text-red-500 flex-shrink-0 ml-2" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Commission</p>
-                  <p className="text-2xl font-bold text-cyan-600">{formatCurrency(selectedReport.commissionEarned)}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Commission</p>
+                  <p className="text-xl sm:text-2xl font-bold text-cyan-600 truncate">{formatCurrency(selectedReport.commissionEarned)}</p>
                 </div>
-                <Award className="h-10 w-10 text-cyan-500" />
+                <Award className="h-8 w-8 sm:h-10 sm:w-10 text-cyan-500 flex-shrink-0 ml-2" />
               </div>
             </div>
           </div>
