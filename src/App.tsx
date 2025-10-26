@@ -399,10 +399,10 @@ function App() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 md:py-8 pb-20 md:pb-8">
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
+      <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-4 md:py-8 pb-20 md:pb-8">
+        <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
           {/* Sidebar Navigation - Hidden on Mobile */}
-          <nav className="hidden md:block lg:w-72 space-y-2">
+          <nav className="hidden md:block lg:w-64 flex-shrink-0 space-y-2">
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-3">
               {navigation.map(item => {
                 const Icon = item.icon;
@@ -433,7 +433,7 @@ function App() {
           </nav>
 
           {/* Main Content */}
-          <main className="flex-1">
+          <main className="flex-1 min-w-0">
             {currentView === 'dashboard' && (
               <Dashboard
                 products={products}
