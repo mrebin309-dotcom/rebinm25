@@ -13,7 +13,7 @@ interface ReportsProps {
   sales: Sale[];
   customers: Customer[];
   settings: Settings;
-  onDeleteSale?: (saleId: string) => void;
+  onDeleteSale?: (saleId: string, restoreInventory?: boolean) => void;
 }
 
 export function Reports({ products, sales, customers, settings, onDeleteSale }: ReportsProps) {
@@ -407,8 +407,15 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <button
                               onClick={() => {
-                                if (window.confirm(`Are you sure you want to delete this sale?\n\nProduct: ${sale.productName}\nQuantity: ${sale.quantity}\nTotal: $${sale.total.toFixed(2)}\n\nThis will restore ${sale.quantity} units back to inventory.`)) {
-                                  onDeleteSale(sale.id);
+                                const shouldDelete = window.confirm(
+                                  `Are you sure you want to delete this sale?\n\nProduct: ${sale.productName}\nQuantity: ${sale.quantity}\nTotal: $${sale.total.toFixed(2)}`
+                                );
+
+                                if (shouldDelete) {
+                                  const restoreInventory = window.confirm(
+                                    `Do you want to restore ${sale.quantity} units back to inventory?\n\nClick OK to restore inventory\nClick Cancel to delete without restoring inventory`
+                                  );
+                                  onDeleteSale(sale.id, restoreInventory);
                                 }
                               }}
                               className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition-colors"

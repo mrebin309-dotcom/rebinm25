@@ -15,7 +15,7 @@ interface SettingsProps {
   onUpdateAlertRules: (rules: AlertRule[]) => void;
   onExport: () => void;
   onImport: (file: File) => void;
-  onResetSalesHistory: () => void;
+  onResetSalesHistory: (restoreInventory?: boolean) => void;
   onResetAllData: () => void;
   isAuthenticated?: boolean;
 }
@@ -85,7 +85,12 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
     );
 
     if (confirmed) {
-      onResetSalesHistory();
+      const restoreInventory = window.confirm(
+        'Do you want to restore all sold items back to inventory?\n\n' +
+        'Click OK to restore inventory\n' +
+        'Click Cancel to delete sales without restoring inventory'
+      );
+      onResetSalesHistory(restoreInventory);
     }
   };
 

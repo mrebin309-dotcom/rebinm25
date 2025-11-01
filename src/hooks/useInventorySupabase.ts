@@ -428,9 +428,16 @@ export function useInventorySupabase() {
     }
   };
 
-  const deleteSale = async (saleId: string) => {
+  const deleteSale = async (saleId: string, restoreInventory: boolean = true) => {
     try {
-      console.log('Attempting to delete sale:', saleId);
+      console.log('Attempting to delete sale:', saleId, 'Restore inventory:', restoreInventory);
+
+      // Get sale details before deletion
+      const { data: saleData } = await supabase
+        .from('sales')
+        .select('product_id, quantity')
+        .eq('id', saleId)
+        .single();
 
       // First, check if there are any returns associated with this sale
       const { data: relatedReturns } = await supabase
@@ -453,7 +460,26 @@ export function useInventorySupabase() {
         }
       }
 
-      // Now delete the sale
+      // If we don't want to restore inventory, we need to manually adjust the stock
+      // before deletion (the trigger will restore it, so we reduce it first)
+      if (!restoreInventory && saleData) {
+        console.log('Preventing inventory restoration by pre-reducing stock');
+        const { data: currentProduct } = await supabase
+          .from('products')
+          .select('stock')
+          .eq('id', saleData.product_id)
+          .single();
+
+        if (currentProduct) {
+          const newStock = Math.max(0, currentProduct.stock - saleData.quantity);
+          await supabase
+            .from('products')
+            .update({ stock: newStock })
+            .eq('id', saleData.product_id);
+        }
+      }
+
+      // Now delete the sale (trigger will restore inventory)
       const { data, error } = await supabase
         .from('sales')
         .delete()
@@ -468,7 +494,12 @@ export function useInventorySupabase() {
 
       console.log('Sale deleted successfully:', data);
       await Promise.all([loadSales(), loadProducts(), loadSellers(), loadReturns()]);
-      alert('Sale deleted successfully! Inventory has been restored.');
+
+      if (restoreInventory) {
+        alert('Sale deleted successfully! Inventory has been restored.');
+      } else {
+        alert('Sale deleted successfully! Inventory was not restored.');
+      }
     } catch (err) {
       console.error('Exception deleting sale:', err);
       alert('An error occurred while deleting the sale.');
@@ -738,10 +769,72 @@ export function useInventorySupabase() {
     }
   };
 
-  const resetSalesHistory = async () => {
-    const { error } = await supabase.from('sales').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    if (!error) {
-      await loadSales();
+  const resetSalesHistory = async (restoreInventory: boolean = true) => {
+    try {
+      console.log('Resetting sales history. Restore inventory:', restoreInventory);
+
+      // If we don't want to restore inventory, we need to get all sales first
+      // and manually adjust the stock before deletion
+      if (!restoreInventory) {
+        const { data: allSales } = await supabase
+          .from('sales')
+          .select('product_id, quantity');
+
+        if (allSales) {
+          // Group by product_id to calculate total quantities to remove
+          const productAdjustments: Record<string, number> = {};
+          allSales.forEach(sale => {
+            productAdjustments[sale.product_id] =
+              (productAdjustments[sale.product_id] || 0) + sale.quantity;
+          });
+
+          // Update all affected products
+          for (const [productId, quantity] of Object.entries(productAdjustments)) {
+            const { data: product } = await supabase
+              .from('products')
+              .select('stock')
+              .eq('id', productId)
+              .single();
+
+            if (product) {
+              const newStock = Math.max(0, product.stock - quantity);
+              await supabase
+                .from('products')
+                .update({ stock: newStock })
+                .eq('id', productId);
+            }
+          }
+        }
+      }
+
+      // Delete all sales (trigger will restore inventory if restoreInventory is true)
+      const { error } = await supabase
+        .from('sales')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      if (error) {
+        console.error('Error resetting sales:', error);
+        alert(`Failed to reset sales: ${error.message}`);
+        return;
+      }
+
+      // Delete all returns as well
+      await supabase
+        .from('returns')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+
+      await Promise.all([loadSales(), loadProducts(), loadReturns(), loadSellers()]);
+
+      if (restoreInventory) {
+        alert('Sales history reset successfully! Inventory has been restored.');
+      } else {
+        alert('Sales history reset successfully! Inventory was not restored.');
+      }
+    } catch (err) {
+      console.error('Exception resetting sales:', err);
+      alert('An error occurred while resetting sales history.');
     }
   };
 
