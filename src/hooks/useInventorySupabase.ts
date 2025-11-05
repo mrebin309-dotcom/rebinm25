@@ -84,6 +84,7 @@ export function useInventorySupabase() {
           image: p.image,
           supplier: p.supplier,
           location: p.location,
+          colorVariants: p.color_variants,
           createdAt: new Date(p.created_at),
           updatedAt: new Date(p.updated_at),
           createdBy: p.created_by,
@@ -106,6 +107,7 @@ export function useInventorySupabase() {
           productId: s.product_id,
           productName: s.product_name,
           productCategory: s.product_category,
+          productColor: s.product_color,
           quantity: s.quantity,
           unitPrice: parseFloat(s.unit_price),
           discount: parseFloat(s.discount),
@@ -351,6 +353,7 @@ export function useInventorySupabase() {
         image: productData.image,
         supplier: productData.supplier,
         location: productData.location,
+        color_variants: productData.colorVariants,
       })
       .select()
       .single();
@@ -377,6 +380,7 @@ export function useInventorySupabase() {
         image: productData.image,
         supplier: productData.supplier,
         location: productData.location,
+        color_variants: productData.colorVariants,
       })
       .eq('id', id);
 
@@ -398,6 +402,7 @@ export function useInventorySupabase() {
       product_id: saleData.productId,
       product_name: saleData.productName,
       product_category: saleData.productCategory,
+      product_color: saleData.productColor,
       quantity: saleData.quantity,
       unit_price: saleData.unitPrice,
       discount: saleData.discount,

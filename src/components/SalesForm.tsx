@@ -20,6 +20,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
     productId: '',
     productSearch: '',
     selectedCategory: '',
+    selectedColor: '',
     quantity: 1,
     discount: 0,
     customerId: '',
@@ -70,6 +71,21 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
     if (!isServiceSale && !selectedProduct) return;
     if (isServiceSale && !serviceData.serviceName.trim()) return;
 
+    // Check if color variant is required but not selected
+    if (selectedProduct?.colorVariants && selectedProduct.colorVariants.length > 0 && !formData.selectedColor) {
+      alert('Please select a color variant');
+      return;
+    }
+
+    // Check if selected color has enough stock
+    if (formData.selectedColor && selectedProduct?.colorVariants) {
+      const colorVariant = selectedProduct.colorVariants.find(v => v.color === formData.selectedColor);
+      if (colorVariant && colorVariant.stock < formData.quantity) {
+        alert(`Not enough stock for ${formData.selectedColor}. Only ${colorVariant.stock} available.`);
+        return;
+      }
+    }
+
     const saleData: Omit<Sale, 'id' | 'date'> & { saleDate?: string } = isServiceSale ? {
       productId: 'service-' + Date.now(),
       productName: serviceData.serviceName,
@@ -91,6 +107,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
       productId: formData.productId,
       productName: selectedProduct!.name,
       productCategory: selectedProduct!.category,
+      productColor: formData.selectedColor || undefined,
       quantity: formData.quantity,
       unitPrice,
       discount: discountAmount,
@@ -353,9 +370,64 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                     <div className="text-sm text-gray-600">Available: {selectedProduct.stock}</div>
                   </div>
                 </div>
+
+                {/* Color Variant Selection */}
+                {selectedProduct.colorVariants && selectedProduct.colorVariants.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-blue-300">
+                    <label className="block text-sm font-medium text-gray-900 mb-3">
+                      Select Color * (Required)
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {selectedProduct.colorVariants.map((variant) => (
+                        <button
+                          key={variant.color}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, selectedColor: variant.color }))}
+                          disabled={variant.stock === 0}
+                          className={`relative p-3 rounded-lg border-2 transition-all ${
+                            formData.selectedColor === variant.color
+                              ? 'border-blue-600 bg-blue-100'
+                              : variant.stock > 0
+                              ? 'border-gray-300 hover:border-blue-400 bg-white'
+                              : 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-8 h-8 rounded-full border-2 border-gray-400 shadow-sm flex-shrink-0"
+                              style={{ backgroundColor: variant.colorCode }}
+                            />
+                            <div className="text-left flex-1">
+                              <div className="font-medium text-sm text-gray-900">{variant.color}</div>
+                              <div className={`text-xs ${variant.stock === 0 ? 'text-red-600 font-bold' : 'text-gray-600'}`}>
+                                {variant.stock === 0 ? 'Out of Stock' : `${variant.stock} available`}
+                              </div>
+                            </div>
+                          </div>
+                          {formData.selectedColor === variant.color && (
+                            <div className="absolute top-1 right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    {formData.selectedColor && (
+                      <div className="mt-2 text-sm text-green-700 flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Selected: {formData.selectedColor}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <button
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, productId: '', productSearch: '', selectedCategory: '' }))}
+                  onClick={() => setFormData(prev => ({ ...prev, productId: '', productSearch: '', selectedCategory: '', selectedColor: '' }))}
                   className="mt-2 text-sm text-blue-600 hover:text-blue-800"
                 >
                   Change Product

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
-import { Product, Category } from '../types';
+import { Product, Category, ColorVariant } from '../types';
+import { ColorVariantManager } from './ColorVariantManager';
 
 interface ProductFormProps {
   product?: Product;
@@ -20,12 +21,22 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
     minStock: product?.minStock || 10,
     description: product?.description || '',
     image: product?.image || '',
+    colorVariants: product?.colorVariants || [] as ColorVariant[],
   });
 
   const [pricingMode, setPricingMode] = useState<'price' | 'profit'>('price');
   const [profitAmount, setProfitAmount] = useState(0);
   const [profitPercentage, setProfitPercentage] = useState(0);
   const [imagePreview, setImagePreview] = useState(product?.image || '');
+
+  const isBackGlassCategory = formData.category.toLowerCase().includes('back glass');
+
+  useEffect(() => {
+    if (formData.colorVariants && formData.colorVariants.length > 0) {
+      const totalStock = formData.colorVariants.reduce((sum, v) => sum + v.stock, 0);
+      setFormData(prev => ({ ...prev, stock: totalStock }));
+    }
+  }, [formData.colorVariants]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -333,6 +344,16 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
                   ✅ Good profit margin! You'll earn ${currentProfit.toFixed(2)} per item.
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Color Variants for Back Glass */}
+          {isBackGlassCategory && (
+            <div className="border-t pt-4">
+              <ColorVariantManager
+                variants={formData.colorVariants || []}
+                onChange={(variants) => setFormData(prev => ({ ...prev, colorVariants: variants }))}
+              />
             </div>
           )}
 

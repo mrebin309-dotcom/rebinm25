@@ -1,3 +1,9 @@
+export interface ColorVariant {
+  color: string;
+  colorCode: string;
+  stock: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -12,6 +18,7 @@ export interface Product {
   image?: string;
   supplier?: string;
   location?: string;
+  colorVariants?: ColorVariant[];
   createdAt: Date;
   updatedAt: Date;
   createdBy?: string;
@@ -29,6 +36,7 @@ export interface Sale {
   productId: string;
   productName: string;
   productCategory?: string;
+  productColor?: string;
   quantity: number;
   unitPrice: number;
   discount: number;

@@ -288,7 +288,31 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
                 </div>
                 
                 <p className="text-sm text-gray-600 mb-2">SKU: {product.sku}</p>
-                <p className="text-sm text-gray-600 mb-3">{product.category}</p>
+                <p className="text-sm text-gray-600 mb-2">{product.category}</p>
+
+                {/* Color Variants */}
+                {product.colorVariants && product.colorVariants.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs text-gray-500 mb-1">Colors:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {product.colorVariants.map((variant) => (
+                        <div
+                          key={variant.color}
+                          className="relative group"
+                          title={`${variant.color}: ${variant.stock} units`}
+                        >
+                          <div
+                            className="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm cursor-pointer hover:scale-110 transition-transform"
+                            style={{ backgroundColor: variant.colorCode }}
+                          />
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                            {variant.color}: {variant.stock}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Price and Stock Info */}
                 <div className="space-y-2 mb-4">
