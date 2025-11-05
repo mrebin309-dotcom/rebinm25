@@ -35,7 +35,7 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
 
   // Enhanced stock alerts using the new system
   const stockSummary = getStockSummary(products, settings.lowStockThreshold);
-  const productsNeedingAttention = getProductsNeedingAttention(products, settings.lowStockThreshold).slice(0, 10);
+  const productsNeedingAttention = getProductsNeedingAttention(products, settings.lowStockThreshold);
   
   const totalRevenue = sales.reduce((sum, sale) => sum + sale.total, 0);
   const totalProfit = sales.reduce((sum, sale) => sum + sale.profit, 0);
@@ -222,7 +222,7 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                 </div>
               </div>
             </div>
-            <div className="px-6 py-4 max-h-96 overflow-y-auto">
+            <div className="px-6 py-4 max-h-[600px] overflow-y-auto custom-scrollbar">
               <div className="space-y-3">
                 {productsNeedingAttention.map(product => {
                   const status = product.stockStatus;
