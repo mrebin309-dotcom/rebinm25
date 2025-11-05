@@ -301,6 +301,7 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                     <p className="font-medium text-gray-900">{sale.productName}</p>
                     <p className="text-xs text-gray-500">
                       {format(sale.date, settings.dateFormat)} • Qty: {sale.quantity}
+                      {sale.productColor && ` • Color: ${sale.productColor}`}
                     </p>
                   </div>
                   <div className="text-right">

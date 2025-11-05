@@ -384,7 +384,14 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
                           #{sale.id.slice(-6)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {sale.productName}
+                          <div>
+                            {sale.productName}
+                            {sale.productColor && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                Color: {sale.productColor}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
