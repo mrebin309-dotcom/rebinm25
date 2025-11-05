@@ -255,28 +255,22 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                         </div>
                       </div>
 
-                      {/* Color Alerts */}
+                      {/* Color Alerts - Only Out of Stock */}
                       {status.colorAlerts && status.colorAlerts.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-300">
-                          <p className="text-xs font-semibold text-gray-700 mb-2">Color Status:</p>
+                          <p className="text-xs font-semibold text-red-800 mb-2">⚠️ Out of Stock Colors:</p>
                           <div className="flex flex-wrap gap-2">
                             {status.colorAlerts.map((colorAlert) => (
                               <div
                                 key={colorAlert.color}
-                                className={`flex items-center gap-2 px-2 py-1 rounded ${
-                                  colorAlert.status === 'out'
-                                    ? 'bg-red-100 border border-red-300'
-                                    : 'bg-yellow-100 border border-yellow-300'
-                                }`}
+                                className="flex items-center gap-2 px-2 py-1 rounded bg-red-100 border border-red-300"
                               >
                                 <div
                                   className="w-4 h-4 rounded-full border border-gray-400 shadow-sm flex-shrink-0"
                                   style={{ backgroundColor: colorAlert.colorCode }}
                                 />
-                                <span className={`text-xs font-medium ${
-                                  colorAlert.status === 'out' ? 'text-red-800' : 'text-yellow-800'
-                                }`}>
-                                  {colorAlert.color}: {colorAlert.stock === 0 ? 'Out' : `${colorAlert.stock} left`}
+                                <span className="text-xs font-medium text-red-800">
+                                  {colorAlert.color}: Out of Stock
                                 </span>
                               </div>
                             ))}

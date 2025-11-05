@@ -36,23 +36,15 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
 
   if (colorVariants && colorVariants.length > 0) {
     colorVariants.forEach((variant) => {
-      let status: StockLevel = 'good';
-
+      // For Back Glass category, only alert when completely out of stock
       if (variant.stock === 0) {
-        status = 'out';
-        hasColorIssues = true;
-      } else if (variant.stock <= 2) {
-        status = 'low';
-        hasColorIssues = true;
-      }
-
-      if (status !== 'good') {
         colorAlerts.push({
           color: variant.color,
           colorCode: variant.colorCode,
           stock: variant.stock,
-          status,
+          status: 'out',
         });
+        hasColorIssues = true;
       }
     });
   }
@@ -72,16 +64,15 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
     };
   }
 
-  // If we have color issues, mark as needing attention
-  if (hasColorIssues) {
-    const allColorsOut = colorAlerts.every(a => a.status === 'out');
+  // If we have out of stock colors, mark as needing attention
+  if (hasColorIssues && colorAlerts.length > 0) {
     return {
-      level: allColorsOut ? 'out' : 'low',
-      color: allColorsOut ? 'red' : 'yellow',
-      bgColor: allColorsOut ? 'bg-red-50' : 'bg-yellow-100',
-      textColor: allColorsOut ? 'text-red-700' : 'text-yellow-800',
-      borderColor: allColorsOut ? 'border-red-300' : 'border-yellow-400',
-      label: allColorsOut ? 'Colors Out of Stock' : 'Low Color Stock',
+      level: 'out',
+      color: 'red',
+      bgColor: 'bg-red-50',
+      textColor: 'text-red-700',
+      borderColor: 'border-red-300',
+      label: 'Colors Out of Stock',
       percentage: 50,
       needsAttention: true,
       colorAlerts,
@@ -157,10 +148,9 @@ export function generateStockNotifications(
     let title = '';
     let message = '';
 
-    // If there are color alerts, create specific notifications
+    // If there are color alerts, create specific notifications (only for out of stock)
     if (status.colorAlerts && status.colorAlerts.length > 0) {
       const outOfStockColors = status.colorAlerts.filter(a => a.status === 'out');
-      const lowStockColors = status.colorAlerts.filter(a => a.status === 'low');
 
       if (outOfStockColors.length > 0) {
         type = 'error';
@@ -170,23 +160,6 @@ export function generateStockNotifications(
 
         notifications.push({
           id: `stock-alert-color-out-${product.id}-${now.getTime()}`,
-          type,
-          title,
-          message,
-          date: now,
-          read: false,
-          actionUrl: `/products?id=${product.id}`,
-        });
-      }
-
-      if (lowStockColors.length > 0) {
-        type = 'warning';
-        title = '📦 Low Color Stock';
-        const colorDetails = lowStockColors.map(c => `${c.color} (${c.stock})`).join(', ');
-        message = `${product.name} - Low stock colors: ${colorDetails}`;
-
-        notifications.push({
-          id: `stock-alert-color-low-${product.id}-${now.getTime()}`,
           type,
           title,
           message,
