@@ -229,29 +229,60 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
                   return (
                     <div
                       key={product.id}
-                      className={`flex items-center justify-between p-4 ${status.bgColor} border ${status.borderColor} rounded-lg transition-all hover:shadow-md`}
+                      className={`p-4 ${status.bgColor} border ${status.borderColor} rounded-lg transition-all hover:shadow-md`}
                     >
-                      <div className="flex items-center space-x-3 flex-1">
-                        {status.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600 flex-shrink-0" />}
-                        {status.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3 flex-1">
+                          {status.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600 flex-shrink-0" />}
+                          {status.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />}
 
-                        {product.image && (
-                          <img src={product.image} alt={product.name} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <h4 className={`font-semibold ${status.textColor} truncate`}>{product.name}</h4>
-                          <p className="text-xs text-gray-600 truncate">SKU: {product.sku} • {product.category}</p>
+                          {product.image && (
+                            <img src={product.image} alt={product.name} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`font-semibold ${status.textColor} truncate`}>{product.name}</h4>
+                            <p className="text-xs text-gray-600 truncate">SKU: {product.sku} • {product.category}</p>
+                          </div>
+                        </div>
+                        <div className="text-right ml-3">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 ${status.bgColor} ${status.textColor} text-xs font-bold rounded-full border ${status.borderColor}`}>
+                              {status.label}
+                            </span>
+                          </div>
+                          <p className={`text-lg font-black ${status.textColor} mt-1`}>{product.stock}</p>
+                          <p className="text-xs text-gray-500">Min: {product.minStock}</p>
                         </div>
                       </div>
-                      <div className="text-right ml-3">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 ${status.bgColor} ${status.textColor} text-xs font-bold rounded-full border ${status.borderColor}`}>
-                            {status.label}
-                          </span>
+
+                      {/* Color Alerts */}
+                      {status.colorAlerts && status.colorAlerts.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-300">
+                          <p className="text-xs font-semibold text-gray-700 mb-2">Color Status:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {status.colorAlerts.map((colorAlert) => (
+                              <div
+                                key={colorAlert.color}
+                                className={`flex items-center gap-2 px-2 py-1 rounded ${
+                                  colorAlert.status === 'out'
+                                    ? 'bg-red-100 border border-red-300'
+                                    : 'bg-yellow-100 border border-yellow-300'
+                                }`}
+                              >
+                                <div
+                                  className="w-4 h-4 rounded-full border border-gray-400 shadow-sm flex-shrink-0"
+                                  style={{ backgroundColor: colorAlert.colorCode }}
+                                />
+                                <span className={`text-xs font-medium ${
+                                  colorAlert.status === 'out' ? 'text-red-800' : 'text-yellow-800'
+                                }`}>
+                                  {colorAlert.color}: {colorAlert.stock === 0 ? 'Out' : `${colorAlert.stock} left`}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        <p className={`text-lg font-black ${status.textColor} mt-1`}>{product.stock}</p>
-                        <p className="text-xs text-gray-500">Min: {product.minStock}</p>
-                      </div>
+                      )}
                     </div>
                   );
                 })}</div>

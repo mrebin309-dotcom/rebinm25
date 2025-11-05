@@ -1,6 +1,13 @@
-import { Product, Notification, Settings } from '../types';
+import { Product, Notification, Settings, ColorVariant } from '../types';
 
 export type StockLevel = 'low' | 'good' | 'out';
+
+export interface ColorStockAlert {
+  color: string;
+  colorCode: string;
+  stock: number;
+  status: StockLevel;
+}
 
 export interface StockStatus {
   level: StockLevel;
@@ -11,6 +18,7 @@ export interface StockStatus {
   label: string;
   percentage: number;
   needsAttention: boolean;
+  colorAlerts?: ColorStockAlert[];
 }
 
 /**
@@ -20,7 +28,34 @@ export interface StockStatus {
  * @returns Stock status with level, colors, and metadata
  */
 export function getStockStatus(product: Product, globalThreshold?: number): StockStatus {
-  const { stock, minStock } = product;
+  const { stock, minStock, colorVariants } = product;
+
+  // Check color variants if they exist
+  const colorAlerts: ColorStockAlert[] = [];
+  let hasColorIssues = false;
+
+  if (colorVariants && colorVariants.length > 0) {
+    colorVariants.forEach((variant) => {
+      let status: StockLevel = 'good';
+
+      if (variant.stock === 0) {
+        status = 'out';
+        hasColorIssues = true;
+      } else if (variant.stock <= 2) {
+        status = 'low';
+        hasColorIssues = true;
+      }
+
+      if (status !== 'good') {
+        colorAlerts.push({
+          color: variant.color,
+          colorCode: variant.colorCode,
+          stock: variant.stock,
+          status,
+        });
+      }
+    });
+  }
 
   // Out of stock - always show this warning
   if (stock === 0) {
@@ -33,6 +68,23 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       label: 'Out of Stock',
       percentage: 0,
       needsAttention: true,
+      colorAlerts: colorAlerts.length > 0 ? colorAlerts : undefined,
+    };
+  }
+
+  // If we have color issues, mark as needing attention
+  if (hasColorIssues) {
+    const allColorsOut = colorAlerts.every(a => a.status === 'out');
+    return {
+      level: allColorsOut ? 'out' : 'low',
+      color: allColorsOut ? 'red' : 'yellow',
+      bgColor: allColorsOut ? 'bg-red-50' : 'bg-yellow-100',
+      textColor: allColorsOut ? 'text-red-700' : 'text-yellow-800',
+      borderColor: allColorsOut ? 'border-red-300' : 'border-yellow-400',
+      label: allColorsOut ? 'Colors Out of Stock' : 'Low Color Stock',
+      percentage: 50,
+      needsAttention: true,
+      colorAlerts,
     };
   }
 
@@ -105,28 +157,69 @@ export function generateStockNotifications(
     let title = '';
     let message = '';
 
-    switch (status.level) {
-      case 'out':
-        type = 'error';
-        title = '🚨 Out of Stock';
-        message = `${product.name} is completely out of stock. Reorder immediately!`;
-        break;
-      case 'low':
-        type = 'warning';
-        title = '📦 Low Stock Alert';
-        message = `${product.name} has ${product.stock} units, approaching minimum threshold.`;
-        break;
-    }
+    // If there are color alerts, create specific notifications
+    if (status.colorAlerts && status.colorAlerts.length > 0) {
+      const outOfStockColors = status.colorAlerts.filter(a => a.status === 'out');
+      const lowStockColors = status.colorAlerts.filter(a => a.status === 'low');
 
-    notifications.push({
-      id: `stock-alert-${product.id}-${now.getTime()}`,
-      type,
-      title,
-      message,
-      date: now,
-      read: false,
-      actionUrl: `/products?id=${product.id}`,
-    });
+      if (outOfStockColors.length > 0) {
+        type = 'error';
+        title = '🚨 Color Out of Stock';
+        const colorNames = outOfStockColors.map(c => c.color).join(', ');
+        message = `${product.name} - Out of stock colors: ${colorNames}`;
+
+        notifications.push({
+          id: `stock-alert-color-out-${product.id}-${now.getTime()}`,
+          type,
+          title,
+          message,
+          date: now,
+          read: false,
+          actionUrl: `/products?id=${product.id}`,
+        });
+      }
+
+      if (lowStockColors.length > 0) {
+        type = 'warning';
+        title = '📦 Low Color Stock';
+        const colorDetails = lowStockColors.map(c => `${c.color} (${c.stock})`).join(', ');
+        message = `${product.name} - Low stock colors: ${colorDetails}`;
+
+        notifications.push({
+          id: `stock-alert-color-low-${product.id}-${now.getTime()}`,
+          type,
+          title,
+          message,
+          date: now,
+          read: false,
+          actionUrl: `/products?id=${product.id}`,
+        });
+      }
+    } else {
+      // Regular stock alerts
+      switch (status.level) {
+        case 'out':
+          type = 'error';
+          title = '🚨 Out of Stock';
+          message = `${product.name} is completely out of stock. Reorder immediately!`;
+          break;
+        case 'low':
+          type = 'warning';
+          title = '📦 Low Stock Alert';
+          message = `${product.name} has ${product.stock} units, approaching minimum threshold.`;
+          break;
+      }
+
+      notifications.push({
+        id: `stock-alert-${product.id}-${now.getTime()}`,
+        type,
+        title,
+        message,
+        date: now,
+        read: false,
+        actionUrl: `/products?id=${product.id}`,
+      });
+    }
   });
 
   return notifications;
