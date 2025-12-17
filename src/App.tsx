@@ -16,12 +16,13 @@ import { SellerReports } from './components/SellerReports';
 import { MobileSync } from './components/MobileSync';
 import { InvoiceGenerator } from './components/InvoiceGenerator';
 import { AdvancedReports } from './components/AdvancedReports';
+import { LoanReports } from './components/LoanReports';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { MobileQuickActions } from './components/MobileQuickActions';
 import { Product, Sale } from './types';
 import { formatDateWithSettings } from './utils/dateFormat';
 
-type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'users' | 'mobile' | 'settings';
+type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'loan-reports' | 'users' | 'mobile' | 'settings';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -233,6 +234,7 @@ function App() {
     { id: 'reports', name: 'Reports', icon: FileText },
     { id: 'advanced-reports', name: 'Advanced Analytics', icon: TrendingUp },
     { id: 'sellers', name: 'Seller Reports', icon: Award },
+    { id: 'loan-reports', name: 'Loan Reports', icon: DollarSign },
     { id: 'users', name: 'Users', icon: Users },
     { id: 'mobile', name: 'Mobile Sync', icon: Smartphone },
     { id: 'settings', name: 'Settings', icon: SettingsIcon },
@@ -599,6 +601,11 @@ function App() {
                 sellers={sellers}
                 sales={sales}
                 products={products}
+                settings={settings}
+              />
+            )}
+            {currentView === 'loan-reports' && (
+              <LoanReports
                 settings={settings}
               />
             )}
