@@ -361,6 +361,9 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Customer
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Seller
+                      </th>
                       {onDeleteSale && (
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
@@ -409,6 +412,9 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {sale.customerName || 'Walk-in'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {sale.sellerName || '-'}
                         </td>
                         {onDeleteSale && (
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
