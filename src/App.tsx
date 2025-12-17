@@ -10,6 +10,7 @@ import { SalesForm } from './components/SalesForm';
 import { Returns } from './components/Returns';
 import { NotificationCenter } from './components/NotificationCenter';
 import { Settings } from './components/Settings';
+import { CategoryManagement } from './components/CategoryManagement';
 import { Reports } from './components/Reports';
 import { UserManagement } from './components/UserManagement';
 import { SellerReports } from './components/SellerReports';
@@ -85,6 +86,9 @@ function App() {
     addReturn,
     addCustomer,
     addSeller,
+    addCategory,
+    updateCategory,
+    deleteCategory,
     markNotificationRead,
     setSettings,
     updateReturn: updateReturnInHook,
@@ -562,21 +566,29 @@ function App() {
               />
             )}
             {currentView === 'settings' && (
-              <Settings
-                settings={settings}
-                alertRules={alertRules}
-                products={products}
-                sales={sales}
-                customers={customers}
-                sellers={sellers}
-                onUpdateSettings={setSettings}
-                onUpdateAlertRules={() => {}}
-                onExport={handleExportData}
-                onImport={handleImportData}
-                onResetSalesHistory={resetSalesHistory}
-                onResetAllData={resetAllData}
-                isAuthenticated={isAuthenticated}
-              />
+              <div className="space-y-6">
+                <Settings
+                  settings={settings}
+                  alertRules={alertRules}
+                  products={products}
+                  sales={sales}
+                  customers={customers}
+                  sellers={sellers}
+                  onUpdateSettings={setSettings}
+                  onUpdateAlertRules={() => {}}
+                  onExport={handleExportData}
+                  onImport={handleImportData}
+                  onResetSalesHistory={resetSalesHistory}
+                  onResetAllData={resetAllData}
+                  isAuthenticated={isAuthenticated}
+                />
+                <CategoryManagement
+                  categories={categories}
+                  onAddCategory={addCategory}
+                  onUpdateCategory={updateCategory}
+                  onDeleteCategory={deleteCategory}
+                />
+              </div>
             )}
             {currentView === 'reports' && (
               <Reports

@@ -858,6 +858,52 @@ export function useInventorySupabase() {
     await loadAllData();
   };
 
+  const addCategory = async (category: Omit<Category, 'id'>) => {
+    const { error } = await supabase
+      .from('categories')
+      .insert([
+        {
+          name: category.name,
+          description: category.description,
+        },
+      ]);
+
+    if (error) {
+      console.error('Error adding category:', error);
+      throw error;
+    }
+    await loadCategories();
+  };
+
+  const updateCategory = async (id: string, category: Omit<Category, 'id'>) => {
+    const { error } = await supabase
+      .from('categories')
+      .update({
+        name: category.name,
+        description: category.description,
+      })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating category:', error);
+      throw error;
+    }
+    await loadCategories();
+  };
+
+  const deleteCategory = async (id: string) => {
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
+    await loadCategories();
+  };
+
   return {
     products,
     sales,
@@ -878,6 +924,9 @@ export function useInventorySupabase() {
     updateReturn,
     addCustomer,
     addSeller,
+    addCategory,
+    updateCategory,
+    deleteCategory,
     setSettings: updateSettings,
     markNotificationRead: () => {},
     exportData,

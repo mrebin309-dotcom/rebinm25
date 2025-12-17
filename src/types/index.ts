@@ -39,6 +39,7 @@ export interface Sale {
   productColor?: string;
   quantity: number;
   unitPrice: number;
+  unitCost?: number;
   discount: number;
   tax: number;
   total: number;
@@ -51,6 +52,32 @@ export interface Sale {
   sellerId?: string;
   sellerName?: string;
   location?: string;
+  purchaseType?: 'cash' | 'loan';
+  loanId?: string;
+}
+
+export interface Loan {
+  id: string;
+  loanDate: Date;
+  loanAmount: number;
+  purpose: string;
+  status: 'pending' | 'paid' | 'partial';
+  paidAmount: number;
+  paidDate?: Date;
+  notes?: string;
+  createdAt: Date;
+  createdBy?: string;
+}
+
+export interface LoanPayment {
+  id: string;
+  loanId: string;
+  paymentDate: Date;
+  paymentAmount: number;
+  saleId?: string;
+  notes?: string;
+  createdAt: Date;
+  createdBy?: string;
 }
 
 export interface Return {
