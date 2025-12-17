@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key } from 'lucide-react';
+import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key, Plus, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Settings as SettingsType, AlertRule, Product, Sale, Customer, Seller } from '../types';
+import { Settings as SettingsType, AlertRule, Product, Sale, Customer, Seller, Category } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SettingsProps {
@@ -29,6 +29,11 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
   const [pinError, setPinError] = useState('');
   const [pinSuccess, setPinSuccess] = useState(false);
   const [isChangingPin, setIsChangingPin] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryDescription, setNewCategoryDescription] = useState('');
+  const [categoryError, setCategoryError] = useState('');
+  const [categorySuccess, setCategorySuccess] = useState(false);
 
   useEffect(() => {
     const loadCurrentPin = async () => {
@@ -45,7 +50,57 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
       }
     };
     loadCurrentPin();
+    loadCategories();
   }, []);
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      if (data) setCategories(data);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+    }
+  };
+
+  const handleAddCategory = async () => {
+    setCategoryError('');
+    setCategorySuccess(false);
+
+    if (!newCategoryName.trim()) {
+      setCategoryError('Category name is required');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .insert({
+          name: newCategoryName.trim(),
+          description: newCategoryDescription.trim()
+        });
+
+      if (error) throw error;
+
+      setCategorySuccess(true);
+      setNewCategoryName('');
+      setNewCategoryDescription('');
+      await loadCategories();
+
+      setTimeout(() => setCategorySuccess(false), 3000);
+    } catch (err: any) {
+      if (err.message?.includes('duplicate') || err.code === '23505') {
+        setCategoryError('A category with this name already exists');
+      } else {
+        setCategoryError('Failed to add category. Please try again.');
+      }
+      console.error('Error adding category:', err);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -406,6 +461,84 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
             Current rate: 1 USD = {formData.usdToIqdRate.toLocaleString()} IQD
           </p>
         </div>
+
+        {/* Category Management */}
+        {isAuthenticated && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+              <Tag className="h-5 w-5" />
+              Category Management
+            </h3>
+
+            {categorySuccess && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                Category added successfully!
+              </div>
+            )}
+
+            {categoryError && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                {categoryError}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Enter category name"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={newCategoryDescription}
+                    onChange={(e) => setNewCategoryDescription(e.target.value)}
+                    placeholder="Enter description"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddCategory}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Category
+              </button>
+
+              <div className="mt-6">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Existing Categories ({categories.length})</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto">
+                  {categories.map(category => (
+                    <div
+                      key={category.id}
+                      className="p-3 border border-gray-200 rounded-lg bg-gray-50"
+                      title={category.description}
+                    >
+                      <p className="font-medium text-gray-900 text-sm">{category.name}</p>
+                      {category.description && (
+                        <p className="text-xs text-gray-500 truncate">{category.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* PIN Management */}
         {isAuthenticated && (
