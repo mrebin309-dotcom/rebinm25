@@ -118,7 +118,7 @@ export function SearchWithSuggestions({
       </div>
 
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-[9999] w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto">
           <div className="p-2">
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-3 py-2">
               Products ({suggestions.length})
@@ -175,7 +175,7 @@ export function SearchWithSuggestions({
       )}
 
       {showSuggestions && value && suggestions.length === 0 && (
-        <div className="absolute z-[9999] w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl p-4">
+        <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl p-4">
           <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
             No products found for "{value}"
           </p>
