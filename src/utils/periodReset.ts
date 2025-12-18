@@ -97,8 +97,8 @@ export const archiveCurrentPeriod = async (
     const { data: sales, error: salesError } = await supabase
       .from('sales')
       .select('*')
-      .gte('date', startDate.toISOString().split('T')[0])
-      .lte('date', endDateInclusive.toISOString().split('T')[0]);
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDateInclusive.toISOString());
 
     if (salesError) {
       console.error('Sales query error:', salesError);
@@ -123,7 +123,7 @@ export const archiveCurrentPeriod = async (
     const sellerBreakdown: Record<string, { cost: number; profit: number; sales: number }> = {};
 
     sales?.forEach(sale => {
-      const seller = sale.seller || 'Unknown';
+      const seller = sale.seller_name || 'Unknown';
       if (!sellerBreakdown[seller]) {
         sellerBreakdown[seller] = { cost: 0, profit: 0, sales: 0 };
       }
