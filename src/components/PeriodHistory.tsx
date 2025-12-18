@@ -117,10 +117,13 @@ export function PeriodHistory() {
 
         setTimeout(() => setResetSuccess(''), 5000);
       } else {
-        setResetError('Failed to reset. Please try again.');
+        const errorMsg = result.error ? String(result.error) : 'Failed to reset. Please try again.';
+        setResetError(errorMsg);
+        console.error('Reset failed:', result.error);
       }
     } catch (error) {
-      setResetError('An error occurred during reset. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'An error occurred during reset. Please try again.';
+      setResetError(errorMsg);
       console.error('Reset error:', error);
     } finally {
       setIsResetting(false);

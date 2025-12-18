@@ -59,11 +59,14 @@ export const archiveCurrentPeriod = async (
     const startDate = customStartDate || periodInfo.periodStart;
     const endDate = customEndDate || periodInfo.periodEnd;
 
+    const endDateInclusive = new Date(endDate);
+    endDateInclusive.setHours(23, 59, 59, 999);
+
     const { data: sales, error: salesError } = await supabase
       .from('sales')
       .select('*')
-      .gte('date', startDate.toISOString())
-      .lte('date', endDate.toISOString());
+      .gte('date', startDate.toISOString().split('T')[0])
+      .lte('date', endDateInclusive.toISOString().split('T')[0]);
 
     if (salesError) throw salesError;
 
