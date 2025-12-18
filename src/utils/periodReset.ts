@@ -68,10 +68,24 @@ export const archiveCurrentPeriod = async (
       .gte('date', startDate.toISOString().split('T')[0])
       .lte('date', endDateInclusive.toISOString().split('T')[0]);
 
-    if (salesError) throw salesError;
+    if (salesError) {
+      console.error('Sales query error:', salesError);
+      throw salesError;
+    }
 
-    const totalCost = sales?.reduce((sum, sale) => sum + (sale.unit_cost * sale.quantity), 0) || 0;
-    const totalProfit = sales?.reduce((sum, sale) => sum + sale.profit, 0) || 0;
+    console.log(`Found ${sales?.length || 0} sales for period`);
+
+    const totalCost = sales?.reduce((sum, sale) => {
+      const unitCost = Number(sale.unit_cost) || 0;
+      const quantity = Number(sale.quantity) || 0;
+      return sum + (unitCost * quantity);
+    }, 0) || 0;
+
+    const totalProfit = sales?.reduce((sum, sale) => {
+      const profit = Number(sale.profit) || 0;
+      return sum + profit;
+    }, 0) || 0;
+
     const totalSales = sales?.length || 0;
 
     const sellerBreakdown: Record<string, { cost: number; profit: number; sales: number }> = {};
@@ -81,24 +95,35 @@ export const archiveCurrentPeriod = async (
       if (!sellerBreakdown[seller]) {
         sellerBreakdown[seller] = { cost: 0, profit: 0, sales: 0 };
       }
-      sellerBreakdown[seller].cost += sale.unit_cost * sale.quantity;
-      sellerBreakdown[seller].profit += sale.profit;
+      const unitCost = Number(sale.unit_cost) || 0;
+      const quantity = Number(sale.quantity) || 0;
+      const profit = Number(sale.profit) || 0;
+
+      sellerBreakdown[seller].cost += unitCost * quantity;
+      sellerBreakdown[seller].profit += profit;
       sellerBreakdown[seller].sales += 1;
     });
 
+    const archiveData = {
+      period_type: type,
+      period_start: startDate.toISOString().split('T')[0],
+      period_end: endDate.toISOString().split('T')[0],
+      total_cost: totalCost,
+      total_profit: totalProfit,
+      total_sales: totalSales,
+      seller_breakdown: sellerBreakdown
+    };
+
+    console.log('Attempting to archive data:', archiveData);
+
     const { error: insertError } = await supabase
       .from('period_history')
-      .insert({
-        period_type: type,
-        period_start: startDate.toISOString().split('T')[0],
-        period_end: endDate.toISOString().split('T')[0],
-        total_cost: totalCost,
-        total_profit: totalProfit,
-        total_sales: totalSales,
-        seller_breakdown: sellerBreakdown
-      });
+      .insert(archiveData);
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error('Insert error details:', insertError);
+      throw insertError;
+    }
 
     return { success: true, totalCost, totalProfit, totalSales };
   } catch (error) {
@@ -116,7 +141,11 @@ export const performReset = async (
     const archiveResult = await archiveCurrentPeriod(type, customStartDate, customEndDate);
 
     if (!archiveResult.success) {
-      return { success: false, error: 'Failed to archive data' };
+      const errorMsg = archiveResult.error instanceof Error
+        ? archiveResult.error.message
+        : String(archiveResult.error);
+      console.error('Archive failed:', archiveResult.error);
+      return { success: false, error: `Failed to archive data: ${errorMsg}` };
     }
 
     const now = new Date();
