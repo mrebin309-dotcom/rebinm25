@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Smartphone, Receipt, TrendingUp, AlertTriangle, Upload, LogOut, DollarSign } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Smartphone, Receipt, TrendingUp, RefreshCw, AlertTriangle, Upload, LogOut, DollarSign } from 'lucide-react';
 import { Award } from 'lucide-react';
 import { PinAccess } from './components/PinAccess';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
