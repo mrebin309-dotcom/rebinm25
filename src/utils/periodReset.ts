@@ -277,3 +277,28 @@ export const getPeriodHistory = async (type?: 'cost' | 'profit', limit = 10) => 
     return [];
   }
 };
+
+export const undoPeriodReset = async (periodId: string) => {
+  try {
+    console.log(`Undoing period reset for ID: ${periodId}`);
+
+    const { error: deleteError } = await supabase
+      .from('period_history')
+      .delete()
+      .eq('id', periodId);
+
+    if (deleteError) {
+      console.error('Error deleting period history:', deleteError);
+      console.error('Formatted error:', formatErrorMessage(deleteError));
+      throw deleteError;
+    }
+
+    console.log('Period reset undone successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('Error undoing period reset:', error);
+    const errorMessage = formatErrorMessage(error);
+    console.error('Formatted error:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+};

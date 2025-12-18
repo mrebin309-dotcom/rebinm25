@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Calendar, DollarSign, TrendingUp, Users, ShoppingCart, Download, RefreshCw, AlertTriangle } from 'lucide-react';
-import { getPeriodHistory, getCurrentPeriodInfo, performReset } from '../utils/periodReset';
+import { Calendar, DollarSign, TrendingUp, Users, ShoppingCart, Download, RefreshCw, AlertTriangle, Undo2 } from 'lucide-react';
+import { getPeriodHistory, getCurrentPeriodInfo, performReset, undoPeriodReset } from '../utils/periodReset';
 
 interface PeriodHistoryRecord {
   id: string;
@@ -27,6 +27,9 @@ export function PeriodHistory() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [periodInfo, setPeriodInfo] = useState(getCurrentPeriodInfo());
+  const [showUndoDialog, setShowUndoDialog] = useState(false);
+  const [recordToUndo, setRecordToUndo] = useState<PeriodHistoryRecord | null>(null);
+  const [isUndoing, setIsUndoing] = useState(false);
 
   useEffect(() => {
     loadHistory();
@@ -127,6 +130,45 @@ export function PeriodHistory() {
       console.error('Reset error:', error);
     } finally {
       setIsResetting(false);
+    }
+  };
+
+  const handleOpenUndoDialog = (record: PeriodHistoryRecord) => {
+    setRecordToUndo(record);
+    setShowUndoDialog(true);
+    setResetError('');
+  };
+
+  const handleConfirmUndo = async () => {
+    if (!recordToUndo) return;
+
+    setIsUndoing(true);
+    setResetError('');
+    setResetSuccess('');
+
+    try {
+      const result = await undoPeriodReset(recordToUndo.id);
+
+      if (result.success) {
+        setResetSuccess(
+          `Period reset undone successfully! The archived ${recordToUndo.period_type} data has been removed.`
+        );
+        setShowUndoDialog(false);
+        setRecordToUndo(null);
+        loadHistory();
+
+        setTimeout(() => setResetSuccess(''), 5000);
+      } else {
+        const errorMsg = result.error ? String(result.error) : 'Failed to undo reset. Please try again.';
+        setResetError(errorMsg);
+        console.error('Undo failed:', result.error);
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'An error occurred during undo. Please try again.';
+      setResetError(errorMsg);
+      console.error('Undo error:', error);
+    } finally {
+      setIsUndoing(false);
     }
   };
 
@@ -332,12 +374,22 @@ export function PeriodHistory() {
                       {new Date(record.created_at).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => setSelectedRecord(record)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        View Details
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setSelectedRecord(record)}
+                          className="text-blue-600 hover:text-blue-900 font-medium"
+                        >
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleOpenUndoDialog(record)}
+                          className="text-orange-600 hover:text-orange-900 font-medium flex items-center gap-1"
+                          title="Undo this reset"
+                        >
+                          <Undo2 className="h-4 w-4" />
+                          Undo
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -538,6 +590,84 @@ export function PeriodHistory() {
                   <>
                     <RefreshCw className="h-4 w-4" />
                     Confirm Reset
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showUndoDialog && recordToUndo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Confirm Undo Reset
+            </h3>
+
+            <div className="mb-6 space-y-4">
+              <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-sm text-orange-800 font-medium mb-2">
+                  Warning: You are about to undo this period reset!
+                </p>
+                <ul className="text-sm text-orange-700 space-y-1 list-disc list-inside">
+                  <li>This archived period will be permanently deleted</li>
+                  <li>This action cannot be reversed</li>
+                  <li>No product data will be restored or modified</li>
+                </ul>
+              </div>
+
+              <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm space-y-2">
+                <div>
+                  <strong>Period Type:</strong> <span className="capitalize">{recordToUndo.period_type}</span>
+                </div>
+                <div>
+                  <strong>Period:</strong> {new Date(recordToUndo.period_start).toLocaleDateString()} - {new Date(recordToUndo.period_end).toLocaleDateString()}
+                </div>
+                <div>
+                  <strong>Total Cost:</strong> ${recordToUndo.total_cost.toFixed(2)}
+                </div>
+                <div>
+                  <strong>Total Profit:</strong> ${recordToUndo.total_profit.toFixed(2)}
+                </div>
+                <div>
+                  <strong>Sales Count:</strong> {recordToUndo.total_sales}
+                </div>
+              </div>
+
+              {resetError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+                  {resetError}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowUndoDialog(false);
+                  setRecordToUndo(null);
+                  setResetError('');
+                }}
+                disabled={isUndoing}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmUndo}
+                disabled={isUndoing}
+                className="flex-1 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isUndoing ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Undoing...
+                  </>
+                ) : (
+                  <>
+                    <Undo2 className="h-4 w-4" />
+                    Confirm Undo
                   </>
                 )}
               </button>
