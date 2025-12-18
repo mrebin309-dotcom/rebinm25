@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key, Plus, Tag } from 'lucide-react';
+import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key, Plus, Tag, RefreshCw, DollarSign, TrendingUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Settings as SettingsType, AlertRule, Product, Sale, Customer, Seller, Category } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getCurrentPeriodInfo, performReset, getPeriodHistory } from '../utils/periodReset';
 
 interface SettingsProps {
   settings: SettingsType;
@@ -34,6 +35,12 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
   const [newCategoryDescription, setNewCategoryDescription] = useState('');
   const [categoryError, setCategoryError] = useState('');
   const [categorySuccess, setCategorySuccess] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [resetType, setResetType] = useState<'cost' | 'profit' | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [periodInfo, setPeriodInfo] = useState(getCurrentPeriodInfo());
 
   useEffect(() => {
     const loadCurrentPin = async () => {
@@ -172,6 +179,45 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
     }
   };
 
+  const handleOpenResetDialog = (type: 'cost' | 'profit') => {
+    setResetType(type);
+    setShowResetDialog(true);
+    setResetError('');
+    setResetSuccess('');
+  };
+
+  const handleConfirmReset = async () => {
+    if (!resetType) return;
+
+    setIsResetting(true);
+    setResetError('');
+    setResetSuccess('');
+
+    try {
+      const result = await performReset(resetType);
+
+      if (result.success) {
+        setResetSuccess(
+          `${resetType === 'cost' ? 'Cost' : 'Profit'} reset successfully! ` +
+          `Archived: ${result.archived?.totalSales || 0} sales, ` +
+          `$${result.archived?.totalCost?.toFixed(2) || '0.00'} cost, ` +
+          `$${result.archived?.totalProfit?.toFixed(2) || '0.00'} profit`
+        );
+        setPeriodInfo(getCurrentPeriodInfo());
+        setShowResetDialog(false);
+
+        setTimeout(() => setResetSuccess(''), 5000);
+      } else {
+        setResetError('Failed to reset. Please try again.');
+      }
+    } catch (error) {
+      setResetError('An error occurred during reset. Please try again.');
+      console.error('Reset error:', error);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -245,6 +291,97 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
                 <Upload className="h-4 w-4" />
                 Backup Now
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Period Reset Section */}
+        {isAuthenticated && (
+          <div className="mb-4 space-y-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">Current Period Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-blue-700">Current Period:</span>
+                  <span className="ml-2 font-semibold text-blue-900">
+                    {periodInfo.currentPeriod === 'first-half' ? '1st-15th' : '16th-End of Month'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-blue-700">Period Dates:</span>
+                  <span className="ml-2 font-semibold text-blue-900">
+                    {periodInfo.periodStart.toLocaleDateString()} - {periodInfo.periodEnd.toLocaleDateString()}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-blue-700">Next Cost Reset:</span>
+                  <span className="ml-2 font-semibold text-blue-900">
+                    {periodInfo.nextCostReset.toLocaleDateString()}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-blue-700">Next Profit Reset:</span>
+                  <span className="ml-2 font-semibold text-blue-900">
+                    {periodInfo.nextProfitReset.toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {resetSuccess && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                {resetSuccess}
+              </div>
+            )}
+
+            {resetError && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                {resetError}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 border border-orange-200 rounded-lg bg-orange-50">
+                <div className="flex items-center gap-2 mb-2">
+                  <DollarSign className="h-5 w-5 text-orange-600" />
+                  <h4 className="font-medium text-orange-900">Reset Cost</h4>
+                </div>
+                <p className="text-sm text-orange-700 mb-3">
+                  Resets every 15th and 30th of the month. Archives current cost data before resetting.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleOpenResetDialog('cost')}
+                  disabled={isResetting}
+                  className="w-full bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Reset Cost
+                </button>
+              </div>
+
+              <div className="p-4 border border-green-200 rounded-lg bg-green-50">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="h-5 w-5 text-green-600" />
+                  <h4 className="font-medium text-green-900">Reset Profit</h4>
+                </div>
+                <p className="text-sm text-green-700 mb-3">
+                  Resets every 30th of the month. Archives current profit data before resetting.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleOpenResetDialog('profit')}
+                  disabled={isResetting}
+                  className="w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Reset Profit
+                </button>
+              </div>
+            </div>
+
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+              <strong>Note:</strong> Sales records are never deleted. Only cost and profit totals are reset after being archived.
             </div>
           </div>
         )}
@@ -708,6 +845,65 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
           </div>
         )}
       </form>
+
+      {/* Reset Warning Dialog */}
+      {showResetDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Confirm {resetType === 'cost' ? 'Cost' : 'Profit'} Reset
+            </h3>
+
+            <div className="mb-6 space-y-3">
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800 font-medium mb-2">
+                  Warning: You are about to reset {resetType === 'cost' ? 'cost' : 'profit'} data!
+                </p>
+                <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
+                  <li>Current {resetType} totals will be archived</li>
+                  <li>{resetType === 'cost' ? 'Cost' : 'Profit'} counters will reset to $0</li>
+                  <li>Sales records will remain unchanged</li>
+                  <li>You can view archived data in reports</li>
+                </ul>
+              </div>
+
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+                <strong>Current Period:</strong> {periodInfo.periodStart.toLocaleDateString()} - {periodInfo.periodEnd.toLocaleDateString()}
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowResetDialog(false);
+                  setResetType(null);
+                }}
+                disabled={isResetting}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmReset}
+                disabled={isResetting}
+                className="flex-1 bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isResetting ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4" />
+                    Confirm Reset
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
