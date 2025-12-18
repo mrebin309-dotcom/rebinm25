@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
 import { TrendingUp, Package, AlertTriangle, DollarSign, Users, ShoppingCart, RotateCcw, TrendingDown, Download, AlertOctagon } from 'lucide-react';
 import { Plus, Zap } from 'lucide-react';
 import { Product, Sale, Return, Settings } from '../types';
 import { format, subDays, isAfter } from 'date-fns';
 import { getProductsNeedingAttention, getStockSummary } from '../utils/stockAlerts';
-import { getLastResetDates } from '../utils/periodReset';
 
 interface DashboardProps {
   products: Product[];
@@ -16,21 +14,6 @@ interface DashboardProps {
 }
 
 export function Dashboard({ products, sales, returns, settings, onQuickSale, onAddProduct }: DashboardProps) {
-  const [lastCostReset, setLastCostReset] = useState<Date | null>(null);
-  const [lastProfitReset, setLastProfitReset] = useState<Date | null>(null);
-
-  useEffect(() => {
-    const fetchResetDates = async () => {
-      const dates = await getLastResetDates();
-      setLastCostReset(dates.lastCostReset);
-      setLastProfitReset(dates.lastProfitReset);
-    };
-    fetchResetDates();
-
-    const interval = setInterval(fetchResetDates, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   const convertCurrency = (amount: number) => {
     if (settings.currency === 'IQD') {
       return amount * settings.usdToIqdRate;
@@ -46,15 +29,6 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
       : `${symbol}${converted.toLocaleString()}`;
   };
 
-  // Filter sales based on reset dates
-  const salesAfterCostReset = lastCostReset
-    ? sales.filter(sale => sale.date > lastCostReset)
-    : sales;
-
-  const salesAfterProfitReset = lastProfitReset
-    ? sales.filter(sale => sale.date > lastProfitReset)
-    : sales;
-
   // Calculate stats
   const totalProducts = products.length;
   const totalCost = products.reduce((sum, product) => sum + (product.cost * product.stock), 0);
@@ -63,17 +37,17 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
   const stockSummary = getStockSummary(products, settings.lowStockThreshold);
   const productsNeedingAttention = getProductsNeedingAttention(products, settings.lowStockThreshold);
 
-  const totalRevenue = salesAfterProfitReset.reduce((sum, sale) => sum + sale.total, 0);
-  const totalProfit = salesAfterProfitReset.reduce((sum, sale) => sum + sale.profit, 0);
+  const totalRevenue = sales.reduce((sum, sale) => sum + sale.total, 0);
+  const totalProfit = sales.reduce((sum, sale) => sum + sale.profit, 0);
   const totalReturns = returns.reduce((sum, ret) => sum + ret.refundAmount, 0);
 
   // Calculate net values (after returns)
-  const returnAdjustments = salesAfterProfitReset.filter(sale => sale.id.startsWith('return-'));
+  const returnAdjustments = sales.filter(sale => sale.id.startsWith('return-'));
   const netRevenue = totalRevenue;
   const netProfit = totalProfit;
 
-  // Calculate total cost of goods sold (COGS) - only from sales after last cost reset
-  const totalCOGS = salesAfterCostReset.reduce((sum, sale) => {
+  // Calculate total cost of goods sold (COGS)
+  const totalCOGS = sales.reduce((sum, sale) => {
     const unitCost = (sale as any).unit_cost || 0;
     const quantity = sale.quantity || 0;
     if (unitCost > 0) {
