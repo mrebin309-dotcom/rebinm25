@@ -302,3 +302,34 @@ export const undoPeriodReset = async (periodId: string) => {
     return { success: false, error: errorMessage };
   }
 };
+
+export const getLastResetDates = async () => {
+  try {
+    const { data: costReset } = await supabase
+      .from('reset_tracking')
+      .select('reset_date')
+      .eq('reset_type', 'cost')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const { data: profitReset } = await supabase
+      .from('reset_tracking')
+      .select('reset_date')
+      .eq('reset_type', 'profit')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return {
+      lastCostReset: costReset?.reset_date ? new Date(costReset.reset_date) : null,
+      lastProfitReset: profitReset?.reset_date ? new Date(profitReset.reset_date) : null
+    };
+  } catch (error) {
+    console.error('Error getting last reset dates:', error);
+    return {
+      lastCostReset: null,
+      lastProfitReset: null
+    };
+  }
+};
