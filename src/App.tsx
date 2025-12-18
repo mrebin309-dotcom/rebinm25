@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Users, Smartphone, Receipt, TrendingUp, RefreshCw, AlertTriangle, Upload, LogOut, DollarSign } from 'lucide-react';
+import { BarChart3, Package, Home, ShoppingCart, RotateCcw, Settings as SettingsIcon, Bell, FileText, Smartphone, Receipt, TrendingUp, AlertTriangle, Upload, LogOut, DollarSign } from 'lucide-react';
 import { Award } from 'lucide-react';
 import { PinAccess } from './components/PinAccess';
 import { useInventorySupabase } from './hooks/useInventorySupabase';
@@ -11,18 +11,16 @@ import { Returns } from './components/Returns';
 import { NotificationCenter } from './components/NotificationCenter';
 import { Settings } from './components/Settings';
 import { Reports } from './components/Reports';
-import { UserManagement } from './components/UserManagement';
 import { SellerReports } from './components/SellerReports';
 import { MobileSync } from './components/MobileSync';
 import { InvoiceGenerator } from './components/InvoiceGenerator';
 import { AdvancedReports } from './components/AdvancedReports';
-import { PeriodHistory } from './components/PeriodHistory';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { MobileQuickActions } from './components/MobileQuickActions';
 import { Product, Sale } from './types';
 import { formatDateWithSettings } from './utils/dateFormat';
 
-type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'period-history' | 'users' | 'mobile' | 'settings';
+type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'mobile' | 'settings';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -96,25 +94,10 @@ function App() {
     refreshData,
   } = useInventorySupabase();
 
-  // Mock data for new features
-  const [users, setUsers] = useState([
-    {
-      id: '1',
-      username: 'admin',
-      email: 'admin@company.com',
-      role: 'admin' as const,
-      permissions: [],
-      isActive: true,
-      createdAt: new Date(),
-    }
-  ]);
-  
-  const [activityLogs, setActivityLogs] = useState([]);
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   const [importStatus, setImportStatus] = useState('');
 
-  const currentUser = users[0];
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [showProductForm, setShowProductForm] = useState(false);
   const [showSalesForm, setShowSalesForm] = useState(false);
@@ -234,8 +217,6 @@ function App() {
     { id: 'reports', name: 'Reports', icon: FileText },
     { id: 'advanced-reports', name: 'Advanced Analytics', icon: TrendingUp },
     { id: 'sellers', name: 'Seller Reports', icon: Award },
-    { id: 'period-history', name: 'Period History', icon: RefreshCw },
-    { id: 'users', name: 'Users', icon: Users },
     { id: 'mobile', name: 'Mobile Sync', icon: Smartphone },
     { id: 'settings', name: 'Settings', icon: SettingsIcon },
   ];
@@ -602,19 +583,6 @@ function App() {
                 sales={sales}
                 products={products}
                 settings={settings}
-              />
-            )}
-            {currentView === 'period-history' && (
-              <PeriodHistory />
-            )}
-            {currentView === 'users' && (
-              <UserManagement
-                users={users}
-                activityLogs={activityLogs}
-                currentUser={currentUser}
-                onAddUser={(user) => setUsers(prev => [...prev, { ...user, id: Date.now().toString(), createdAt: new Date() }])}
-                onUpdateUser={(id, userData) => setUsers(prev => prev.map(u => u.id === id ? { ...u, ...userData } : u))}
-                onDeleteUser={(id) => setUsers(prev => prev.filter(u => u.id !== id))}
               />
             )}
             {currentView === 'mobile' && (
