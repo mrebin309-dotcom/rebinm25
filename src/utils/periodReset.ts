@@ -1,5 +1,37 @@
 import { supabase } from '../lib/supabase';
 
+const formatErrorMessage = (error: unknown): string => {
+  if (!error) return 'Unknown error occurred';
+
+  if (typeof error === 'string') return error;
+
+  if (error instanceof Error) return error.message;
+
+  if (typeof error === 'object') {
+    const err = error as any;
+
+    if (err.message) {
+      let msg = err.message;
+      if (err.details) msg += ` Details: ${err.details}`;
+      if (err.hint) msg += ` Hint: ${err.hint}`;
+      if (err.code) msg += ` (Code: ${err.code})`;
+      return msg;
+    }
+
+    if (err.error) {
+      return formatErrorMessage(err.error);
+    }
+
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return 'Error object (could not stringify)';
+    }
+  }
+
+  return String(error);
+};
+
 export interface PeriodInfo {
   currentPeriod: 'first-half' | 'second-half';
   periodStart: Date;
@@ -125,10 +157,13 @@ export const archiveCurrentPeriod = async (
       throw insertError;
     }
 
+    console.log('Archive successful');
     return { success: true, totalCost, totalProfit, totalSales };
   } catch (error) {
     console.error('Error archiving period:', error);
-    return { success: false, error };
+    const errorMessage = formatErrorMessage(error);
+    console.error('Formatted error:', errorMessage);
+    return { success: false, error: errorMessage };
   }
 };
 
@@ -138,15 +173,18 @@ export const performReset = async (
   customEndDate?: Date
 ) => {
   try {
+    console.log(`Starting ${type} reset...`);
     const archiveResult = await archiveCurrentPeriod(type, customStartDate, customEndDate);
 
     if (!archiveResult.success) {
-      const errorMsg = archiveResult.error instanceof Error
-        ? archiveResult.error.message
-        : String(archiveResult.error);
-      console.error('Archive failed:', archiveResult.error);
+      const errorMsg = typeof archiveResult.error === 'string'
+        ? archiveResult.error
+        : formatErrorMessage(archiveResult.error);
+      console.error('Archive failed with error:', errorMsg);
       return { success: false, error: `Failed to archive data: ${errorMsg}` };
     }
+
+    console.log('Archive completed successfully');
 
     const now = new Date();
     const nextReset = type === 'cost'
@@ -155,6 +193,7 @@ export const performReset = async (
           : new Date(now.getFullYear(), now.getMonth() + 1, 0))
       : new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
+    console.log('Updating reset tracking...');
     const { error: trackingError } = await supabase
       .from('reset_tracking')
       .insert({
@@ -165,8 +204,12 @@ export const performReset = async (
 
     if (trackingError) {
       console.error('Error tracking reset:', trackingError);
+      console.error('Formatted tracking error:', formatErrorMessage(trackingError));
+    } else {
+      console.log('Reset tracking updated successfully');
     }
 
+    console.log('Reset completed successfully');
     return {
       success: true,
       archived: {
@@ -177,7 +220,9 @@ export const performReset = async (
     };
   } catch (error) {
     console.error('Error performing reset:', error);
-    return { success: false, error };
+    const errorMessage = formatErrorMessage(error);
+    console.error('Formatted reset error:', errorMessage);
+    return { success: false, error: errorMessage };
   }
 };
 
@@ -191,11 +236,16 @@ export const getLastReset = async (type: 'cost' | 'profit') => {
       .limit(1)
       .maybeSingle();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error querying last reset:', error);
+      console.error('Formatted error:', formatErrorMessage(error));
+      throw error;
+    }
 
     return data;
   } catch (error) {
     console.error('Error getting last reset:', error);
+    console.error('Formatted error:', formatErrorMessage(error));
     return null;
   }
 };
@@ -214,11 +264,16 @@ export const getPeriodHistory = async (type?: 'cost' | 'profit', limit = 10) => 
 
     const { data, error } = await query;
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error querying period history:', error);
+      console.error('Formatted error:', formatErrorMessage(error));
+      throw error;
+    }
 
     return data || [];
   } catch (error) {
     console.error('Error getting period history:', error);
+    console.error('Formatted error:', formatErrorMessage(error));
     return [];
   }
 };
