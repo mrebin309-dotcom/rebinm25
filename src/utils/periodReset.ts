@@ -49,15 +49,21 @@ export const getCurrentPeriodInfo = (): PeriodInfo => {
   };
 };
 
-export const archiveCurrentPeriod = async (type: 'cost' | 'profit') => {
+export const archiveCurrentPeriod = async (
+  type: 'cost' | 'profit',
+  customStartDate?: Date,
+  customEndDate?: Date
+) => {
   try {
     const periodInfo = getCurrentPeriodInfo();
+    const startDate = customStartDate || periodInfo.periodStart;
+    const endDate = customEndDate || periodInfo.periodEnd;
 
     const { data: sales, error: salesError } = await supabase
       .from('sales')
       .select('*')
-      .gte('date', periodInfo.periodStart.toISOString())
-      .lte('date', periodInfo.periodEnd.toISOString());
+      .gte('date', startDate.toISOString())
+      .lte('date', endDate.toISOString());
 
     if (salesError) throw salesError;
 
@@ -81,8 +87,8 @@ export const archiveCurrentPeriod = async (type: 'cost' | 'profit') => {
       .from('period_history')
       .insert({
         period_type: type,
-        period_start: periodInfo.periodStart.toISOString().split('T')[0],
-        period_end: periodInfo.periodEnd.toISOString().split('T')[0],
+        period_start: startDate.toISOString().split('T')[0],
+        period_end: endDate.toISOString().split('T')[0],
         total_cost: totalCost,
         total_profit: totalProfit,
         total_sales: totalSales,
@@ -98,9 +104,13 @@ export const archiveCurrentPeriod = async (type: 'cost' | 'profit') => {
   }
 };
 
-export const performReset = async (type: 'cost' | 'profit') => {
+export const performReset = async (
+  type: 'cost' | 'profit',
+  customStartDate?: Date,
+  customEndDate?: Date
+) => {
   try {
-    const archiveResult = await archiveCurrentPeriod(type);
+    const archiveResult = await archiveCurrentPeriod(type, customStartDate, customEndDate);
 
     if (!archiveResult.success) {
       return { success: false, error: 'Failed to archive data' };

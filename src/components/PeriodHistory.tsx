@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Calendar, DollarSign, TrendingUp, Users, ShoppingCart, Download } from 'lucide-react';
-import { getPeriodHistory, getCurrentPeriodInfo } from '../utils/periodReset';
+import { Calendar, DollarSign, TrendingUp, Users, ShoppingCart, Download, RefreshCw, AlertTriangle } from 'lucide-react';
+import { getPeriodHistory, getCurrentPeriodInfo, performReset } from '../utils/periodReset';
 
 interface PeriodHistoryRecord {
   id: string;
@@ -19,7 +19,14 @@ export function PeriodHistory() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'cost' | 'profit'>('all');
   const [selectedRecord, setSelectedRecord] = useState<PeriodHistoryRecord | null>(null);
-  const periodInfo = getCurrentPeriodInfo();
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [resetType, setResetType] = useState<'cost' | 'profit' | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [periodInfo, setPeriodInfo] = useState(getCurrentPeriodInfo());
 
   useEffect(() => {
     loadHistory();
@@ -64,6 +71,62 @@ export function PeriodHistory() {
     window.URL.revokeObjectURL(url);
   };
 
+  const handleOpenResetDialog = (type: 'cost' | 'profit') => {
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    setResetType(type);
+    setStartDate(firstDayOfMonth.toISOString().split('T')[0]);
+    setEndDate(today.toISOString().split('T')[0]);
+    setShowResetDialog(true);
+    setResetError('');
+    setResetSuccess('');
+  };
+
+  const handleConfirmReset = async () => {
+    if (!resetType || !startDate || !endDate) {
+      setResetError('Please select both start and end dates');
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start > end) {
+      setResetError('Start date must be before end date');
+      return;
+    }
+
+    setIsResetting(true);
+    setResetError('');
+    setResetSuccess('');
+
+    try {
+      const result = await performReset(resetType, start, end);
+
+      if (result.success) {
+        setResetSuccess(
+          `${resetType === 'cost' ? 'Cost' : 'Profit'} reset successfully! ` +
+          `Archived: ${result.archived?.totalSales || 0} sales, ` +
+          `$${result.archived?.totalCost?.toFixed(2) || '0.00'} cost, ` +
+          `$${result.archived?.totalProfit?.toFixed(2) || '0.00'} profit`
+        );
+        setPeriodInfo(getCurrentPeriodInfo());
+        setShowResetDialog(false);
+        loadHistory();
+
+        setTimeout(() => setResetSuccess(''), 5000);
+      } else {
+        setResetError('Failed to reset. Please try again.');
+      }
+    } catch (error) {
+      setResetError('An error occurred during reset. Please try again.');
+      console.error('Reset error:', error);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -76,6 +139,45 @@ export function PeriodHistory() {
           <Download className="h-4 w-4" />
           Export CSV
         </button>
+      </div>
+
+      {resetSuccess && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2">
+          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <span>{resetSuccess}</span>
+        </div>
+      )}
+
+      {resetError && (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5" />
+          <span>{resetError}</span>
+        </div>
+      )}
+
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Reset Cost & Profit</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Manually archive and reset cost or profit data for a custom date range. This will save the current data to history before resetting.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => handleOpenResetDialog('cost')}
+            className="flex-1 bg-orange-500 text-white px-4 py-3 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Reset Cost
+          </button>
+          <button
+            onClick={() => handleOpenResetDialog('profit')}
+            className="flex-1 bg-green-500 text-white px-4 py-3 rounded-md hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Reset Profit
+          </button>
+        </div>
       </div>
 
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-md p-6 text-white">
@@ -336,6 +438,105 @@ export function PeriodHistory() {
                 className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showResetDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Confirm {resetType === 'cost' ? 'Cost' : 'Profit'} Reset
+            </h3>
+
+            <div className="mb-6 space-y-4">
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800 font-medium mb-2">
+                  Warning: You are about to reset {resetType === 'cost' ? 'cost' : 'profit'} data!
+                </p>
+                <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
+                  <li>Current {resetType} totals will be archived</li>
+                  <li>{resetType === 'cost' ? 'Cost' : 'Profit'} counters will reset to $0</li>
+                  <li>Sales records will remain unchanged</li>
+                  <li>You can view archived data in history</li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+                <strong>Period to Archive:</strong>
+                <br />
+                {startDate && endDate ? (
+                  <>
+                    {new Date(startDate).toLocaleDateString()} - {new Date(endDate).toLocaleDateString()}
+                  </>
+                ) : (
+                  <span className="text-gray-500">Please select dates</span>
+                )}
+              </div>
+
+              {resetError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+                  {resetError}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowResetDialog(false);
+                  setResetType(null);
+                  setResetError('');
+                }}
+                disabled={isResetting}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmReset}
+                disabled={isResetting || !startDate || !endDate}
+                className="flex-1 bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isResetting ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4" />
+                    Confirm Reset
+                  </>
+                )}
               </button>
             </div>
           </div>
