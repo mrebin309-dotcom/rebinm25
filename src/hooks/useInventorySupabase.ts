@@ -509,21 +509,14 @@ export function useInventorySupabase() {
 
       if (error) {
         console.error('Error deleting sale:', error);
-        alert(`Failed to delete sale: ${error.message}`);
-        return;
+        throw new Error(`Failed to delete sale: ${error.message}`);
       }
 
       console.log('Sale deleted successfully:', data);
       await Promise.all([loadSales(), loadProducts(), loadSellers(), loadReturns()]);
-
-      if (restoreInventory) {
-        alert('Sale deleted successfully! Inventory has been restored.');
-      } else {
-        alert('Sale deleted successfully! Inventory was not restored.');
-      }
     } catch (err) {
       console.error('Exception deleting sale:', err);
-      alert('An error occurred while deleting the sale.');
+      throw err;
     }
   };
 
@@ -847,15 +840,9 @@ export function useInventorySupabase() {
         .neq('id', '00000000-0000-0000-0000-000000000000');
 
       await Promise.all([loadSales(), loadProducts(), loadReturns(), loadSellers()]);
-
-      if (restoreInventory) {
-        alert('Sales history reset successfully! Inventory has been restored.');
-      } else {
-        alert('Sales history reset successfully! Inventory was not restored.');
-      }
     } catch (err) {
       console.error('Exception resetting sales:', err);
-      alert('An error occurred while resetting sales history.');
+      throw new Error('An error occurred while resetting sales history.');
     }
   };
 

@@ -19,10 +19,12 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { MobileQuickActions } from './components/MobileQuickActions';
 import { Product, Sale } from './types';
 import { formatDateWithSettings } from './utils/dateFormat';
+import { useToast } from './components/Toast';
 
 type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'mobile' | 'settings';
 
 function App() {
+  const toast = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showEnvError, setShowEnvError] = useState(false);
   const [showLoadingScreen, setShowLoadingScreen] = useState(false);
@@ -81,7 +83,7 @@ function App() {
     deleteProduct,
     toggleStockWarnings,
     addSale,
-    deleteSale,
+    deleteSale: deleteSaleOriginal,
     addReturn,
     addCustomer,
     addSeller,
@@ -90,10 +92,36 @@ function App() {
     updateReturn: updateReturnInHook,
     exportData,
     importData,
-    resetSalesHistory,
+    resetSalesHistory: resetSalesHistoryOriginal,
     resetAllData,
     refreshData,
   } = useInventorySupabase();
+
+  const deleteSale = async (id: string, restoreInventory?: boolean) => {
+    try {
+      await deleteSaleOriginal(id, restoreInventory);
+      if (restoreInventory) {
+        toast.success('Sale deleted successfully! Inventory has been restored.');
+      } else {
+        toast.success('Sale deleted successfully! Inventory was not restored.');
+      }
+    } catch (error) {
+      toast.error('Failed to delete sale');
+    }
+  };
+
+  const resetSalesHistory = async (restoreInventory?: boolean) => {
+    try {
+      await resetSalesHistoryOriginal(restoreInventory);
+      if (restoreInventory) {
+        toast.success('Sales history reset successfully! Inventory has been restored.');
+      } else {
+        toast.success('Sales history reset successfully! Inventory was not restored.');
+      }
+    } catch (error) {
+      toast.error('Failed to reset sales history');
+    }
+  };
 
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
