@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key, Plus, Tag } from 'lucide-react';
+import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key, Plus, Tag, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Settings as SettingsType, AlertRule, Product, Sale, Customer, Seller, Category } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -39,6 +39,7 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
   const [showRestoreInventoryModal, setShowRestoreInventoryModal] = useState(false);
   const [showResetAllModal, setShowResetAllModal] = useState(false);
   const [showResetAllConfirmModal, setShowResetAllConfirmModal] = useState(false);
+  const [confirmationText, setConfirmationText] = useState('');
 
   useEffect(() => {
     const loadCurrentPin = async () => {
@@ -154,18 +155,21 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
 
   const handleResetAllConfirmed = () => {
     setShowResetAllModal(false);
+    setConfirmationText('');
     setShowResetAllConfirmModal(true);
   };
 
   const handleResetAllFinalConfirm = () => {
-    const userInput = window.prompt('Type YES to confirm complete data deletion:');
-    if (userInput === 'YES') {
+    if (confirmationText === 'YES') {
       setShowResetAllConfirmModal(false);
+      setConfirmationText('');
       onResetAllData();
-    } else {
-      setShowResetAllConfirmModal(false);
-      alert('Reset cancelled. Data was not deleted.');
     }
+  };
+
+  const handleCancelResetAll = () => {
+    setShowResetAllConfirmModal(false);
+    setConfirmationText('');
   };
 
   return (
@@ -245,23 +249,79 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
         onCancel={() => setShowResetAllModal(false)}
       />
 
-      <ConfirmModal
-        isOpen={showResetAllConfirmModal}
-        title="Final Confirmation Required"
-        type="danger"
-        message={
-          <div className="space-y-4">
-            <p className="font-semibold text-lg">This is your last chance to cancel!</p>
-            <p className="text-slate-700">
-              Click <span className="font-bold">Confirm</span> below, then you'll be asked to type <span className="font-mono bg-slate-100 px-2 py-1 rounded">YES</span> to proceed.
-            </p>
+      {showResetAllConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-scale-in border-2 border-slate-200">
+            <div className="relative px-6 py-5 border-b border-red-200 bg-gradient-to-r from-slate-50 to-gray-50">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg">
+                  <Lock className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 flex-1">Final Confirmation Required</h3>
+                <button
+                  onClick={handleCancelResetAll}
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-200 rounded-lg"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="px-6 py-6 space-y-5">
+              <div className="text-slate-700 leading-relaxed space-y-3">
+                <p className="font-semibold text-lg">This is your last chance to cancel!</p>
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                  <p className="text-red-900">
+                    Type <span className="font-mono font-bold text-lg">YES</span> in the box below to permanently delete all data.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-slate-700">
+                  Type YES to confirm:
+                </label>
+                <input
+                  type="text"
+                  value={confirmationText}
+                  onChange={(e) => setConfirmationText(e.target.value)}
+                  placeholder="Type YES here"
+                  className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all text-center font-mono text-lg"
+                  autoFocus
+                />
+              </div>
+
+              {confirmationText && confirmationText !== 'YES' && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
+                  <p className="text-yellow-800 text-sm">
+                    Please type exactly <span className="font-mono font-bold">YES</span> (all capitals)
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 bg-slate-50 rounded-b-2xl flex gap-3">
+              <button
+                onClick={handleCancelResetAll}
+                className="flex-1 px-4 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-100 transition-all duration-200 font-semibold hover:shadow-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleResetAllFinalConfirm}
+                disabled={confirmationText !== 'YES'}
+                className={`flex-1 px-4 py-3 rounded-xl transition-all duration-200 font-semibold shadow-lg ${
+                  confirmationText === 'YES'
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white hover:shadow-xl transform hover:-translate-y-0.5'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Delete All Data
+              </button>
+            </div>
           </div>
-        }
-        confirmText="Confirm"
-        cancelText="Cancel"
-        onConfirm={handleResetAllFinalConfirm}
-        onCancel={() => setShowResetAllConfirmModal(false)}
-      />
+        </div>
+      )}
 
       <div className="space-y-6">
         {/* Header */}
