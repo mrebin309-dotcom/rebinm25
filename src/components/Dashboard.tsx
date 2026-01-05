@@ -229,62 +229,84 @@ export function Dashboard({ products, sales, returns, settings, onQuickSale, onA
             </div>
             <div className="px-6 py-4 max-h-[600px] overflow-y-auto custom-scrollbar">
               <div className="space-y-3">
-                {productsNeedingAttention.map(product => {
-                  const status = product.stockStatus;
-                  return (
-                    <div
-                      key={product.id}
-                      className={`p-4 ${status.bgColor} border ${status.borderColor} rounded-lg transition-all hover:shadow-md`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3 flex-1">
-                          {status.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600 flex-shrink-0" />}
-                          {status.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />}
+                {(() => {
+                  const sortedByCategory = [...productsNeedingAttention].sort((a, b) => {
+                    if (a.category === b.category) {
+                      if (a.stockStatus.level === 'out' && b.stockStatus.level !== 'out') return -1;
+                      if (a.stockStatus.level !== 'out' && b.stockStatus.level === 'out') return 1;
+                      return a.name.localeCompare(b.name);
+                    }
+                    return a.category.localeCompare(b.category);
+                  });
 
-                          {product.image && (
-                            <img src={product.image} alt={product.name} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h4 className={`font-semibold ${status.textColor} truncate`}>{product.name}</h4>
-                            <p className="text-xs text-gray-600 truncate">SKU: {product.sku} • {product.category}</p>
-                          </div>
-                        </div>
-                        <div className="text-right ml-3">
-                          <div className="flex items-center gap-2">
-                            <span className={`px-2 py-1 ${status.bgColor} ${status.textColor} text-xs font-bold rounded-full border ${status.borderColor}`}>
-                              {status.label}
-                            </span>
-                          </div>
-                          <p className={`text-lg font-black ${status.textColor} mt-1`}>{product.stock}</p>
-                          <p className="text-xs text-gray-500">Min: {product.minStock}</p>
-                        </div>
-                      </div>
+                  let currentCategory = '';
+                  return sortedByCategory.map(product => {
+                    const status = product.stockStatus;
+                    const showCategoryHeader = currentCategory !== product.category;
+                    currentCategory = product.category;
 
-                      {/* Color Alerts - Only Out of Stock */}
-                      {status.colorAlerts && status.colorAlerts.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-300">
-                          <p className="text-xs font-semibold text-red-800 mb-2">⚠️ Out of Stock Colors:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {status.colorAlerts.map((colorAlert) => (
-                              <div
-                                key={colorAlert.color}
-                                className="flex items-center gap-2 px-2 py-1 rounded bg-red-100 border border-red-300"
-                              >
-                                <div
-                                  className="w-4 h-4 rounded-full border border-gray-400 shadow-sm flex-shrink-0"
-                                  style={{ backgroundColor: colorAlert.colorCode }}
-                                />
-                                <span className="text-xs font-medium text-red-800">
-                                  {colorAlert.color}: Out of Stock
+                    return (
+                      <div key={product.id}>
+                        {showCategoryHeader && (
+                          <div className="pt-2 pb-2 px-2">
+                            <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide">{product.category}</h4>
+                          </div>
+                        )}
+                        <div
+                          className={`p-4 ${status.bgColor} border ${status.borderColor} rounded-lg transition-all hover:shadow-md`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3 flex-1">
+                              {status.level === 'out' && <AlertOctagon className="h-5 w-5 text-red-600 flex-shrink-0" />}
+                              {status.level === 'low' && <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />}
+
+                              {product.image && (
+                                <img src={product.image} alt={product.name} className="w-10 h-10 rounded-md object-cover flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <h4 className={`font-semibold ${status.textColor} truncate`}>{product.name}</h4>
+                                <p className="text-xs text-gray-600 truncate">SKU: {product.sku}</p>
+                              </div>
+                            </div>
+                            <div className="text-right ml-3">
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2 py-1 ${status.bgColor} ${status.textColor} text-xs font-bold rounded-full border ${status.borderColor}`}>
+                                  {status.label}
                                 </span>
                               </div>
-                            ))}
+                              <p className={`text-lg font-black ${status.textColor} mt-1`}>{product.stock}</p>
+                              <p className="text-xs text-gray-500">Min: {product.minStock}</p>
+                            </div>
                           </div>
+
+                          {/* Color Alerts - Only Out of Stock */}
+                          {status.colorAlerts && status.colorAlerts.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-gray-300">
+                              <p className="text-xs font-semibold text-red-800 mb-2">⚠️ Out of Stock Colors:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {status.colorAlerts.map((colorAlert) => (
+                                  <div
+                                    key={colorAlert.color}
+                                    className="flex items-center gap-2 px-2 py-1 rounded bg-red-100 border border-red-300"
+                                  >
+                                    <div
+                                      className="w-4 h-4 rounded-full border border-gray-400 shadow-sm flex-shrink-0"
+                                      style={{ backgroundColor: colorAlert.colorCode }}
+                                    />
+                                    <span className="text-xs font-medium text-red-800">
+                                      {colorAlert.color}: Out of Stock
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}</div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
             </div>
           </div>
         )}
