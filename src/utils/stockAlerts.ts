@@ -220,11 +220,15 @@ export function getStockSummary(products: Product[], globalThreshold?: number) {
     switch (status.level) {
       case 'out':
         summary.outOfStock++;
-        summary.totalNeedingAttention++;
+        if (status.needsAttention) {
+          summary.totalNeedingAttention++;
+        }
         break;
       case 'low':
         summary.low++;
-        summary.totalNeedingAttention++;
+        if (status.needsAttention) {
+          summary.totalNeedingAttention++;
+        }
         break;
       case 'good':
         summary.good++;
