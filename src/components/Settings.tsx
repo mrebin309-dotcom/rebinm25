@@ -3,6 +3,7 @@ import { Settings as SettingsIcon, Download, Upload, Save, Lock, Key, Plus, Tag 
 import { supabase } from '../lib/supabase';
 import { Settings as SettingsType, AlertRule, Product, Sale, Customer, Seller, Category } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ConfirmModal } from './ConfirmModal';
 
 interface SettingsProps {
   settings: SettingsType;
@@ -34,6 +35,10 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
   const [newCategoryDescription, setNewCategoryDescription] = useState('');
   const [categoryError, setCategoryError] = useState('');
   const [categorySuccess, setCategorySuccess] = useState(false);
+  const [showResetSalesModal, setShowResetSalesModal] = useState(false);
+  const [showRestoreInventoryModal, setShowRestoreInventoryModal] = useState(false);
+  const [showResetAllModal, setShowResetAllModal] = useState(false);
+  const [showResetAllConfirmModal, setShowResetAllConfirmModal] = useState(false);
 
   useEffect(() => {
     const loadCurrentPin = async () => {
@@ -130,53 +135,138 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
   };
 
   const handleResetSales = () => {
-    const confirmed = window.confirm(
-      '⚠️ WARNING: Are you sure you want to reset all sales history?\n\n' +
-      'This will permanently delete:\n' +
-      '• All sales records\n' +
-      '• All returns\n' +
-      '• Seller reports\n\n' +
-      'This action CANNOT be undone!'
-    );
+    setShowResetSalesModal(true);
+  };
 
-    if (confirmed) {
-      const restoreInventory = window.confirm(
-        'Do you want to restore all sold items back to inventory?\n\n' +
-        'Click OK to restore inventory\n' +
-        'Click Cancel to delete sales without restoring inventory'
-      );
-      onResetSalesHistory(restoreInventory);
-    }
+  const handleResetSalesConfirmed = () => {
+    setShowResetSalesModal(false);
+    setShowRestoreInventoryModal(true);
+  };
+
+  const handleRestoreInventoryChoice = (restore: boolean) => {
+    setShowRestoreInventoryModal(false);
+    onResetSalesHistory(restore);
   };
 
   const handleResetAll = () => {
-    const confirmed = window.confirm(
-      '🚨 CRITICAL WARNING: Are you sure you want to reset ALL data?\n\n' +
-      'This will permanently delete:\n' +
-      '• All products\n' +
-      '• All sales records\n' +
-      '• All customers\n' +
-      '• All sellers\n' +
-      '• All returns\n\n' +
-      'This action CANNOT be undone!\n\n' +
-      'Type YES in the next prompt to confirm.'
-    );
+    setShowResetAllModal(true);
+  };
 
-    if (confirmed) {
-      const finalConfirm = window.prompt('Type YES to confirm complete data deletion:');
-      if (finalConfirm === 'YES') {
-        onResetAllData();
-      } else {
-        alert('Reset cancelled. Data was not deleted.');
-      }
+  const handleResetAllConfirmed = () => {
+    setShowResetAllModal(false);
+    setShowResetAllConfirmModal(true);
+  };
+
+  const handleResetAllFinalConfirm = () => {
+    const userInput = window.prompt('Type YES to confirm complete data deletion:');
+    if (userInput === 'YES') {
+      setShowResetAllConfirmModal(false);
+      onResetAllData();
+    } else {
+      setShowResetAllConfirmModal(false);
+      alert('Reset cancelled. Data was not deleted.');
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
+    <>
+      <ConfirmModal
+        isOpen={showResetSalesModal}
+        title="Reset Sales History"
+        type="danger"
+        message={
+          <div className="space-y-4">
+            <p className="font-semibold text-lg">Are you sure you want to reset all sales history?</p>
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+              <p className="font-semibold text-red-900 mb-2">This will permanently delete:</p>
+              <ul className="list-disc list-inside space-y-1 text-red-800">
+                <li>All sales records</li>
+                <li>All returns</li>
+                <li>Seller reports</li>
+              </ul>
+            </div>
+            <p className="text-red-600 font-bold">This action CANNOT be undone!</p>
+          </div>
+        }
+        confirmText="Yes, Delete All Sales"
+        cancelText="Cancel"
+        onConfirm={handleResetSalesConfirmed}
+        onCancel={() => setShowResetSalesModal(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showRestoreInventoryModal}
+        title="Restore Inventory?"
+        type="warning"
+        message={
+          <div className="space-y-4">
+            <p className="font-semibold text-lg">Do you want to restore all sold items back to inventory?</p>
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+              <p className="text-blue-900 mb-2">
+                <span className="font-semibold">Restore Inventory:</span> All sold products will be added back to your stock
+              </p>
+              <p className="text-blue-900">
+                <span className="font-semibold">Don't Restore:</span> Sales will be deleted but inventory stays as is
+              </p>
+            </div>
+          </div>
+        }
+        confirmText="Restore Inventory"
+        cancelText="Don't Restore"
+        onConfirm={() => handleRestoreInventoryChoice(true)}
+        onCancel={() => handleRestoreInventoryChoice(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showResetAllModal}
+        title="Reset ALL Data"
+        type="danger"
+        message={
+          <div className="space-y-4">
+            <p className="font-semibold text-xl text-red-600">CRITICAL WARNING</p>
+            <p className="font-semibold text-lg">Are you sure you want to reset ALL data?</p>
+            <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded">
+              <p className="font-semibold text-red-900 mb-2">This will permanently delete EVERYTHING:</p>
+              <ul className="list-disc list-inside space-y-1 text-red-800">
+                <li>All products</li>
+                <li>All sales records</li>
+                <li>All customers</li>
+                <li>All sellers</li>
+                <li>All returns</li>
+              </ul>
+            </div>
+            <p className="text-red-600 font-bold text-lg">This action CANNOT be undone!</p>
+            <p className="text-slate-700">You will need to type YES in the next step to confirm.</p>
+          </div>
+        }
+        confirmText="I Understand, Continue"
+        cancelText="Cancel"
+        onConfirm={handleResetAllConfirmed}
+        onCancel={() => setShowResetAllModal(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showResetAllConfirmModal}
+        title="Final Confirmation Required"
+        type="danger"
+        message={
+          <div className="space-y-4">
+            <p className="font-semibold text-lg">This is your last chance to cancel!</p>
+            <p className="text-slate-700">
+              Click <span className="font-bold">Confirm</span> below, then you'll be asked to type <span className="font-mono bg-slate-100 px-2 py-1 rounded">YES</span> to proceed.
+            </p>
+          </div>
+        }
+        confirmText="Confirm"
+        cancelText="Cancel"
+        onConfirm={handleResetAllFinalConfirm}
+        onCancel={() => setShowResetAllConfirmModal(false)}
+      />
+
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
         {isAuthenticated && (
           <div className="flex items-center space-x-2">
             <label className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2 cursor-pointer">
@@ -708,6 +798,7 @@ export function Settings({ settings, alertRules, products, sales, customers, sel
           </div>
         )}
       </form>
-    </div>
+      </div>
+    </>
   );
 }
