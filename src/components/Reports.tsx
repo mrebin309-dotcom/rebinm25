@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Download, Calendar, Filter, TrendingUp, DollarSign, Package, Users, Trash2 } from 'lucide-react';
+import { FileText, Download, Calendar, Filter, TrendingUp, DollarSign, Package, Users, Trash2, CheckCircle, X } from 'lucide-react';
 import { Product, Sale, Customer, Settings } from '../types';
 import format from 'date-fns/format';
 import { subDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
@@ -7,6 +7,7 @@ import { formatDateWithSettings, formatTimeOnly } from '../utils/dateFormat';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { DeleteSaleModal } from './DeleteSaleModal';
 
 interface ReportsProps {
   products: Product[];
@@ -22,6 +23,9 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
   const [customStartDate, setCustomStartDate] = useState(format(subDays(new Date(), 7), 'yyyy-MM-dd'));
   const [customEndDate, setCustomEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [exportFormat, setExportFormat] = useState<'pdf' | 'excel' | 'csv'>('pdf');
+  const [saleToDelete, setSaleToDelete] = useState<Sale | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const getDateRange = () => {
     const now = new Date();
@@ -281,6 +285,29 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
     }
   };
 
+  const handleDeleteSale = (sale: Sale) => {
+    setSaleToDelete(sale);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = (restoreInventory: boolean) => {
+    if (saleToDelete && onDeleteSale) {
+      onDeleteSale(saleToDelete.id, restoreInventory);
+      setIsDeleteModalOpen(false);
+      setSaleToDelete(null);
+      setToast({
+        type: 'success',
+        message: `Sale deleted successfully${restoreInventory ? ' and stock restored' : ''}`
+      });
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setSaleToDelete(null);
+  };
+
   const renderReportPreview = () => {
     switch (reportType) {
       case 'sales':
@@ -419,18 +446,7 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
                         {onDeleteSale && (
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             <button
-                              onClick={() => {
-                                const shouldDelete = window.confirm(
-                                  `Are you sure you want to delete this sale?\n\nProduct: ${sale.productName}\nQuantity: ${sale.quantity}\nTotal: $${sale.total.toFixed(2)}`
-                                );
-
-                                if (shouldDelete) {
-                                  const restoreInventory = window.confirm(
-                                    `Do you want to restore ${sale.quantity} units back to inventory?\n\nClick OK to restore inventory\nClick Cancel to delete without restoring inventory`
-                                  );
-                                  onDeleteSale(sale.id, restoreInventory);
-                                }
-                              }}
+                              onClick={() => handleDeleteSale(sale)}
                               className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition-colors"
                               title="Delete sale"
                             >
@@ -605,6 +621,36 @@ export function Reports({ products, sales, customers, settings, onDeleteSale }: 
         <h3 className="text-lg font-medium text-gray-900 mb-4">Report Preview</h3>
         {renderReportPreview()}
       </div>
+
+      {/* Delete Sale Modal */}
+      <DeleteSaleModal
+        isOpen={isDeleteModalOpen}
+        sale={saleToDelete}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed bottom-4 right-4 z-50 max-w-md animate-fade-in">
+          <div className={`${
+            toast.type === 'success'
+              ? 'bg-green-50 border-green-200 text-green-800'
+              : 'bg-red-50 border-red-200 text-red-800'
+          } border-2 rounded-xl shadow-lg p-4 flex items-start gap-3`}>
+            <div className="flex-shrink-0 mt-0.5">
+              <CheckCircle className="h-5 w-5" />
+            </div>
+            <p className="flex-1 text-sm font-medium">{toast.message}</p>
+            <button
+              onClick={() => setToast(null)}
+              className="flex-shrink-0 hover:opacity-70 transition-opacity"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
