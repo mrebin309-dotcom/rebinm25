@@ -217,7 +217,9 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
           <div className="px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-medium text-gray-900">All Sellers Performance</h3>
           </div>
-          <div className="overflow-x-auto">
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
@@ -298,6 +300,50 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden p-4 space-y-4">
+            {sellerReports.map(report => (
+              <div key={report.sellerId} className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Users className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="text-base font-bold text-gray-900">{report.sellerName}</div>
+                      <div className="text-xs text-gray-500">{report.totalSales} sales</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedSeller(report.sellerId)}
+                    className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-md hover:bg-blue-600 transition-colors font-medium"
+                  >
+                    View
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs text-gray-500 mb-1">Revenue</div>
+                    <div className="text-sm font-bold text-green-600">{formatCurrency(report.totalRevenue)}</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs text-gray-500 mb-1">Profit</div>
+                    <div className="text-sm font-bold text-blue-600">{formatCurrency(report.totalProfit)}</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs text-gray-500 mb-1">Commission</div>
+                    <div className="text-sm font-bold text-purple-600">{formatCurrency(report.commissionEarned)}</div>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-xs text-gray-500 mb-1">Avg Order</div>
+                    <div className="text-sm font-bold text-gray-900">{formatCurrency(report.averageOrderValue)}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

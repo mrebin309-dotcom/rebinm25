@@ -1,4 +1,4 @@
-import { Home, Package, ShoppingCart, FileText, Settings } from 'lucide-react';
+import { Home, Package, ShoppingCart, FileText, Settings, Award } from 'lucide-react';
 
 type View = 'dashboard' | 'products' | 'sales' | 'returns' | 'reports' | 'advanced-reports' | 'sellers' | 'users' | 'mobile' | 'settings';
 
@@ -15,12 +15,13 @@ export function MobileBottomNav({ currentView, onNavigate, productCount = 0, low
     { id: 'products' as View, name: 'Products', icon: Package, badge: lowStockCount },
     { id: 'sales' as View, name: 'Sales', icon: ShoppingCart },
     { id: 'reports' as View, name: 'Reports', icon: FileText },
+    { id: 'sellers' as View, name: 'Sellers', icon: Award },
     { id: 'settings' as View, name: 'Settings', icon: Settings },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-bottom">
-      <div className="grid grid-cols-5 h-16">
+      <div className="grid grid-cols-6 h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
@@ -41,9 +42,9 @@ export function MobileBottomNav({ currentView, onNavigate, productCount = 0, low
                 </span>
               )}
 
-              <Icon className={`h-6 w-6 ${isActive ? 'scale-110' : ''} transition-transform`} />
+              <Icon className={`h-5 w-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
 
-              <span className={`text-xs font-medium ${isActive ? 'font-bold' : ''}`}>
+              <span className={`text-[10px] font-medium ${isActive ? 'font-bold' : ''} truncate max-w-full`}>
                 {item.name}
               </span>
 
