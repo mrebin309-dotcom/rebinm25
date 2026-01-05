@@ -19,6 +19,7 @@ export interface Product {
   supplier?: string;
   location?: string;
   colorVariants?: ColorVariant[];
+  stockWarningsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
   createdBy?: string;

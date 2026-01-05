@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, Bell, BellOff } from 'lucide-react';
 import { Product, Category, ColorVariant } from '../types';
 import { ColorVariantManager } from './ColorVariantManager';
 
@@ -22,6 +22,7 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
     description: product?.description || '',
     image: product?.image || '',
     colorVariants: product?.colorVariants || [] as ColorVariant[],
+    stockWarningsEnabled: product?.stockWarningsEnabled !== undefined ? product.stockWarningsEnabled : true,
   });
 
   const [pricingMode, setPricingMode] = useState<'price' | 'profit'>('price');
@@ -286,6 +287,42 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
                 Set to 0 to only warn when out of stock. Set higher to get low stock warnings.
               </p>
             </div>
+          </div>
+
+          {/* Stock Warnings Toggle */}
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+            <label className="flex items-center cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={formData.stockWarningsEnabled}
+                onChange={(e) => setFormData(prev => ({ ...prev, stockWarningsEnabled: e.target.checked }))}
+                className="hidden"
+              />
+              <div className={`relative w-14 h-8 rounded-full transition-all duration-200 ${
+                formData.stockWarningsEnabled ? 'bg-blue-500' : 'bg-gray-300'
+              }`}>
+                <div className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-200 flex items-center justify-center ${
+                  formData.stockWarningsEnabled ? 'translate-x-6' : 'translate-x-0'
+                }`}>
+                  {formData.stockWarningsEnabled ? (
+                    <Bell className="h-3 w-3 text-blue-500" />
+                  ) : (
+                    <BellOff className="h-3 w-3 text-gray-500" />
+                  )}
+                </div>
+              </div>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-semibold text-blue-900">
+                  Stock Warnings {formData.stockWarningsEnabled ? 'Enabled' : 'Disabled'}
+                </p>
+                <p className="text-xs text-blue-700 mt-0.5">
+                  {formData.stockWarningsEnabled
+                    ? 'You will receive alerts when stock is low or out'
+                    : 'No alerts will be shown for this product'
+                  }
+                </p>
+              </div>
+            </label>
           </div>
 
           <div>

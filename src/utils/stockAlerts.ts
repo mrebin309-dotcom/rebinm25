@@ -28,7 +28,7 @@ export interface StockStatus {
  * @returns Stock status with level, colors, and metadata
  */
 export function getStockStatus(product: Product, globalThreshold?: number): StockStatus {
-  const { stock, minStock, colorVariants } = product;
+  const { stock, minStock, colorVariants, stockWarningsEnabled } = product;
 
   // Check color variants if they exist
   const colorAlerts: ColorStockAlert[] = [];
@@ -49,7 +49,7 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
     });
   }
 
-  // Out of stock - always show this warning
+  // Out of stock - show status but only trigger warnings if enabled
   if (stock === 0) {
     return {
       level: 'out',
@@ -59,12 +59,12 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       borderColor: 'border-red-300',
       label: 'Out of Stock',
       percentage: 0,
-      needsAttention: true,
+      needsAttention: stockWarningsEnabled !== false,
       colorAlerts: colorAlerts.length > 0 ? colorAlerts : undefined,
     };
   }
 
-  // If we have out of stock colors, mark as needing attention
+  // If we have out of stock colors, mark as needing attention only if warnings enabled
   if (hasColorIssues && colorAlerts.length > 0) {
     return {
       level: 'out',
@@ -74,7 +74,7 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       borderColor: 'border-red-300',
       label: 'Colors Out of Stock',
       percentage: 50,
-      needsAttention: true,
+      needsAttention: stockWarningsEnabled !== false,
       colorAlerts,
     };
   }
@@ -99,7 +99,7 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
   // Calculate percentage of stock remaining
   const percentage = threshold > 0 ? (stock / threshold) * 100 : 100;
 
-  // Low: At or below minimum stock threshold
+  // Low: At or below minimum stock threshold - only alert if warnings enabled
   if (stock <= threshold) {
     return {
       level: 'low',
@@ -109,7 +109,7 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       borderColor: 'border-yellow-400',
       label: 'Low Stock',
       percentage,
-      needsAttention: true,
+      needsAttention: stockWarningsEnabled !== false,
     };
   }
 
@@ -140,6 +140,8 @@ export function generateStockNotifications(
   const now = new Date();
 
   products.forEach((product) => {
+    if (product.stockWarningsEnabled === false) return;
+
     const status = getStockStatus(product, settings.lowStockThreshold);
 
     if (!status.needsAttention) return;

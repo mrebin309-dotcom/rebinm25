@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle, AlertOctagon } from 'lucide-react';
+import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle, AlertOctagon, Bell, BellOff } from 'lucide-react';
 import { Product, Category } from '../types';
 import { SearchWithSuggestions } from './SearchWithSuggestions';
 import { getStockStatus as getEnhancedStockStatus } from '../utils/stockAlerts';
@@ -11,10 +11,11 @@ interface ProductListProps {
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
   onAdd: () => void;
+  onToggleWarnings?: (productId: string, enabled: boolean) => void;
   isAuthenticated?: boolean;
 }
 
-export function ProductList({ products, categories, onEdit, onDelete, onAdd, isAuthenticated = false }: ProductListProps) {
+export function ProductList({ products, categories, onEdit, onDelete, onAdd, onToggleWarnings, isAuthenticated = false }: ProductListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'stock' | 'price'>('name');
@@ -241,6 +242,7 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
               product={product}
               onEdit={onEdit}
               onDelete={onDelete}
+              onToggleWarnings={onToggleWarnings}
               isAuthenticated={isAuthenticated}
             />
           ))}
@@ -275,6 +277,28 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, isA
                     {stockStatus.label}
                   </span>
                 </div>
+
+                {/* Stock Warning Toggle */}
+                {onToggleWarnings && isAuthenticated && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleWarnings(product.id, !product.stockWarningsEnabled);
+                    }}
+                    className={`absolute top-2 left-2 p-2 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 ${
+                      product.stockWarningsEnabled
+                        ? 'bg-blue-500 text-white hover:bg-blue-600'
+                        : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+                    }`}
+                    title={product.stockWarningsEnabled ? 'Stock warnings enabled' : 'Stock warnings disabled'}
+                  >
+                    {product.stockWarningsEnabled ? (
+                      <Bell className="h-4 w-4" />
+                    ) : (
+                      <BellOff className="h-4 w-4" />
+                    )}
+                  </button>
+                )}
               </div>
 
               {/* Product Info */}

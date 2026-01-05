@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit2, Trash2, Package, AlertTriangle, AlertOctagon } from 'lucide-react';
+import { Edit2, Trash2, Package, AlertTriangle, AlertOctagon, Bell, BellOff } from 'lucide-react';
 import { Product } from '../types';
 import { useSwipe } from '../hooks/useSwipe';
 import { getStockStatus } from '../utils/stockAlerts';
@@ -8,10 +8,11 @@ interface MobileProductCardProps {
   product: Product;
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
+  onToggleWarnings?: (productId: string, enabled: boolean) => void;
   isAuthenticated: boolean;
 }
 
-export function MobileProductCard({ product, onEdit, onDelete, isAuthenticated }: MobileProductCardProps) {
+export function MobileProductCard({ product, onEdit, onDelete, onToggleWarnings, isAuthenticated }: MobileProductCardProps) {
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwipeActive, setIsSwipeActive] = useState(false);
 
@@ -92,12 +93,34 @@ export function MobileProductCard({ product, onEdit, onDelete, isAuthenticated }
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-1">
               <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
-              {stockStatus.needsAttention && (
-                <div className="flex-shrink-0">
-                  {stockStatus.level === 'out' && <AlertOctagon className="h-4 w-4 text-red-600" />}
-                  {stockStatus.level === 'low' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
-                </div>
-              )}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {onToggleWarnings && isAuthenticated && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleWarnings(product.id, !product.stockWarningsEnabled);
+                    }}
+                    className={`p-1.5 rounded-full transition-all duration-200 ${
+                      product.stockWarningsEnabled
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-500'
+                    }`}
+                    title={product.stockWarningsEnabled ? 'Warnings enabled' : 'Warnings disabled'}
+                  >
+                    {product.stockWarningsEnabled ? (
+                      <Bell className="h-3 w-3" />
+                    ) : (
+                      <BellOff className="h-3 w-3" />
+                    )}
+                  </button>
+                )}
+                {stockStatus.needsAttention && (
+                  <div className="flex-shrink-0">
+                    {stockStatus.level === 'out' && <AlertOctagon className="h-4 w-4 text-red-600" />}
+                    {stockStatus.level === 'low' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
+                  </div>
+                )}
+              </div>
             </div>
 
             <p className="text-xs text-gray-500 mb-2">SKU: {product.sku}</p>

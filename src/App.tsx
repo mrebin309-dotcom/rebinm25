@@ -79,6 +79,7 @@ function App() {
     addProduct,
     updateProduct,
     deleteProduct,
+    toggleStockWarnings,
     addSale,
     deleteSale,
     addReturn,
@@ -434,6 +435,7 @@ function App() {
                 onEdit={handleEditProduct}
                 onDelete={handleDeleteProduct}
                 onAdd={handleAddProduct}
+                onToggleWarnings={toggleStockWarnings}
                 isAuthenticated={isAuthenticated}
               />
             )}
