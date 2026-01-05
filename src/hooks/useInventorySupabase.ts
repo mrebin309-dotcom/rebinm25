@@ -413,7 +413,7 @@ export function useInventorySupabase() {
     }
   };
 
-  const addSale = async (saleData: Omit<Sale, 'id' | 'date'> & { saleDate?: string }) => {
+  const addSale = async (saleData: Omit<Sale, 'id' | 'date'> & { saleDate?: string; transactionId?: string }) => {
     const saleRecord: any = {
       product_id: saleData.productId,
       product_name: saleData.productName,
@@ -432,6 +432,7 @@ export function useInventorySupabase() {
       seller_id: saleData.sellerId,
       seller_name: saleData.sellerName,
       location: saleData.location,
+      transaction_id: saleData.transactionId,
     };
 
     // Use custom sale date if provided (convert to ISO timestamp at noon to avoid timezone issues)

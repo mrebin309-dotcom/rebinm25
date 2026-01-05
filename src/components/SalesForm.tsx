@@ -1,7 +1,20 @@
 import { useState } from 'react';
-import { X, ShoppingCart, Search, Calculator } from 'lucide-react';
+import { X, ShoppingCart, Search, Calculator, Trash2, Plus } from 'lucide-react';
 import { Product, Customer, Sale, Seller, Category, Settings } from '../types';
 import { format } from 'date-fns';
+
+interface CartItem {
+  productId: string;
+  productName: string;
+  productCategory: string;
+  productColor?: string;
+  quantity: number;
+  unitPrice: number;
+  unitCost: number;
+  discount: number;
+  isService: boolean;
+  serviceDescription?: string;
+}
 
 interface SalesFormProps {
   products: Product[];
@@ -16,6 +29,7 @@ interface SalesFormProps {
 }
 
 export function SalesForm({ products, customers, categories, sellers, settings, lastSeller, onSubmit, onAddSeller, onClose }: SalesFormProps) {
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [formData, setFormData] = useState({
     productId: '',
     productSearch: '',
@@ -27,7 +41,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
     customerName: '',
     sellerId: '',
     sellerName: lastSeller || '',
-    saleDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+    saleDate: new Date().toISOString().split('T')[0],
   });
 
   const [showAddSeller, setShowAddSeller] = useState(false);
@@ -66,18 +80,16 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                  (serviceData.servicePrice - serviceData.serviceCost) * formData.quantity :
                  selectedProduct ? (unitPrice - selectedProduct.cost) * formData.quantity : 0;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAddToCart = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isServiceSale && !selectedProduct) return;
     if (isServiceSale && !serviceData.serviceName.trim()) return;
 
-    // Check if color variant is required but not selected
     if (selectedProduct?.colorVariants && selectedProduct.colorVariants.length > 0 && !formData.selectedColor) {
       alert('Please select a color variant');
       return;
     }
 
-    // Check if selected color has enough stock
     if (formData.selectedColor && selectedProduct?.colorVariants) {
       const colorVariant = selectedProduct.colorVariants.find(v => v.color === formData.selectedColor);
       if (colorVariant && colorVariant.stock < formData.quantity) {
@@ -86,23 +98,16 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
       }
     }
 
-    const saleData: Omit<Sale, 'id' | 'date'> & { saleDate?: string } = isServiceSale ? {
+    const cartItem: CartItem = isServiceSale ? {
       productId: 'service-' + Date.now(),
       productName: serviceData.serviceName,
       productCategory: 'Service',
       quantity: formData.quantity,
       unitPrice: serviceData.servicePrice,
+      unitCost: serviceData.serviceCost,
       discount: discountAmount,
-      tax: 0,
-      total,
-      profit,
-      paymentMethod: 'cash',
-      status: 'completed',
-      sellerId: formData.sellerId || undefined,
-      sellerName: formData.sellerName,
-      customerId: formData.customerId || undefined,
-      customerName: formData.customerName || undefined,
-      saleDate: formData.saleDate,
+      isService: true,
+      serviceDescription: serviceData.serviceDescription,
     } : {
       productId: formData.productId,
       productName: selectedProduct!.name,
@@ -110,20 +115,76 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
       productColor: formData.selectedColor || undefined,
       quantity: formData.quantity,
       unitPrice,
+      unitCost: costPrice,
       discount: discountAmount,
-      tax: 0,
-      total,
-      profit,
-      paymentMethod: 'cash',
-      status: 'completed',
-      sellerId: formData.sellerId || undefined,
-      sellerName: formData.sellerName,
-      customerId: formData.customerId || undefined,
-      customerName: formData.customerName || undefined,
-      saleDate: formData.saleDate,
+      isService: false,
     };
 
-    onSubmit(saleData);
+    setCart(prev => [...prev, cartItem]);
+
+    setFormData(prev => ({
+      ...prev,
+      productId: '',
+      productSearch: '',
+      selectedColor: '',
+      quantity: 1,
+      discount: 0,
+    }));
+    setIsServiceSale(false);
+    setServiceData({
+      serviceName: '',
+      servicePrice: 0,
+      serviceCost: 0,
+      serviceDescription: '',
+    });
+    setUseCustomPrice(false);
+  };
+
+  const handleRemoveFromCart = (index: number) => {
+    setCart(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleCompleteSale = () => {
+    if (cart.length === 0) {
+      alert('Please add at least one item to the cart');
+      return;
+    }
+
+    if (!formData.sellerName.trim()) {
+      alert('Please select or enter a seller name');
+      return;
+    }
+
+    const transactionId = crypto.randomUUID();
+
+    cart.forEach(item => {
+      const itemTotal = item.unitPrice * item.quantity - item.discount;
+      const itemProfit = (item.unitPrice - item.unitCost) * item.quantity;
+
+      const saleData: Omit<Sale, 'id' | 'date'> & { saleDate?: string; transactionId?: string } = {
+        productId: item.productId,
+        productName: item.productName,
+        productCategory: item.productCategory,
+        productColor: item.productColor,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        discount: item.discount,
+        tax: 0,
+        total: itemTotal,
+        profit: itemProfit,
+        paymentMethod: 'cash',
+        status: 'completed',
+        sellerId: formData.sellerId || undefined,
+        sellerName: formData.sellerName,
+        customerId: formData.customerId || undefined,
+        customerName: formData.customerName || undefined,
+        saleDate: formData.saleDate,
+        transactionId,
+      };
+
+      onSubmit(saleData);
+    });
+
     onClose();
   };
 
@@ -219,7 +280,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleAddToCart} className="p-6 space-y-6">
           {/* Sale Type Selection */}
           <div className="space-y-3">
             <label className="block text-sm font-medium text-gray-700">
@@ -787,18 +848,69 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
             </div>
           )}
 
+          {/* Cart Display */}
+          {cart.length > 0 && (
+            <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-bold text-purple-900 flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5" />
+                  Cart ({cart.length} {cart.length === 1 ? 'item' : 'items'})
+                </h4>
+                <span className="text-xl font-bold text-purple-900">
+                  Total: ${cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0).toFixed(2)}
+                </span>
+              </div>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {cart.map((item, index) => (
+                  <div key={index} className="bg-white p-3 rounded-lg border border-purple-200 flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{item.productName}</div>
+                      <div className="text-sm text-gray-600">
+                        {item.productCategory}
+                        {item.productColor && ` • ${item.productColor}`}
+                        {` • Qty: ${item.quantity}`}
+                        {` • $${item.unitPrice.toFixed(2)} each`}
+                        {item.discount > 0 && ` • Discount: $${item.discount.toFixed(2)}`}
+                      </div>
+                      <div className="text-sm font-medium text-green-600">
+                        Subtotal: ${(item.unitPrice * item.quantity - item.discount).toFixed(2)}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFromCart(index)}
+                      className="ml-3 p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex space-x-4 pt-4">
             <button
               type="submit"
               disabled={(!isServiceSale && (!selectedProduct || formData.quantity > (selectedProduct?.stock || 0))) || (isServiceSale && !serviceData.serviceName.trim())}
-              className="flex-1 bg-green-500 text-white py-3 px-6 rounded-md hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium text-lg"
+              className="flex-1 bg-blue-500 text-white py-3 px-6 rounded-md hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium text-lg flex items-center justify-center gap-2"
             >
-              {isServiceSale ? 'Complete Service Sale' : 'Complete Sale'}
+              <Plus className="h-5 w-5" />
+              Add to Cart
             </button>
+            {cart.length > 0 && (
+              <button
+                type="button"
+                onClick={handleCompleteSale}
+                className="flex-1 bg-green-500 text-white py-3 px-6 rounded-md hover:bg-green-600 transition-colors font-medium text-lg"
+              >
+                Complete Sale (${cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0).toFixed(2)})
+              </button>
+            )}
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+              className="px-6 bg-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-400 transition-colors"
             >
               Cancel
             </button>
