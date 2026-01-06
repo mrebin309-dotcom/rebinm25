@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Upload, Image as ImageIcon, Bell, BellOff } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, Bell, BellOff, Plus } from 'lucide-react';
 import { Product, Category, ColorVariant } from '../types';
 import { ColorVariantManager } from './ColorVariantManager';
 
@@ -29,6 +29,7 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
   const [profitAmount, setProfitAmount] = useState(0);
   const [profitPercentage, setProfitPercentage] = useState(0);
   const [imagePreview, setImagePreview] = useState(product?.image || '');
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
 
   const isBackGlassCategory = formData.category.toLowerCase().includes('back glass');
 
@@ -193,38 +194,66 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Category *
             </label>
-            <div className="space-y-2">
-              {categories.length > 0 && (
+            {!isAddingNewCategory ? (
+              <div className="flex gap-2">
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
+                  required
+                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
                   style={{ direction: 'ltr' }}
                 >
-                  <option value="">Select existing category...</option>
+                  <option value="">Select a category...</option>
                   {categories.map(category => (
                     <option key={category.id} value={category.name}>
                       {category.name}
                     </option>
                   ))}
                 </select>
-              )}
-              <input
-                type="text"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                placeholder={categories.length > 0 ? "Or type new category name..." : "Enter category name"}
-                required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {categories.length > 0 && (
-                <p className="text-xs text-gray-500">
-                  Select from dropdown or type a new category name above
-                </p>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAddingNewCategory(true);
+                    setFormData(prev => ({ ...prev, category: '' }));
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors whitespace-nowrap"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add New
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  placeholder="Enter new category name..."
+                  required
+                  autoFocus
+                  className="flex-1 border border-blue-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!formData.category) {
+                      setIsAddingNewCategory(false);
+                    }
+                  }}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+            {isAddingNewCategory && (
+              <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                <Plus className="h-3 w-3" />
+                Creating new category: "{formData.category || '...'}"
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
