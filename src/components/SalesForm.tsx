@@ -353,7 +353,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Service Cost ($)
+                    Service Cost ($) - Materials, Labor, etc.
                   </label>
                   <input
                     type="number"
@@ -361,9 +361,10 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                     onChange={(e) => setServiceData(prev => ({ ...prev, serviceCost: parseFloat(e.target.value) || 0 }))}
                     min="0"
                     step="0.01"
-                    placeholder="0.00 (materials, etc.)"
+                    placeholder="0.00"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <p className="text-xs text-gray-600 mt-1">Enter cost for profit tracking</p>
                 </div>
               </div>
             </div>
@@ -851,40 +852,69 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
           {/* Cart Display */}
           {cart.length > 0 && (
             <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-bold text-purple-900 flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
-                  Cart ({cart.length} {cart.length === 1 ? 'item' : 'items'})
-                </h4>
-                <span className="text-xl font-bold text-purple-900">
-                  Total: ${cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0).toFixed(2)}
-                </span>
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-bold text-purple-900 flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5" />
+                    Cart ({cart.length} {cart.length === 1 ? 'item' : 'items'})
+                  </h4>
+                </div>
+                <div className="grid grid-cols-3 gap-2 bg-white rounded-lg p-3 border border-purple-300">
+                  <div className="text-center">
+                    <div className="text-xs text-gray-600 mb-1">Total Revenue</div>
+                    <div className="text-lg font-bold text-blue-600">
+                      ${cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0).toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="text-center border-l border-r border-purple-200">
+                    <div className="text-xs text-gray-600 mb-1">Total Cost</div>
+                    <div className="text-lg font-bold text-red-600">
+                      ${cart.reduce((sum, item) => sum + (item.unitCost * item.quantity), 0).toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-xs text-gray-600 mb-1">Total Profit</div>
+                    <div className="text-lg font-bold text-green-600">
+                      ${cart.reduce((sum, item) => sum + ((item.unitPrice - item.unitCost) * item.quantity), 0).toFixed(2)}
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="space-y-2 max-h-60 overflow-y-auto">
-                {cart.map((item, index) => (
-                  <div key={index} className="bg-white p-3 rounded-lg border border-purple-200 flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{item.productName}</div>
-                      <div className="text-sm text-gray-600">
-                        {item.productCategory}
-                        {item.productColor && ` • ${item.productColor}`}
-                        {` • Qty: ${item.quantity}`}
-                        {` • $${item.unitPrice.toFixed(2)} each`}
-                        {item.discount > 0 && ` • Discount: $${item.discount.toFixed(2)}`}
+                {cart.map((item, index) => {
+                  const itemRevenue = item.unitPrice * item.quantity - item.discount;
+                  const itemCost = item.unitCost * item.quantity;
+                  const itemProfit = (item.unitPrice - item.unitCost) * item.quantity;
+
+                  return (
+                    <div key={index} className="bg-white p-3 rounded-lg border border-purple-200 flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">{item.productName}</div>
+                        <div className="text-sm text-gray-600">
+                          {item.productCategory}
+                          {item.productColor && ` • ${item.productColor}`}
+                          {` • Qty: ${item.quantity}`}
+                        </div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          Price: ${item.unitPrice.toFixed(2)} each • Cost: ${item.unitCost.toFixed(2)} each
+                          {item.discount > 0 && ` • Discount: $${item.discount.toFixed(2)}`}
+                        </div>
+                        <div className="flex gap-3 mt-1 text-sm">
+                          <span className="text-blue-600 font-medium">Revenue: ${itemRevenue.toFixed(2)}</span>
+                          <span className="text-red-600">Cost: ${itemCost.toFixed(2)}</span>
+                          <span className="text-green-600 font-medium">Profit: ${itemProfit.toFixed(2)}</span>
+                        </div>
                       </div>
-                      <div className="text-sm font-medium text-green-600">
-                        Subtotal: ${(item.unitPrice * item.quantity - item.discount).toFixed(2)}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFromCart(index)}
+                        className="ml-3 p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveFromCart(index)}
-                      className="ml-3 p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -904,7 +934,7 @@ export function SalesForm({ products, customers, categories, sellers, settings, 
                 onClick={handleCompleteSale}
                 className="flex-1 bg-green-500 text-white py-3 px-6 rounded-md hover:bg-green-600 transition-colors font-medium text-lg"
               >
-                Complete Sale (${cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity - item.discount), 0).toFixed(2)})
+                Complete Sale • Profit: ${cart.reduce((sum, item) => sum + ((item.unitPrice - item.unitCost) * item.quantity), 0).toFixed(2)}
               </button>
             )}
             <button
