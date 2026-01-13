@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Users, TrendingUp, DollarSign, Award, Calendar, Filter, Download, Package } from 'lucide-react';
+import { Users, TrendingUp, DollarSign, Award, Calendar, Filter, Download, Package, Search } from 'lucide-react';
 import { Seller, Sale, Product, Settings, SellerReport } from '../types';
 import { format, subDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { formatDateWithSettings, formatTimeOnly } from '../utils/dateFormat';
@@ -16,6 +16,7 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'month' | 'custom'>('30d');
   const [customStartDate, setCustomStartDate] = useState<string>(format(subDays(new Date(), 7), 'yyyy-MM-dd'));
   const [customEndDate, setCustomEndDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+  const [productSearch, setProductSearch] = useState<string>('');
 
   const formatCurrency = (amount: number) => {
     const converted = settings.currency === 'IQD' ? amount * settings.usdToIqdRate : amount;
@@ -181,10 +182,10 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
         )}
       </div>
 
-      {/* Seller Selection */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center space-x-4">
-          <Filter className="h-5 w-5 text-gray-500" />
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Filter className="h-5 w-5 text-gray-500 flex-shrink-0" />
           <select
             value={selectedSeller}
             onChange={(e) => setSelectedSeller(e.target.value)}
@@ -207,6 +208,27 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
             </button>
           )}
         </div>
+
+        {selectedSeller && (
+          <div className="flex items-center gap-4">
+            <Search className="h-5 w-5 text-gray-500 flex-shrink-0" />
+            <input
+              type="text"
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+              placeholder="Search by product/service name..."
+              className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {productSearch && (
+              <button
+                onClick={() => setProductSearch('')}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* All Sellers Overview */}
@@ -349,6 +371,58 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
       {/* Individual Seller Report */}
       {selectedReport && (
         <div className="space-y-6">
+          {/* Product/Service Filter Stats */}
+          {productSearch && (() => {
+            const productFilteredSales = filteredSales.filter(sale =>
+              (sale.sellerId === selectedReport.sellerId || sale.sellerName === selectedReport.sellerName) &&
+              sale.productName.toLowerCase().includes(productSearch.toLowerCase())
+            );
+
+            if (productFilteredSales.length === 0) {
+              return (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-yellow-800 text-sm">No sales found for "{productSearch}"</p>
+                </div>
+              );
+            }
+
+            const totalQuantity = productFilteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
+            const totalRevenue = productFilteredSales.reduce((sum, sale) => sum + sale.total, 0);
+            const totalCost = productFilteredSales.reduce((sum, sale) => sum + (sale.unitCost * sale.quantity), 0);
+            const totalProfit = productFilteredSales.reduce((sum, sale) => sum + sale.profit, 0);
+            const totalDiscount = productFilteredSales.reduce((sum, sale) => sum + sale.discount, 0);
+
+            return (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-blue-900 mb-4">
+                  Results for: "{productSearch}"
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-xs text-gray-600 mb-1">Units Sold</p>
+                    <p className="text-2xl font-bold text-blue-600">{totalQuantity}</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-xs text-gray-600 mb-1">Revenue</p>
+                    <p className="text-2xl font-bold text-green-600">{formatCurrency(totalRevenue)}</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-xs text-gray-600 mb-1">Total Cost</p>
+                    <p className="text-2xl font-bold text-orange-600">{formatCurrency(totalCost)}</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-xs text-gray-600 mb-1">Profit</p>
+                    <p className="text-2xl font-bold text-purple-600">{formatCurrency(totalProfit)}</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-4">
+                    <p className="text-xs text-gray-600 mb-1">Discount</p>
+                    <p className="text-2xl font-bold text-red-600">{formatCurrency(totalDiscount)}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Seller KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
@@ -500,6 +574,7 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredSales
                     .filter(sale => sale.sellerId === selectedReport.sellerId || sale.sellerName === selectedReport.sellerName)
+                    .filter(sale => !productSearch || sale.productName.toLowerCase().includes(productSearch.toLowerCase()))
                     .sort((a, b) => b.date.getTime() - a.date.getTime())
                     .map(sale => (
                       <tr key={sale.id} className="hover:bg-gray-50">
@@ -546,9 +621,14 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                 </tbody>
               </table>
             </div>
-            {filteredSales.filter(sale => sale.sellerId === selectedReport.sellerId || sale.sellerName === selectedReport.sellerName).length === 0 && (
+            {filteredSales
+              .filter(sale => sale.sellerId === selectedReport.sellerId || sale.sellerName === selectedReport.sellerName)
+              .filter(sale => !productSearch || sale.productName.toLowerCase().includes(productSearch.toLowerCase()))
+              .length === 0 && (
               <div className="text-center py-12">
-                <p className="text-sm text-gray-500">No sales found for this period</p>
+                <p className="text-sm text-gray-500">
+                  {productSearch ? `No sales found for "${productSearch}"` : 'No sales found for this period'}
+                </p>
               </div>
             )}
           </div>
