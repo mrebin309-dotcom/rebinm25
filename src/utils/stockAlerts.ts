@@ -28,7 +28,7 @@ export interface StockStatus {
  * @returns Stock status with level, colors, and metadata
  */
 export function getStockStatus(product: Product, globalThreshold?: number): StockStatus {
-  const { stock, minStock, colorVariants, stockWarningsEnabled } = product;
+  const { stock, minStock, colorVariants, stockWarningLevel } = product;
 
   // Check color variants if they exist
   const colorAlerts: ColorStockAlert[] = [];
@@ -59,7 +59,7 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       borderColor: 'border-red-300',
       label: 'Out of Stock',
       percentage: 0,
-      needsAttention: stockWarningsEnabled !== false,
+      needsAttention: stockWarningLevel !== 'disabled',
       colorAlerts: colorAlerts.length > 0 ? colorAlerts : undefined,
     };
   }
@@ -74,7 +74,7 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       borderColor: 'border-red-300',
       label: 'Colors Out of Stock',
       percentage: 50,
-      needsAttention: stockWarningsEnabled !== false,
+      needsAttention: stockWarningLevel !== 'disabled',
       colorAlerts,
     };
   }
@@ -99,7 +99,7 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
   // Calculate percentage of stock remaining
   const percentage = threshold > 0 ? (stock / threshold) * 100 : 100;
 
-  // Low: At or below minimum stock threshold - only alert if warnings enabled
+  // Low: At or below minimum stock threshold - only alert if warnings enabled for low stock
   if (stock <= threshold) {
     return {
       level: 'low',
@@ -109,7 +109,7 @@ export function getStockStatus(product: Product, globalThreshold?: number): Stoc
       borderColor: 'border-yellow-400',
       label: 'Low Stock',
       percentage,
-      needsAttention: stockWarningsEnabled !== false,
+      needsAttention: stockWarningLevel === 'all',
     };
   }
 
@@ -140,7 +140,7 @@ export function generateStockNotifications(
   const now = new Date();
 
   products.forEach((product) => {
-    if (product.stockWarningsEnabled === false) return;
+    if (product.stockWarningLevel === 'disabled') return;
 
     const status = getStockStatus(product, settings.lowStockThreshold);
 

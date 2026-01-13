@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Upload, Image as ImageIcon, Bell, BellOff, Plus } from 'lucide-react';
-import { Product, Category, ColorVariant } from '../types';
+import { X, Upload, Image as ImageIcon, Bell, BellOff, Plus, AlertOctagon } from 'lucide-react';
+import { Product, Category, ColorVariant, StockWarningLevel } from '../types';
 import { ColorVariantManager } from './ColorVariantManager';
 
 interface ProductFormProps {
@@ -22,7 +22,7 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
     description: product?.description || '',
     image: product?.image || '',
     colorVariants: product?.colorVariants || [] as ColorVariant[],
-    stockWarningsEnabled: product?.stockWarningsEnabled !== undefined ? product.stockWarningsEnabled : true,
+    stockWarningLevel: (product?.stockWarningLevel || 'all') as StockWarningLevel,
   });
 
   const [pricingMode, setPricingMode] = useState<'price' | 'profit'>('price');
@@ -325,40 +325,66 @@ export function ProductForm({ product, categories, onSubmit, onClose }: ProductF
             </div>
           </div>
 
-          {/* Stock Warnings Toggle */}
+          {/* Stock Warning Level */}
           <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-            <label className="flex items-center cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={formData.stockWarningsEnabled}
-                onChange={(e) => setFormData(prev => ({ ...prev, stockWarningsEnabled: e.target.checked }))}
-                className="hidden"
-              />
-              <div className={`relative w-14 h-8 rounded-full transition-all duration-200 ${
-                formData.stockWarningsEnabled ? 'bg-blue-500' : 'bg-gray-300'
-              }`}>
-                <div className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-200 flex items-center justify-center ${
-                  formData.stockWarningsEnabled ? 'translate-x-6' : 'translate-x-0'
-                }`}>
-                  {formData.stockWarningsEnabled ? (
-                    <Bell className="h-3 w-3 text-blue-500" />
-                  ) : (
-                    <BellOff className="h-3 w-3 text-gray-500" />
-                  )}
-                </div>
-              </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-semibold text-blue-900">
-                  Stock Warnings {formData.stockWarningsEnabled ? 'Enabled' : 'Disabled'}
-                </p>
-                <p className="text-xs text-blue-700 mt-0.5">
-                  {formData.stockWarningsEnabled
-                    ? 'You will receive alerts when stock is low or out'
-                    : 'No alerts will be shown for this product'
-                  }
-                </p>
-              </div>
+            <label className="block text-sm font-semibold text-blue-900 mb-3">
+              Stock Warning Level
             </label>
+            <div className="space-y-2">
+              <label className="flex items-center cursor-pointer group p-2 rounded-lg hover:bg-blue-100 transition-colors">
+                <input
+                  type="radio"
+                  name="stockWarningLevel"
+                  value="all"
+                  checked={formData.stockWarningLevel === 'all'}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stockWarningLevel: e.target.value as StockWarningLevel }))}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <div className="ml-3 flex items-center gap-2 flex-1">
+                  <Bell className="h-4 w-4 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">All Warnings</p>
+                    <p className="text-xs text-gray-600">Alert for low stock and out of stock</p>
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-center cursor-pointer group p-2 rounded-lg hover:bg-yellow-100 transition-colors">
+                <input
+                  type="radio"
+                  name="stockWarningLevel"
+                  value="out_only"
+                  checked={formData.stockWarningLevel === 'out_only'}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stockWarningLevel: e.target.value as StockWarningLevel }))}
+                  className="w-4 h-4 text-yellow-600"
+                />
+                <div className="ml-3 flex items-center gap-2 flex-1">
+                  <AlertOctagon className="h-4 w-4 text-yellow-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Out of Stock Only</p>
+                    <p className="text-xs text-gray-600">Alert only when completely out of stock</p>
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-center cursor-pointer group p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <input
+                  type="radio"
+                  name="stockWarningLevel"
+                  value="disabled"
+                  checked={formData.stockWarningLevel === 'disabled'}
+                  onChange={(e) => setFormData(prev => ({ ...prev, stockWarningLevel: e.target.value as StockWarningLevel }))}
+                  className="w-4 h-4 text-gray-600"
+                />
+                <div className="ml-3 flex items-center gap-2 flex-1">
+                  <BellOff className="h-4 w-4 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Disabled</p>
+                    <p className="text-xs text-gray-600">No stock alerts for this product</p>
+                  </div>
+                </div>
+              </label>
+            </div>
           </div>
 
           <div>

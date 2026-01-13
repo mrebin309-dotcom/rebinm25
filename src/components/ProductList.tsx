@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle, AlertOctagon, Bell, BellOff } from 'lucide-react';
-import { Product, Category } from '../types';
+import { useState, useEffect, useRef } from 'react';
+import { CreditCard as Edit2, Trash2, Plus, Search, Filter, Package, AlertTriangle, AlertOctagon, Bell, BellOff, ChevronDown } from 'lucide-react';
+import { Product, Category, StockWarningLevel } from '../types';
 import { SearchWithSuggestions } from './SearchWithSuggestions';
 import { getStockStatus as getEnhancedStockStatus } from '../utils/stockAlerts';
 import { MobileProductCard } from './MobileProductCard';
@@ -11,7 +11,7 @@ interface ProductListProps {
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
   onAdd: () => void;
-  onToggleWarnings?: (productId: string, enabled: boolean) => void;
+  onToggleWarnings?: (productId: string, level: StockWarningLevel) => void;
   isAuthenticated?: boolean;
 }
 
@@ -21,6 +21,8 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, onT
   const [sortBy, setSortBy] = useState<'name' | 'stock' | 'price'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [isMobile, setIsMobile] = useState(false);
+  const [openWarningMenu, setOpenWarningMenu] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -29,6 +31,16 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, onT
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenWarningMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Debug: Log categories when component renders
@@ -280,26 +292,79 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, onT
                   </div>
                 )}
 
-                {/* Stock Warning Toggle */}
+                {/* Stock Warning Menu */}
                 {onToggleWarnings && isAuthenticated && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleWarnings(product.id, !product.stockWarningsEnabled);
-                    }}
-                    className={`absolute top-2 left-2 p-2 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 ${
-                      product.stockWarningsEnabled
-                        ? 'bg-blue-500 text-white hover:bg-blue-600'
-                        : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
-                    }`}
-                    title={product.stockWarningsEnabled ? 'Stock warnings enabled' : 'Stock warnings disabled'}
-                  >
-                    {product.stockWarningsEnabled ? (
-                      <Bell className="h-4 w-4" />
-                    ) : (
-                      <BellOff className="h-4 w-4" />
+                  <div className="absolute top-2 left-2" ref={openWarningMenu === product.id ? menuRef : null}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenWarningMenu(openWarningMenu === product.id ? null : product.id);
+                      }}
+                      className={`p-2 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110 ${
+                        product.stockWarningLevel === 'all'
+                          ? 'bg-blue-500 text-white hover:bg-blue-600'
+                          : product.stockWarningLevel === 'out_only'
+                          ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                          : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+                      }`}
+                      title={
+                        product.stockWarningLevel === 'all'
+                          ? 'All warnings enabled'
+                          : product.stockWarningLevel === 'out_only'
+                          ? 'Out of stock only'
+                          : 'Warnings disabled'
+                      }
+                    >
+                      {product.stockWarningLevel === 'disabled' ? (
+                        <BellOff className="h-4 w-4" />
+                      ) : (
+                        <Bell className="h-4 w-4" />
+                      )}
+                    </button>
+                    {openWarningMenu === product.id && (
+                      <div className="absolute top-12 left-0 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[200px] z-50">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWarnings(product.id, 'all');
+                            setOpenWarningMenu(null);
+                          }}
+                          className={`w-full px-4 py-2 text-left hover:bg-blue-50 transition-colors flex items-center gap-2 ${
+                            product.stockWarningLevel === 'all' ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                          }`}
+                        >
+                          <Bell className="h-4 w-4" />
+                          <span className="font-medium">All Warnings</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWarnings(product.id, 'out_only');
+                            setOpenWarningMenu(null);
+                          }}
+                          className={`w-full px-4 py-2 text-left hover:bg-yellow-50 transition-colors flex items-center gap-2 ${
+                            product.stockWarningLevel === 'out_only' ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700'
+                          }`}
+                        >
+                          <AlertOctagon className="h-4 w-4" />
+                          <span className="font-medium">Out of Stock Only</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWarnings(product.id, 'disabled');
+                            setOpenWarningMenu(null);
+                          }}
+                          className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2 ${
+                            product.stockWarningLevel === 'disabled' ? 'bg-gray-50 text-gray-700' : 'text-gray-700'
+                          }`}
+                        >
+                          <BellOff className="h-4 w-4" />
+                          <span className="font-medium">Disabled</span>
+                        </button>
+                      </div>
                     )}
-                  </button>
+                  </div>
                 )}
               </div>
 

@@ -85,7 +85,7 @@ export function useInventorySupabase() {
           supplier: p.supplier,
           location: p.location,
           colorVariants: p.color_variants,
-          stockWarningsEnabled: p.stock_warnings_enabled !== false,
+          stockWarningLevel: p.stock_warning_level || 'all',
           createdAt: new Date(p.created_at),
           updatedAt: new Date(p.updated_at),
           createdBy: p.created_by,
@@ -357,7 +357,7 @@ export function useInventorySupabase() {
         supplier: productData.supplier,
         location: productData.location,
         color_variants: productData.colorVariants,
-        stock_warnings_enabled: productData.stockWarningsEnabled !== false,
+        stock_warning_level: productData.stockWarningLevel || 'all',
       })
       .select()
       .single();
@@ -385,7 +385,7 @@ export function useInventorySupabase() {
         supplier: productData.supplier,
         location: productData.location,
         color_variants: productData.colorVariants,
-        stock_warnings_enabled: productData.stockWarningsEnabled,
+        stock_warning_level: productData.stockWarningLevel,
       })
       .eq('id', id);
 
@@ -394,11 +394,11 @@ export function useInventorySupabase() {
     }
   };
 
-  const toggleStockWarnings = async (productId: string, enabled: boolean) => {
+  const toggleStockWarnings = async (productId: string, level: string) => {
     const { error } = await supabase
       .from('products')
       .update({
-        stock_warnings_enabled: enabled,
+        stock_warning_level: level,
       })
       .eq('id', productId);
 

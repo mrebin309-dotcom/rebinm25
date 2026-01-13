@@ -4,6 +4,8 @@ export interface ColorVariant {
   stock: number;
 }
 
+export type StockWarningLevel = 'all' | 'out_only' | 'disabled';
+
 export interface Product {
   id: string;
   name: string;
@@ -19,7 +21,7 @@ export interface Product {
   supplier?: string;
   location?: string;
   colorVariants?: ColorVariant[];
-  stockWarningsEnabled: boolean;
+  stockWarningLevel: StockWarningLevel;
   createdAt: Date;
   updatedAt: Date;
   createdBy?: string;

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Edit2, Trash2, Package, AlertTriangle, AlertOctagon, Bell, BellOff } from 'lucide-react';
-import { Product } from '../types';
+import { Product, StockWarningLevel } from '../types';
 import { useSwipe } from '../hooks/useSwipe';
 import { getStockStatus } from '../utils/stockAlerts';
 
@@ -8,16 +8,28 @@ interface MobileProductCardProps {
   product: Product;
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
-  onToggleWarnings?: (productId: string, enabled: boolean) => void;
+  onToggleWarnings?: (productId: string, level: StockWarningLevel) => void;
   isAuthenticated: boolean;
 }
 
 export function MobileProductCard({ product, onEdit, onDelete, onToggleWarnings, isAuthenticated }: MobileProductCardProps) {
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwipeActive, setIsSwipeActive] = useState(false);
+  const [showWarningMenu, setShowWarningMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const stockStatus = getStockStatus(product);
   const profitMargin = product.price > 0 ? ((product.price - product.cost) / product.price) * 100 : 0;
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowWarningMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const swipeHandlers = useSwipe({
     onSwipeLeft: () => {
@@ -95,24 +107,77 @@ export function MobileProductCard({ product, onEdit, onDelete, onToggleWarnings,
               <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {onToggleWarnings && isAuthenticated && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleWarnings(product.id, !product.stockWarningsEnabled);
-                    }}
-                    className={`p-1.5 rounded-full transition-all duration-200 ${
-                      product.stockWarningsEnabled
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-500'
-                    }`}
-                    title={product.stockWarningsEnabled ? 'Warnings enabled' : 'Warnings disabled'}
-                  >
-                    {product.stockWarningsEnabled ? (
-                      <Bell className="h-3 w-3" />
-                    ) : (
-                      <BellOff className="h-3 w-3" />
+                  <div className="relative" ref={menuRef}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowWarningMenu(!showWarningMenu);
+                      }}
+                      className={`p-1.5 rounded-full transition-all duration-200 ${
+                        product.stockWarningLevel === 'all'
+                          ? 'bg-blue-500 text-white'
+                          : product.stockWarningLevel === 'out_only'
+                          ? 'bg-yellow-500 text-white'
+                          : 'bg-gray-200 text-gray-500'
+                      }`}
+                      title={
+                        product.stockWarningLevel === 'all'
+                          ? 'All warnings'
+                          : product.stockWarningLevel === 'out_only'
+                          ? 'Out of stock only'
+                          : 'Disabled'
+                      }
+                    >
+                      {product.stockWarningLevel === 'disabled' ? (
+                        <BellOff className="h-3 w-3" />
+                      ) : (
+                        <Bell className="h-3 w-3" />
+                      )}
+                    </button>
+                    {showWarningMenu && (
+                      <div className="absolute top-8 right-0 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[180px] z-50">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWarnings(product.id, 'all');
+                            setShowWarningMenu(false);
+                          }}
+                          className={`w-full px-3 py-2 text-left hover:bg-blue-50 transition-colors flex items-center gap-2 text-sm ${
+                            product.stockWarningLevel === 'all' ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                          }`}
+                        >
+                          <Bell className="h-3 w-3" />
+                          <span className="font-medium">All Warnings</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWarnings(product.id, 'out_only');
+                            setShowWarningMenu(false);
+                          }}
+                          className={`w-full px-3 py-2 text-left hover:bg-yellow-50 transition-colors flex items-center gap-2 text-sm ${
+                            product.stockWarningLevel === 'out_only' ? 'bg-yellow-50 text-yellow-700' : 'text-gray-700'
+                          }`}
+                        >
+                          <AlertOctagon className="h-3 w-3" />
+                          <span className="font-medium">Out of Stock Only</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWarnings(product.id, 'disabled');
+                            setShowWarningMenu(false);
+                          }}
+                          className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm ${
+                            product.stockWarningLevel === 'disabled' ? 'bg-gray-50 text-gray-700' : 'text-gray-700'
+                          }`}
+                        >
+                          <BellOff className="h-3 w-3" />
+                          <span className="font-medium">Disabled</span>
+                        </button>
+                      </div>
                     )}
-                  </button>
+                  </div>
                 )}
                 {stockStatus.needsAttention && (
                   <div className="flex-shrink-0">
