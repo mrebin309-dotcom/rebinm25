@@ -54,9 +54,7 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
       const totalProfit = sellerSales.reduce((sum, sale) => sum + sale.profit, 0);
       const totalDiscount = sellerSales.reduce((sum, sale) => sum + sale.discount, 0);
       const totalCostPrice = sellerSales.reduce((sum, sale) => {
-        const product = products.find(p => p.id === sale.productId);
-        const costPrice = product ? product.cost : 0;
-        return sum + (costPrice * sale.quantity);
+        return sum + (sale.unitCost * sale.quantity);
       }, 0);
       const averageOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
       
@@ -538,10 +536,7 @@ export function SellerReports({ sellers, sales, products, settings }: SellerRepo
                           {formatCurrency(sale.profit)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600">
-                          {formatCurrency((() => {
-                            const product = products.find(p => p.id === sale.productId);
-                            return product ? product.cost * sale.quantity : 0;
-                          })())}
+                          {formatCurrency(sale.unitCost * sale.quantity)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {sale.customerName || 'Walk-in'}

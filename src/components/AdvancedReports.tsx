@@ -28,7 +28,7 @@ export function AdvancedReports({ sales, products, settings }: AdvancedReportsPr
       productProfits.set(sale.productId, {
         revenue: existing.revenue + sale.total,
         profit: existing.profit + sale.profit,
-        cost: existing.cost + (sale.unitPrice - (sale.profit / sale.quantity)) * sale.quantity,
+        cost: existing.cost + (sale.unitCost * sale.quantity),
         quantity: existing.quantity + sale.quantity,
       });
     });
