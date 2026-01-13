@@ -111,6 +111,7 @@ export function useInventorySupabase() {
           productColor: s.product_color,
           quantity: s.quantity,
           unitPrice: parseFloat(s.unit_price),
+          unitCost: parseFloat(s.unit_cost || 0),
           discount: parseFloat(s.discount),
           tax: parseFloat(s.tax),
           total: parseFloat(s.total),
@@ -123,6 +124,7 @@ export function useInventorySupabase() {
           sellerId: s.seller_id,
           sellerName: s.seller_name,
           location: s.location,
+          transactionId: s.transaction_id,
         }))
       );
     }
@@ -421,6 +423,7 @@ export function useInventorySupabase() {
       product_color: saleData.productColor,
       quantity: saleData.quantity,
       unit_price: saleData.unitPrice,
+      unit_cost: saleData.unitCost,
       discount: saleData.discount,
       tax: saleData.tax,
       total: saleData.total,

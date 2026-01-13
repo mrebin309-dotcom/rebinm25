@@ -40,6 +40,7 @@ export interface Sale {
   productColor?: string;
   quantity: number;
   unitPrice: number;
+  unitCost: number;
   discount: number;
   tax: number;
   total: number;
