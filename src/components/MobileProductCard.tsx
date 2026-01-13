@@ -148,11 +148,13 @@ export function MobileProductCard({ product, onEdit, onDelete, onToggleWarnings,
               </div>
             </div>
 
-            <div className="mt-2">
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${stockStatus.bgColor} ${stockStatus.textColor} border ${stockStatus.borderColor}`}>
-                {stockStatus.label}
-              </span>
-            </div>
+            {stockStatus.needsAttention && (
+              <div className="mt-2">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${stockStatus.bgColor} ${stockStatus.textColor} border ${stockStatus.borderColor}`}>
+                  {stockStatus.label}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

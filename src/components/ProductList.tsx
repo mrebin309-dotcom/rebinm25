@@ -269,14 +269,16 @@ export function ProductList({ products, categories, onEdit, onDelete, onAdd, onT
                   </div>
                 )}
 
-                {/* Enhanced Stock Status Badge */}
-                <div className="absolute top-2 right-2 flex items-center gap-1">
-                  {stockStatus.level === 'out' && <AlertOctagon className="h-4 w-4 text-red-600" />}
-                  {stockStatus.level === 'low' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${stockStatus.bgColor} ${stockStatus.textColor} border ${stockStatus.borderColor}`}>
-                    {stockStatus.label}
-                  </span>
-                </div>
+                {/* Enhanced Stock Status Badge - Only show warnings if enabled */}
+                {stockStatus.needsAttention && (
+                  <div className="absolute top-2 right-2 flex items-center gap-1">
+                    {stockStatus.level === 'out' && <AlertOctagon className="h-4 w-4 text-red-600" />}
+                    {stockStatus.level === 'low' && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
+                    <span className={`px-2 py-1 rounded-full text-xs font-bold ${stockStatus.bgColor} ${stockStatus.textColor} border ${stockStatus.borderColor}`}>
+                      {stockStatus.label}
+                    </span>
+                  </div>
+                )}
 
                 {/* Stock Warning Toggle */}
                 {onToggleWarnings && isAuthenticated && (
